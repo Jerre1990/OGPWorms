@@ -1,4 +1,4 @@
-OGPWorms
-========
+Worms
+=====
 
-Project OGP - Worms
+Assignment OGP
