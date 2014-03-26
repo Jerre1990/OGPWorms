@@ -11,7 +11,7 @@ import worms.util.*;
  * @Invar	Each worm can have its x-coordinate as its x-coordinate.
  * 		|	isPossibleNumber(getX())
  * @Invar	Each worm can have its y-coordinate as its y-coordinate.
- * 		|	isPossibleName(getY())
+ * 		|	isPossibleNumber(getY())
  * @Invar	Each worm can have its name as its name.
  * 		|	isPossibleName(getName())
  * @Invar	Each worm can have its radius as its radius.
@@ -51,6 +51,9 @@ public class Worm {
 	 * 		|	new.getRadius() = radius
 	 * @post 	The new direction of this worm is equal to the given direction.
 	 * 		|	new.getDirection() = direction
+	 * 
+	 * effect gebruiken bij setters, omdat andere effecten ook plaatsvinden (bvb mass verandert bij radius)
+	 * 
 	 * @post 	The new x-coordinate of this worm is equal to the given x-coordinate.
 	 * 		|	new.getX() = x
 	 * @post 	The new y-coordinate of this worm is equal to the given y-coordinate.
