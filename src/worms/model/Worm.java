@@ -161,19 +161,6 @@ public class Worm {
 	}
 	
 	/**
-	 * Check whether the given number is a possible number for any Double-variable.
-	 * 
-	 * @param	number
-	 * 			The number to check.
-	 * @return	True if and only if the given number is not categorized as Not A Number in Double-representation.
-	 * 		|	result == (!Double.isNaN(number))
-	 */
-	@Model
-	private static boolean isPossibleNumber(Double number) {
-		return (!Double.isNaN(number));
-	}
-
-	/**
 	 * Set the position of this worm to the given position
 
 	 * @param	position
@@ -226,22 +213,6 @@ public class Worm {
 	}
 
 	/**
-	 * Convert the given angle to a representative angle that is equal to or greater than zero and smaller than two times pi radians.
-
-	 * @param	angle
-	 * 			The angle to be converted.
-	 * @return	The converted angle is a geometrically identical angle that lies between zero and two times pi, excluding the latter.
-	 * 		|	angle = result + (constant * 2 * pi)
-	 * 		|	0 <= result < (2 * pi)
-	 */	
-	private double convertToRepresentativeAngle(double angle){
-		while(angle < 0){
-			angle += 2 * Math.PI;
-		}
-		return (angle % (2 * Math.PI));
-	}
-	
-	/**
 	 * Variable registering the direction of this worm.
 	 */
 	private double direction;
@@ -283,6 +254,19 @@ public class Worm {
 		return (isPossibleNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, lowerBoundOfRadius) && validMass && validMaxNumberOfActionPoints);
 	}
 	
+	/**
+	 * Check whether the given number is a possible number for any Double-variable.
+	 * 
+	 * @param	number
+	 * 			The number to check.
+	 * @return	True if and only if the given number is not categorized as Not A Number in Double-representation.
+	 * 		|	result == (!Double.isNaN(number))
+	 */
+	@Model
+	private static boolean isPossibleNumber(Double number) {
+		return (!Double.isNaN(number));
+	}
+
 	/**
 	 * Set the radius of this worm to the given radius
 
@@ -545,6 +529,22 @@ public class Worm {
 	}
 
 	/**
+	 * Convert the given angle to a representative angle that is equal to or greater than zero and smaller than two times pi radians.
+	
+	 * @param	angle
+	 * 			The angle to be converted.
+	 * @return	The converted angle is a geometrically identical angle that lies between zero and two times pi, excluding the latter.
+	 * 		|	angle = result + (constant * 2 * pi)
+	 * 		|	0 <= result < (2 * pi)
+	 */	
+	private double convertToRepresentativeAngle(double angle){
+		while(angle < 0){
+			angle += 2 * Math.PI;
+		}
+		return (angle % (2 * Math.PI));
+	}
+
+	/**
 	 * Check whether the worm can turn by the given angle.
 	 * 
 	 * @param	turnByAngle
@@ -665,11 +665,11 @@ public class Worm {
 	 * Check whether the worm can jump.
 	 * 
 	 * @return	True if and only if the direction of this worm is not greater than pi and the time passed after a jump of this worm is not infinite, which implies that the direction of this worm is not equal to pi divided by two.
-	 * 		|	result == ((direction <= Math.PI) && (Util.fuzzyEquals(direction, (Math.PI/2)))
+	 * 		|	result == ((direction <= Math.PI) && (direction != Math.PI/2))
 	 */	
 	@Model
 	private boolean canJump(){
-		return (Util.fuzzyLessThanOrEqualTo(direction, Math.PI) && !Util.fuzzyEquals(direction, (Math.PI/2)));
+		return (Util.fuzzyLessThanOrEqualTo(direction, Math.PI) && (direction != Math.PI/2));
 	}
 	
 	/**
