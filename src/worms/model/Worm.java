@@ -17,7 +17,7 @@ import worms.util.*;
  * @Invar	Each worm can have its radius as its radius.
  * 		|	isPossibleRadius(getRadius())
  * @Invar	Each worm can have its mass as its mass.
- * 		|	getMass() > 0
+ * 		|	isPossibleNumber(getMass) && (getMass() > 0)
  * @Invar	Each worm can have its number of action points as its number of action points;
  * 		|	0 < getNumberOfActionPoints() < getMaxNumberOfActionPoints()
  * @Invar	Each worm can have the representative angle of its direction as its direction.
@@ -47,28 +47,34 @@ public class Worm {
 	 * 			The radius of the spherical body of the worm expressed in metres.
 	 * @post 	The new name of this worm is equal to the given name.
 	 * 		|	new.getName() = name
+	 * @effect	The new name of this worm is a possible name for any worm.
+	 * 		|	isPossibleName(new.getName())
 	 * @post 	The new radius of this worm is equal to the given radius.
 	 * 		|	new.getRadius() = radius
+	 * @effect	The new radius of this worm is a possible radius for any worm.
+	 * 		|	isPossibleRadius(new.getRadius())
 	 * @post 	The new direction of this worm is equal to the given direction.
 	 * 		|	new.getDirection() = direction
-	 * 
-	 * effect gebruiken bij setters, omdat andere effecten ook plaatsvinden (bvb mass verandert bij radius)
-	 * 
+	 * @effect	The new direction of this worm is a possible direction for any worm.
+	 * 		|	0 <= new.getDirection() < 2 * pi
 	 * @post 	The new x-coordinate of this worm is equal to the given x-coordinate.
 	 * 		|	new.getX() = x
+	 * @effect	The new x-coordinate of this worm is a possible coordinate for any worm.
+	 * 		|	isPossibleNumber(new.getX())
 	 * @post 	The new y-coordinate of this worm is equal to the given y-coordinate.
 	 * 		|	new.getY() = y
+	 * @effect	The new y-coordinate of this worm is a possible coordinate for any worm.
+	 * 		|	isPossibleNumber(new.getY())
 	 * @post	The new current number of action points of this worm is equal to the maximum number of action points of this worm.
 	 * 		|	new.getNumberOfActionPoints() = new.getMaxNumberOfActionPoints()
+	 * @effect	The new number of action points of this worm is a possible number of action points for any worm.
+	 * 		|	0 <= new.getNumberOfActionPoints <= new.getMaxNumberOfActionPoints
 	 * @throws 	IllegalArgumentException("Invalid radius!")
 	 * 			The given radius is not a possible radius for any worm.
 	 * 		|	! isPossibleRadius(radius)
 	 * @throws 	IllegalArgumentException("Name is not valid!")
 	 * 			The given name is not a valid name for any worm.
 	 * 		|	! isPossibleName(name)
-	 * @throws 	IllegalArgumentException("Invalid number!")
-	 * 			The given direction is not a valid direction for any worm.
-	 * 		|	! isPossibleNumber(direction)
 	 * @throws 	IllegalArgumentException("Invalid number!")
 	 * 			The given x-coordinate is not a valid number for any worm.
 	 * 		|	! isPossibleNumber(x)
@@ -117,6 +123,8 @@ public class Worm {
 	 * 			The new name of this worm.
 	 * @post	The new name of this worm is equal to the given name.
 	 * 		|	new.getName() == name
+	 * @effect	The new name of this worm is a possible name for any worm.
+	 * 		|	isPossibleName(new.getName())
 	 * @throws 	IllegalArgumentException("Name is not valid!")
 	 * 			This worm cannot have the given name as its name.
 	 * 		|	! isPossibleName(name)
@@ -172,6 +180,8 @@ public class Worm {
 	 * 			The new x-coordinate of this worm.
 	 * @post	The new x-coordinate of this worm is equal to the given x-coordinate.
 	 * 		|	new.getX() == x
+	 * @effect	The new x-coordinate of this worm is a possible number.
+	 * 		|	isPossibleNumber(new.(getX))
 	 * @throws	IllegalArgumentException("Invalid number!")
 	 * 			This worm cannot have the given number as its x-coordinate.
 	 * 		|	! isPossibleNumber(x)
@@ -189,6 +199,8 @@ public class Worm {
 	 * 			The new y-coordinate of this worm.
 	 * @post	The new y-coordinate of this worm is equal to the given y-coordinate.
 	 * 		|	new.getY() == y
+	 * @effect	The new y-coordinate of this worm is a possible number.
+	 * 		|	isPossibleNumber(new.(getY))
 	 * @throws	IllegalArgumentException("Invalid number!")
 	 * 			This worm cannot have the given number as its y-coordinate.
 	 * 		|	! isPossibleNumber(y)
@@ -223,17 +235,13 @@ public class Worm {
 
 	 * @param	direction
 	 * 			The new direction of this worm.
-	 * @post	The new direction of this worm is similar to the given direction 
-	 * 			and is equal to its smallest representative angle that lies between zero and 2*pi, excluding the latter.
-	 * 		|	new.getDirection() == convertToRepresentativeAngle(direction)
-	 * @throws	IllegalArgumentException("Invalid number!")
-	 * 			This worm cannot have the given number as its direction.
-	 * 		|	! isPossibleNumber(direction)
+	 * @pre		The given direction is a possible number and lies between zero and two times pi, including the former and excluding the latter.
+	 * 		|	isPossibleNumber(direction) && (direction >= 0) && (direction < 2 * pi)
+	 * @post	The new direction of this worm is equal to the given direction.
+	 * 		|	new.getDirection() == direction
 	 */
-	private void setDirection(double direction) throws IllegalArgumentException {
-		if (!isPossibleNumber(direction))
-			throw new IllegalArgumentException("Invalid number!");
-		this.direction = convertToRepresentativeAngle(direction);
+	private void setDirection(double direction) {
+		this.direction = direction;
 	}
 
 	/**
@@ -280,12 +288,18 @@ public class Worm {
 	 * 
 	 * @param	radius
 	 * 			The radius to check.
-	 * @return	True if and only if the given radius is a valid number and if it is not smaller than its lower bound.
-	 * 		|	result == (isPossibleNumber(radius) && (radius >= lowerBoundOfRadius))
+	 * @return	True if and only if the given radius is a valid number,
+	 * 			if it is not smaller than its lower bound,
+	 * 			and if the newly calculated mass is a valid mass for any worm.
+	 * 		|	result == (isPossibleNumber(radius) && (radius >= lowerBoundOfRadius) && validMass)
+	 * 		|	validMass == ((this.getMass(radius) > 0) && isPossibleNumber(this.getMass(radius)))
+	 * 		|	validMaxNumberOfActionPoints == (this.getMaxNumberOfActionPoints(radius) > 0)
 	 */
 	@Model
 	private boolean isPossibleRadius(double radius){
-		return (isPossibleNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, lowerBoundOfRadius));
+		boolean validMass = ((getMass(radius) > 0) && isPossibleNumber(getMass(radius)));
+		boolean validMaxNumberOfActionPoints = (getMaxNumberOfActionPoints(radius) >= 0);
+		return (isPossibleNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, lowerBoundOfRadius) && validMass && validMaxNumberOfActionPoints);
 	}
 	
 	/**
@@ -295,6 +309,14 @@ public class Worm {
 	 * 			The new radius of this worm.
 	 * @post	The new radius of this worm is equal to the given radius.
 	 * 		|	new.getRadius() == radius
+	 * @effect	The new radius of this worm is a possible radius.
+	 * 		|	isPossibleRadius(new.getRadius())
+	 * @effect	The new mass of this worm is equal to the newly calculated mass.
+	 * 			new.getMass() == (1062 * (4 / 3) * Math.PI * Math.pow(radius, 3))
+	 * @effect	The new maximum number of action points of this worm is equal to the newly calculated maximum number of action points.
+	 * 		|	new.getMaxNumberOfActionPoints() == Math.round(this.getMass())
+	 * @effect	The new number of action points of this worm complies to its invariant (boundaries defined in the setter).
+	 * 		|	new.setNumberOfActionPoints(this.getNumberOfActionPoints)
 	 * @throws 	IllegalArgumentException("Invalid radius!")
 	 * 			The given radius is not a possible radius for any worm.
 	 * 		|	! isPossibleRadius(radius)
@@ -302,26 +324,61 @@ public class Worm {
 	public void setRadius(double radius) throws IllegalArgumentException {
 		if (!isPossibleRadius(radius))
 			throw new IllegalArgumentException("Invalid radius!");
-		else this.radius = radius;
+		else{
+			this.radius = radius;
+			setNumberOfActionPoints(numberOfActionPoints);
+		}
 	}
 
 	/**
 	 * Return the mass of the worm.
-	 * @return 	Mass of the worm based on calculations involving the radius of the worm.
+	 * @param	radius
+	 * 			The given radius.
+	 * @return 	Mass of the worm based on calculations involving the given radius.
 	 * 		|	result == (1062 * (4 / 3) * Math.PI * Math.pow(radius, 3))
 	 */
-	public double getMass() {
+	@Model
+	private double getMass(double radius) {
 		double p = 1062;
 		return ((p * 4 * Math.PI * Math.pow(radius, 3)) / 3);
+	}
+	
+	/**
+	 * Return the mass of the worm.
+	 * @return 	Mass of the worm based on calculations involving the radius of the worm.
+	 * 		|	result == getMass(radius)
+	 */
+	public double getMass() {
+		return getMass(radius);
 	}
 
 	/**
 	 * Return the maximum number of action points of the worm.
+	 * @param	mass
+	 * 			The given mass.
+	 * @return	Maximum number of action points of the worm based on calculations involving the given mass.
+	 * 		|	if (Math.round(mass) > Integer.MAX_VALUE) result == Integer.MAX_VALUE
+	 * 		|	else result = Math.round(mass)
+	 */
+	@Model
+	private int getMaxNumberOfActionPoints(double mass){
+		long longMass = Math.round(mass);
+		int intMass;
+		if(longMass > Integer.MAX_VALUE){
+			intMass = Integer.MAX_VALUE;
+		}
+		else intMass = (int) longMass;
+		return intMass;
+	}
+	
+	/**
+	 * Return the maximum number of action points of the worm.
 	 * @return	Maximum number of action points of the worm based on calculations involving the mass of the worm.
+	 * 		|	result == getMaxNumberOfActionPoints(this.getMass())
 	 */
 	@Raw
 	public int getMaxNumberOfActionPoints(){
-		return (int) Math.round(this.getMass());
+		return getMaxNumberOfActionPoints(getMass());
 	}	
 
 	/**
@@ -455,9 +512,9 @@ public class Worm {
 	 * 
 	 * @param 	numberOfSteps
 	 * 			The number of steps to be taken by the worm in the current direction.
-	 * @post	The new X-coordinate of the worm is equal to the old X-coordinate plus the cosinus of the angle of the current direction, multiplied by the number of steps and the radius of this worm.
+	 * @effect	The new X-coordinate of the worm is equal to the old X-coordinate plus the cosinus of the angle of the current direction, multiplied by the number of steps and the radius of this worm.
 	 * 		|	new.getX() == this.getX() + Math.cos(direction)*numberOfSteps*radius
-	 * @post	The new Y-coordinate of the worm is equal to the old Y-coordinate plus the sinus of the angle of the current direction, multiplied by the number of steps and the radius of this worm.
+	 * @effect	The new Y-coordinate of the worm is equal to the old Y-coordinate plus the sinus of the angle of the current direction, multiplied by the number of steps and the radius of this worm.
 	 * 		|	new.getY() == this.getY() + Math.sin(direction)*numberOfSteps*radius
 	 * @post	The new number of action points equals the old number of action points reduced with the amount of action points to be paid for moving the given number of steps.
 	 * 		|	new.getNumberOfActionPoints() == this.getNumberOfActionPoints - amountOfActionPointsForMoving(numberOfSteps)
@@ -482,21 +539,28 @@ public class Worm {
 	 * 
 	 * @param 	turnByAngle
 	 * 			The angle by which this worm will be turned.
-	 * @pre		The representative angle of the given angle to turn by is not zero.
-	 * 		|	convertToRepresentativeAngle(turnByAngle) != 0
-	 * @return	The resulting amount of action points to be paid is equal to the quotient of 60 and a factor that is calculated by dividing 2 times pi by the effective angle.
-	 * 			This effective angle is equal to the converted representative angle if it is not greater than pi, else it is equal to its radian complement.
-	 * 		|	result == ceil(60 / ((2*pi)/effectiveAngle))	
+	 * @return	If the effective angle is equal to zero, the resulting amount of action points to be paid is also equal to zero.
+	 * 			This effective angle is equal to the converted representative angle of the given angle to turn by.
+	 * 		|	if (effectiveAngle == 0) result == 0
+	 * @return	If the effective angle is not equal to zero, the resulting amount of action points to be paid is equal to the quotient of 60 and a factor that is calculated by dividing 2 times pi by the effective angle.
+	 * 			This effective angle is equal to the converted representative angle of the given angle to turn by if it is not greater than pi, else it is equal to its radian complement.
+	 * 		|	if (effectiveAngle != 0) result == ceil(60 / ((2*pi)/effectiveAngle))	
 	 * 		|	if (convertToRepresentativeAngle(turnByAngle) > (2 * pi)) effectiveAngle == (2 * Math.PI) - convertToRepresentativeAngle(turnByAngle)
 	 * 		|	else effectiveAngle == convertToRepresentativeAngle(turnByAngle)
 	 */
 	@Model
 	private int amountOfActionPointsForTurning(double turnByAngle){
 		double effectiveAngle = convertToRepresentativeAngle(turnByAngle);
-		if(effectiveAngle > Math.PI)
-			effectiveAngle = (2 * Math.PI) - effectiveAngle;
-		double factor = (2 * Math.PI) / effectiveAngle;
-		int decrement = (int) Math.ceil(60 / factor);
+		int decrement;
+		if(effectiveAngle == 0){
+			decrement = 0;
+		}
+		else{
+			if(effectiveAngle > Math.PI)
+				effectiveAngle = (2 * Math.PI) - effectiveAngle;
+			double factor = (2 * Math.PI) / effectiveAngle;
+			decrement = (int) Math.ceil(60 / factor);
+		}
 		return decrement;
 	}
 
@@ -505,8 +569,8 @@ public class Worm {
 	 * 
 	 * @param	turnByAngle
 	 * 			The angle by which this worm will be turned.
-	 * @pre		The representative angle of the given angle to turn by is not zero.
-	 * 		|	convertToRepresentativeAngle(turnByAngle) != 0
+	 * @pre		The sum of the representative angle of the given angle to turn by and the direction of this worm lies between zero and two times pi, including the former and excluding the latter.
+	 * 		|	((turnByAngle + getDirection()) >= 0) && ((turnByAngle + getDirection()) < 2 * pi)
 	 * @return	True if and only if the current number of action points is not smaller than the amount of action points required to turn the worm by the given angle.
 	 * 		|	result == (numberOfActionPoints >= amountOfActionPointsForTurning(turnByAngle))
 	 */
@@ -519,13 +583,12 @@ public class Worm {
 	 * 
 	 * @param 	turnByAngle
 	 * 			The angle by which this worm will be turned.
-	 * @post	The new direction of this worm is similar to the old direction incremented with the given angle
-	 * 			and is equal to its smallest representative angle that lies between zero and 2*pi, excluding the latter.
-	 * 		|	new.getDirection() == convertToRepresentativeAngle(this.getDirection() + turnByAngle)
+	 * @post	The new direction of this worm is equal to the old direction incremented with the given angle to turn by.
+	 * 		|	new.getDirection() == this.getDirection() + turnByAngle
 	 */
 	@Model
 	private void turn(double turnByAngle){
-		setDirection(convertToRepresentativeAngle(direction + turnByAngle));
+		setDirection(getDirection() + turnByAngle);
 	}
 	
 	/**
@@ -537,9 +600,8 @@ public class Worm {
 	 * 		|	this.canTurn(turnByAngle)
 	 * @post	The new number of action points equals the old number of action points reduced with the amount of action points to be paid for turning by the given angle.
 	 * 		|	new.getNumberOfActionPoints() == this.getNumberOfActionPoints - amountOfActionPointsForTurning(turnByAngle)
-	 * @post	The new direction of this worm is similar to the old direction incremented with the given angle
-	 * 			and is equal to its smallest representative angle that lies between zero and 2*pi, excluding the latter.
-	 * 		|	new.getDirection() == convertToRepresentativeAngle(this.getDirection() + turnByAngle)
+	 * @post	The new direction of this worm is equal to the old direction incremented with the given angle.
+	 * 		|	new.getDirection() == this.getDirection() + turnByAngle
 	 */
 	public void activeTurn(double turnByAngle){
 		turn(turnByAngle);
@@ -622,12 +684,12 @@ public class Worm {
 	/**
 	 * Check whether the worm can jump.
 	 * 
-	 * @return	True if and only if the direction of this worm is not greater than pi.
-	 * 		|	result == (direction <= Math.PI)
+	 * @return	True if and only if the direction of this worm is not greater than pi and the time passed after a jump of this worm is not infinite, which implies that the direction of this worm is not equal to pi divided by two.
+	 * 		|	result == ((direction <= Math.PI) && (Util.fuzzyEquals(direction, (Math.PI/2)))
 	 */	
 	@Model
 	private boolean canJump(){
-		return Util.fuzzyLessThanOrEqualTo(direction, Math.PI);
+		return (Util.fuzzyLessThanOrEqualTo(direction, Math.PI) && !Util.fuzzyEquals(direction, (Math.PI/2)));
 	}
 	
 	/**

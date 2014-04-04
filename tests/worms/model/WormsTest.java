@@ -28,7 +28,7 @@ private static Worm worm1;
 /**
  * Variables referencing immutable worms.
  */
-private static Worm worm3, worm4;
+private static Worm worm2, worm3, worm4;
 
 /**
  * Set up a mutable test fixture
@@ -46,14 +46,16 @@ public void setUpMutableFixture() throws Exception {
 /**
  * Set up a immutable test fixture
  * 
- * @post	The variables worm3 and worm4 reference the following new worms respectively:
- *		 	worm3 is named Rambo and has a radius of 6, direction of 1 and position (5,4)
- *			worm4 is named Tarzan and has a radius of 3, direction of 4.5 and position (10,9)
+ * @post	The variables worm2, worm3 and worm4 reference the following new worms respectively:
+ * 			worm2 is named Speedy and has radius 5, direction of 5 and position (9,5)
+ *		 	worm3 is named Rambo and has a radius of 1, direction of 1 and position (5,4)
+ *			worm4 is named Tarzan and has a radius of 3, direction of pi divided by two and position (10,9)
  */
 @BeforeClass
 public static void setUpImmutableFixture() throws Exception {
+	worm2 = new Worm("Speedy",5,5,9,5);
 	worm3 = new Worm("Rambo",1,1,5,4);
-	worm4 = new Worm("Tarzan",3,4.5,10,9);	
+	worm4 = new Worm("Tarzan",3,(Math.PI/2),10,9);	
 }
 
 @Test
@@ -86,17 +88,6 @@ public void constructor_RadiusNotANumber() throws Exception {
 	new Worm("Joske",Double.NaN,3,2,1);
 }
 
-@Test
-public void constructor_DirectionNotBetweenZeroAnd2Pi() throws Exception {
-	Worm myWorm = new Worm("Joske",4,(3 * Math.PI),2,1);
-	assertEquals(Math.PI,myWorm.getDirection(),Util.DEFAULT_EPSILON);
-}
-
-@Test (expected = IllegalArgumentException.class)
-public void constructor_DirectionNotANumber() throws Exception {
-	new Worm("Joske",4,Double.NaN,2,1);
-}
-
 @Test (expected = IllegalArgumentException.class)
 public void constructor_XCoordinateNotANumber() throws Exception {
 	new Worm("Joske",4,3,Double.NaN,1);
@@ -124,9 +115,52 @@ public void setName_InvalidCharacters() throws Exception {
 }
 
 @Test
-public void setRadius_LegalCase() throws Exception {
+public void setRadius_LegalCase_Bigger() throws Exception {
 	worm1.setRadius(3);
 	assertEquals(3, worm1.getRadius(), Util.DEFAULT_EPSILON);
+	assertTrue(Util.fuzzyGreaterThanOrEqualTo(worm1.getRadius(), worm1.getLowerBoundOfRadius()));
+	assertTrue(worm1.getMass() > 0);
+	assertFalse(Double.isNaN(worm1.getMass()));
+	assertTrue(worm1.getMaxNumberOfActionPoints() >= 0);
+	assertTrue(worm1.getNumberOfActionPoints() >= 0);
+	assertTrue(worm1.getNumberOfActionPoints() <= worm1.getMaxNumberOfActionPoints());
+}
+
+@Test
+public void setRadius_LegalCase_Smaller() throws Exception {
+	worm1.setRadius(1);
+	assertEquals(1, worm1.getRadius(), Util.DEFAULT_EPSILON);
+	assertTrue(Util.fuzzyGreaterThanOrEqualTo(worm1.getRadius(), worm1.getLowerBoundOfRadius()));
+	assertTrue(worm1.getMass() > 0);
+	assertFalse(Double.isNaN(worm1.getMass()));
+	assertTrue(worm1.getMaxNumberOfActionPoints() >= 0);
+	assertTrue(worm1.getNumberOfActionPoints() >= 0);
+	assertTrue(worm1.getNumberOfActionPoints() <= worm1.getMaxNumberOfActionPoints());
+}
+
+
+@Test
+public void setRadius_LegalCase_Infinity() throws Exception {
+	worm1.setRadius(Double.POSITIVE_INFINITY);
+	assertEquals(Double.POSITIVE_INFINITY, worm1.getRadius(), Util.DEFAULT_EPSILON);
+	assertTrue(Util.fuzzyGreaterThanOrEqualTo(worm1.getRadius(), worm1.getLowerBoundOfRadius()));
+	assertTrue(worm1.getMass() > 0);
+	assertFalse(Double.isNaN(worm1.getMass()));
+	assertEquals(Integer.MAX_VALUE, worm1.getMaxNumberOfActionPoints());
+	assertTrue(worm1.getNumberOfActionPoints() >= 0);
+	assertTrue(worm1.getNumberOfActionPoints() <= worm1.getMaxNumberOfActionPoints());
+}
+
+@Test
+public void setRadius_LegalCase_MaxAmountOfActionPointsTooBig() throws Exception {
+	worm1.setRadius(Integer.MAX_VALUE);
+	assertEquals((Integer.MAX_VALUE), worm1.getRadius(), Util.DEFAULT_EPSILON);
+	assertTrue(Util.fuzzyGreaterThanOrEqualTo(worm1.getRadius(), worm1.getLowerBoundOfRadius()));
+	assertTrue(worm1.getMass() > 0);
+	assertFalse(Double.isNaN(worm1.getMass()));
+	assertEquals(Integer.MAX_VALUE, worm1.getMaxNumberOfActionPoints());
+	assertTrue(worm1.getNumberOfActionPoints() >= 0);
+	assertTrue(worm1.getNumberOfActionPoints() <= worm1.getMaxNumberOfActionPoints());
 }
 
 @Test (expected = IllegalArgumentException.class)
@@ -193,6 +227,8 @@ public void activeTurn_LegalCase() {
 	worm1.activeTurn(1.5);
 	assertEquals(4.545, worm1.getDirection(), Util.DEFAULT_EPSILON);
 	assertEquals(35573, worm1.getNumberOfActionPoints());
+	assertTrue(worm1.getDirection() >= 0);
+	assertTrue(worm1.getDirection() < (Math.PI * 2));
 }
 
 @Test
@@ -200,6 +236,8 @@ public void activeTurn_CannotTurn() {
 	worm1.jump();
 	assertEquals(3.045, worm1.getDirection(), Util.DEFAULT_EPSILON);
 	assertEquals(0, worm1.getNumberOfActionPoints());
+	assertTrue(worm1.getDirection() >= 0);
+	assertTrue(worm1.getDirection() < (Math.PI * 2));
 }
 
 @Test
@@ -222,8 +260,13 @@ public void Jump_LegalCase() throws Exception {
 }
 
 @Test (expected = UnsupportedOperationException.class)
-public void Jump_CannotJump() throws Exception {
+public void Jump_CannotJump_FacedUpwards() throws Exception {
 	worm4.jump();
+}
+
+@Test (expected = UnsupportedOperationException.class)
+public void Jump_CannotJump_FacedDownwards() throws Exception {
+	worm2.jump();
 }
 
 }
