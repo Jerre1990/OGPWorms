@@ -8,18 +8,16 @@ import worms.util.*;
  * A class of worms involving a name, an x-coordinate, a y-coordinate, an direction,
  * a radius and a current number of action points.
  * 
- * @Invar	Each worm can have its x-coordinate as its x-coordinate.
- * 		|	isPossibleNumber(getX())
- * @Invar	Each worm can have its y-coordinate as its y-coordinate.
- * 		|	isPossibleNumber(getY())
+ * @Invar	The position of each worm is effective.
+		|	getPosition() != null
  * @Invar	Each worm can have its name as its name.
  * 		|	isPossibleName(getName())
  * @Invar	Each worm can have its radius as its radius.
  * 		|	isPossibleRadius(getRadius())
  * @Invar	Each worm can have its mass as its mass.
- * 		|	isPossibleNumber(getMass) && (getMass() > 0)
+ * 		|	isPossibleNumber(getMass) && (getMass() >= 0)
  * @Invar	Each worm can have its number of action points as its number of action points;
- * 		|	0 < getNumberOfActionPoints() < getMaxNumberOfActionPoints()
+ * 		|	0 <= getNumberOfActionPoints() <= getMaxNumberOfActionPoints()
  * @Invar	Each worm can have the representative angle of its direction as its direction.
  * 		|	0 <= getDirection() < pi
  * 
@@ -37,10 +35,10 @@ public class Worm {
 	 * 
 	 * @param	name
 	 * 			The name of the worm.
-	 * @param 	x
-	 * 			The x-coordinate of the worm's position expressed in metres.
+	 * @param	x
+	 * 			The x-coordinate of the worm expressed in metres.
 	 * @param	y
-	 * 			The y-coordinate of the worm's position expressed in metres.
+	 * 			The y-coordinate of the worm expressed in metres.
 	 * @param	direction
 	 * 			The direction towards which the worm faces expressed in radians.
 	 * @param	radius
@@ -57,14 +55,11 @@ public class Worm {
 	 * 		|	new.getDirection() = direction
 	 * @effect	The new direction of this worm is a possible direction for any worm.
 	 * 		|	0 <= new.getDirection() < 2 * pi
-	 * @post 	The new x-coordinate of this worm is equal to the given x-coordinate.
-	 * 		|	new.getX() = x
-	 * @effect	The new x-coordinate of this worm is a possible coordinate for any worm.
-	 * 		|	isPossibleNumber(new.getX())
-	 * @post 	The new y-coordinate of this worm is equal to the given y-coordinate.
-	 * 		|	new.getY() = y
-	 * @effect	The new y-coordinate of this worm is a possible coordinate for any worm.
-	 * 		|	isPossibleNumber(new.getY())
+	 * @post 	The new position of this worm contains the given x-coordinate and y-coordinate.
+	 * 		|	new.getPosition().getX() = x
+	 * 		|	new.getPosition().getY() = y
+	 * @post	The new position of this worm is an effective position.
+	 * 		|	new.getPosition() != null
 	 * @post	The new current number of action points of this worm is equal to the maximum number of action points of this worm.
 	 * 		|	new.getNumberOfActionPoints() = new.getMaxNumberOfActionPoints()
 	 * @effect	The new number of action points of this worm is a possible number of action points for any worm.
@@ -75,12 +70,12 @@ public class Worm {
 	 * @throws 	IllegalArgumentException("Name is not valid!")
 	 * 			The given name is not a valid name for any worm.
 	 * 		|	! isPossibleName(name)
-	 * @throws 	IllegalArgumentException("Invalid number!")
-	 * 			The given x-coordinate is not a valid number for any worm.
-	 * 		|	! isPossibleNumber(x)
-	 * @throws 	IllegalArgumentException("Invalid number!")
-	 * 			The given y-coordinate is not a valid number for any worm.
-	 * 		|	! isPossibleNumber(y)
+	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
+	 * 			The given x-coordinate is not a valid coordinate for the position of this worm.
+	 * 		|	! getPosition().isvalidCoordinate(x)
+	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
+	 * 			The given y-coordinate is not a valid coordinate for the position of this worm.
+	 * 		|	! getPosition().isValidCoordinate(y)
 	 * 
 	 */
 	
@@ -88,8 +83,7 @@ public class Worm {
 		setRadius(radius);
 		setDirection(direction);
 		setName(name);
-		setX(x);
-		setY(y);
+		setPosition(x,y);
 		setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
 	}
 
@@ -141,23 +135,29 @@ public class Worm {
 	private String name;
 
 	/**
-	 * Return the x-coordinate of the worm.
-	 * 	The x-coordinate expresses the position
-	 * 	at which the worm is located on the x-axis.
+	 * Return the position of the worm.
+	 * 	The position expresses the position at which the worm is located
+	 * 	and contains the x-coordinate and the y-coordinate of the worm respectively.
 	 */
 	@Basic
-	public double getX() {
-		return x;
+	private Position getPosition() {
+		return position;
 	}
 	
 	/**
-	 * Return the y-coordinate of the worm.
-	 * 	The y-coordinate expresses the position
-	 * 	at which the worm is located on the y-axis.
+	 * Return the x-coordinate of the worm.
+	 * 	The x-coordinate expresses the position at which the worm is located on the x-axis.
 	 */
-	@Basic
+	public double getX() {
+		return getPosition().getX();
+	}
+
+	/**
+	 * Return the y-coordinate of the worm.
+	 * 	The y-coordinate expresses the position at which the worm is located on the y-axis.
+	 */
 	public double getY() {
-		return y;
+		return getPosition().getY();
 	}
 	
 	/**
@@ -174,52 +174,33 @@ public class Worm {
 	}
 
 	/**
-	 * Set the x-coordinate of this worm to the given x-coordinate
+	 * Set the position of this worm to the given position
 
-	 * @param	x
-	 * 			The new x-coordinate of this worm.
+	 * @param	position
+	 * 			The new position of this worm.
 	 * @post	The new x-coordinate of this worm is equal to the given x-coordinate.
-	 * 		|	new.getX() == x
-	 * @effect	The new x-coordinate of this worm is a possible number.
-	 * 		|	isPossibleNumber(new.(getX))
-	 * @throws	IllegalArgumentException("Invalid number!")
-	 * 			This worm cannot have the given number as its x-coordinate.
-	 * 		|	! isPossibleNumber(x)
-	 */
-	private void setX(double x) throws IllegalArgumentException {
-		if (!isPossibleNumber(x))
-			throw new IllegalArgumentException("Invalid number!");
-		this.x = x;
-	}
-
-	/**
-	 * Set the y-coordinate of this worm to the given y-coordinate
-
-	 * @param	y
-	 * 			The new y-coordinate of this worm.
+	 * 		|	new.getPosition().getX() == x
 	 * @post	The new y-coordinate of this worm is equal to the given y-coordinate.
-	 * 		|	new.getY() == y
-	 * @effect	The new y-coordinate of this worm is a possible number.
-	 * 		|	isPossibleNumber(new.(getY))
-	 * @throws	IllegalArgumentException("Invalid number!")
-	 * 			This worm cannot have the given number as its y-coordinate.
-	 * 		|	! isPossibleNumber(y)
+	 * 		|	new.getPosition().getY() == y
+	 * @effect	The new x-coordinate of this worm is a valid coordinate.
+	 * 		|	new.getPosition().isValidCoordinate(new.getPosition().getX())
+	 * @effect	The new y-coordinate of this worm is a valid coordinate.
+	 * 		|	new.getPosition().isValidCoordinate(new.getPosition().getY())
+	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
+	 * 			The given x-coordinate is not a valid coordinate for the position of this worm.
+	 * 		|	! getPosition().isvalidCoordinate(x)
+	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
+	 * 			The given y-coordinate is not a valid coordinate for the position of this worm.
+	 * 		|	! getPosition().isValidCoordinate(y)
 	 */
-	private void setY(double y) {
-		if (!isPossibleNumber(y))
-			throw new IllegalArgumentException("Invalid number!");
-		this.y = y;
+	private void setPosition(double x, double y) throws IllegalArgumentException {
+		this.position = new Position (x,y);
 	}
 	
 	/**
-	 * Variable registering the x-coordinate of this worm.
+	 * Variable registering the position of this worm, consisting of an x-coordinate and a y-coordinate.
 	 */
-	private double x;
-	
-	/**
-	 * Variable registering the y-coordinate of this worm.
-	 */
-	private double y;
+	private Position position;
 
 	/**
 	 * Return the direction of the worm.
@@ -232,7 +213,7 @@ public class Worm {
 
 	/**
 	 * Set the direction of this worm to the given direction
-
+	 * 
 	 * @param	direction
 	 * 			The new direction of this worm.
 	 * @pre		The given direction is a possible number and lies between zero and two times pi, including the former and excluding the latter.
@@ -297,7 +278,7 @@ public class Worm {
 	 */
 	@Model
 	private boolean isPossibleRadius(double radius){
-		boolean validMass = ((getMass(radius) > 0) && isPossibleNumber(getMass(radius)));
+		boolean validMass = ((getMass(radius) >= 0) && isPossibleNumber(getMass(radius)));
 		boolean validMaxNumberOfActionPoints = (getMaxNumberOfActionPoints(radius) >= 0);
 		return (isPossibleNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, lowerBoundOfRadius) && validMass && validMaxNumberOfActionPoints);
 	}
@@ -500,10 +481,9 @@ public class Worm {
 		else {
 			double incrementX = Math.cos(direction) * radius;
 			double incrementY = Math.sin(direction) * radius;
-			double newX = x + (numberOfSteps * incrementX);
-			double newY = y + (numberOfSteps * incrementY);
-			setX(newX);
-			setY(newY);
+			double newX = getX() + (numberOfSteps * incrementX);
+			double newY = getY() + (numberOfSteps * incrementY);
+			setPosition (newX, newY);
 		}
 	}
 	
@@ -648,11 +628,11 @@ public class Worm {
 	 * 
 	 * @return	The in-jump x-coordinate of this worm after the given amount of time that has passed is equal to the worm's initial x-coordinate
 	 * 			incremented with the product of its initial velocity, the cosinus of its direction and the given time that has passed.
-	 * 		|	result == x + (initialVelocity() * Math.cos(direction) * timePassed)
+	 * 		|	result == getX() + (initialVelocity() * Math.cos(direction) * timePassed)
 	 */	
 	@Model
 	private double jumpStepOnXAxis(double timePassed){
-		return (x + (initialVelocity() * Math.cos(direction) * timePassed));
+		return (getX() + (initialVelocity() * Math.cos(direction) * timePassed));
 	}
 	
 	/**
@@ -661,11 +641,11 @@ public class Worm {
 	 * @return	The in-jump y-coordinate of this worm after the given amount of time that has passed is equal to the worm's initial y-coordinate
 	 * 			incremented with the product of its initial velocity, the sinus of its direction and the given time that has passed,
 	 * 			and decremented with the product of Earth's standard acceleration coefficient, the squared time that has passed and the constant 0.5.
-	 * 		|	result == y + ((initialVelocity() * Math.sin(direction) * timePassed) - ((1/2) * standardAcceleration * timePassed^2))
+	 * 		|	result == getY() + ((initialVelocity() * Math.sin(direction) * timePassed) - ((1/2) * standardAcceleration * timePassed^2))
 	 */		
 	@Model
 	private double jumpStepOnYAxis(double timePassed){
-		return (y + ((initialVelocity() * Math.sin(direction) * timePassed) - ((0.5) * standardAcceleration * Math.pow(timePassed, 2))));
+		return (getY() + ((initialVelocity() * Math.sin(direction) * timePassed) - ((0.5) * standardAcceleration * Math.pow(timePassed, 2))));
 	}	
 	
 	/**
@@ -696,9 +676,9 @@ public class Worm {
 	 * Make this worm jump in the current direction.
 	 * 
 	 * @post	The new X-coordinate of the worm is equal the distance traveled on the x-axis during the time of the jump.
-	 * 		|	new.getX() == jumpStepOnXAxis(jumpTime())
+	 * 		|	new.getPosition().getX() == jumpStepOnXAxis(jumpTime())
 	 * @post	The new Y-coordinate of the worm is equal to the old Y-coordinate.
-	 * 		|	new.getY() == this.getY()
+	 * 		|	new.getPosition().getY() == this.getPosition().getY()
 	 * @post	The new number of action points of the worm is equal to zero.
 	 * 		|	new.getNumberOfActionPoints() == 0
 	 * @throws 	UnsupportedOperationException("Cannot jump!")
@@ -709,7 +689,7 @@ public class Worm {
 		if(! canJump())
 			throw new UnsupportedOperationException("Cannot jump!");
 		else {
-			setX(jumpStepOnXAxis(jumpTime()));
+			setPosition(jumpStepOnXAxis(jumpTime()), getY());
 			setNumberOfActionPoints(0);
 		}
 	}
