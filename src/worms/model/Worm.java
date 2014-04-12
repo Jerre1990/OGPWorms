@@ -27,7 +27,7 @@ import worms.util.*;
  * 
  */
 
-public class Worm {
+public class Worm extends GameObject {
 
 	/**
 	 * Initialize this new worm with given name, given x-coordinate, given y-coordinate,
