@@ -1,14 +1,13 @@
 package worms.model;
 
 import be.kuleuven.cs.som.annotate.*;
-import worms.util.*;
 
 /**
  * A class of positions involving an x-coordinate and a y-coordinate.
  * 
- * @Invar	The x-coordinate of each position must be a valid x-coordinate.
+ * @Invar	The x-coordinate of each position must be a valid x-coordinate for any position.
  * 		|	isValidCoordinate(getX())
- * @Invar	The y-coordinate of each position must be a valid y-coordinate.
+ * @Invar	The y-coordinate of each position must be a valid y-coordinate for any position.
  * 		|	isValidCoordinate(getY())
  * 
  * @version 1.0
@@ -16,7 +15,7 @@ import worms.util.*;
  */
 
 @Value
-class Position {
+public class Position {
 	/**
 	 * Initialize this new position with the given x-coordinate and y-coordinate.
 	 * 
@@ -33,10 +32,10 @@ class Position {
 	 * @effect	The new y-coordinate for this position is a valid y-coordinate.
 	 * 		|	isValidCoordinate(new.getY())
 	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
-	 * 			The given x-coordinate is not a valid coordinate for this position.
-	 * 		|	! isvalidCoordinate(x)
+	 * 			The given x-coordinate is not a valid coordinate for any position.
+	 * 		|	! isValidCoordinate(x)
 	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
-	 * 			The given y-coordinate is not a valid coordinate for this position.
+	 * 			The given y-coordinate is not a valid coordinate for any position.
 	 * 		|	! isValidCoordinate(y)
 	 * 
 	 */
@@ -72,7 +71,7 @@ class Position {
 	 * 
 	 * @param 	coordinate
 	 * 			The coordinate to check.
-	 * @return	True if and only if the given coordinate is a possible number.
+	 * @return	True if and only if the given coordinate is a valid number.
 	 * 		|	result == (!Double.isNaN(coordinate))
 	 */
 	@Model
@@ -89,27 +88,6 @@ class Position {
 	 * Variable referencing the y-coordinate of this position.
 	 */
 	private final Double y;
-	
-	/**
-	 * Compare this position with a given position.
-	 * 
-	 * @param	other
-	 * 			The other position to compare with.
-	 * @return	The result is equal to the comparison of the sum of the x-coordinate and the y-coordinate of this position with the sum of those of the other position.
-	 * 		|	result == sum.compareTo(otherSum)
-	 * 		|	sum == getX() + getY()
-	 * 		|	otherSum == other.getX() + other.getY()
-	 * @throws	ClassCastException("Invalid position to compare to!")
-	 * 			The position to compare to is not effective.
-	 * 		|	other == null
-	@Override
-	public double compareTo (Position other) throws ClassCastException {
-		if (other == null){
-			throw new ClassCastException("Invalid position to compare to!");
-		}
-		return 6;
-	}
-	*/
 	
 	/**
 	 * Check whether this position is equal to the given object.
@@ -134,10 +112,13 @@ class Position {
 	
 	/**
 	 * Return the hash code for this position.
+	 */
 	@Override
 	public int hashCode () {
+        long x = Double.doubleToLongBits(getX());
+        long y = Double.doubleToLongBits(getY());
+        return (int)(x ^ (x >> 32) ^ y ^ (y >> 32));
 	}
-	*/
 	
 	/**
 	 * Return a textual representation for this position.

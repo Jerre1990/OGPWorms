@@ -1,0 +1,214 @@
+package worms.model;
+
+import be.kuleuven.cs.som.annotate.*;
+
+/**
+ * 
+ * A class of movable game objects involving a position, a radius, a lower bound of that radius and a direction.
+ * 
+ * @Invar	Each movable game object can have its radius as its radius.
+ * 		|	this.canHaveAsRadius(this.getRadius())
+ * @Invar	Each movable game object can have its direction as its direction.
+ * 		|	this.isValidDirection(this.getDirection())
+ * 
+ * 
+ * @version 2.0
+ * @author Jonas Thys & Jeroen Reinenbergh
+ * 
+ */
+
+public abstract class MovableGameObject extends GameObject{
+	
+	/**
+	 * Check whether the calculated mass is a possible mass for any movable game object.
+	 * 
+	 * @param	radius
+	 * 			The radius used in the calculations of the mass to check.
+	 * @return	True if and only if the calculated mass is a possible positive number.
+	 * 		|	result == ((this.getMass(radius) >= 0) && this.isValidNumber(this.getMass(radius)))
+	 */
+	@Model
+	protected boolean isValidMass(double radius){
+		return ((this.getMass(radius) >= 0) && this.isValidNumber(getMass(radius)));
+	}
+	
+	/**
+	 * Check whether this movable object can have the given radius as its radius.
+	 * 
+	 * @param	radius
+	 * 			The radius to check.
+	 * @return	True if and only if this game object can have the given radius as its radius
+	 * 			and if the newly calculated mass is a valid mass for any movable game object.
+	 * 		|	result == (super.canHaveAsRadius(radius) && this.isValidMass(radius))
+	 */
+	@Override @Model
+	protected boolean canHaveAsRadius(double radius){
+		return (super.canHaveAsRadius(radius) && this.isValidMass(radius));
+	}
+	
+	/**
+	 * Return the mass of a movable game object with given radius.
+	 * @param	radius
+	 * 			The given radius.
+	 * @return 	Mass of the movable game object based on calculations involving the given radius.
+	 * 		|	result == (1062 * (4 / 3) * Math.PI * Math.pow(radius, 3))
+	 */
+	@Model
+	private double getMass(double radius) {
+		double p = 1062;
+		return ((p * 4 * Math.PI * Math.pow(radius, 3)) / 3);
+	}
+	
+	/**
+	 * Return the mass of the movable game object.
+	 * @return 	Mass of the worm based on calculations involving the radius of the worm.
+	 * 		|	result == this.getMass(this.getRadius())
+	 */
+	public double getMass() {
+		return this.getMass(this.getRadius());
+	}
+	
+	/**
+	 * Return the direction of the movable game object.
+	 * 	The direction expresses the direction towards which the movable game object is faced.
+	 */
+	@Basic
+	public double getDirection() {
+		return this.direction;
+	}
+	
+	/**
+	 * Check whether the given direction is a valid direction for any movable game object.
+	 * 
+	 * @param	direction
+	 * 			The direction to check.
+	 * @return	True if and only if the given direction is a valid number
+	 * 			and lies between zero and two times pi, including the former and excluding the latter.
+	 * 		|	result == (this.isValidNumber(direction) && (direction >= 0) && (direction < (2 * pi)))
+	 */
+	@Model
+	protected boolean isValidDirection(double direction){
+		return (this.isValidNumber(direction) && (direction >= 0) && (direction < (2 * Math.PI)));
+	}
+
+	/**
+	 * Set the direction of this movable game object to the given direction
+	 * 
+	 * @param	direction
+	 * 			The new direction of this movable game object.
+	 * @Pre		The given direction is a valid direction
+	 * 		|	this.isValidDirection(direction)
+	 * @post	The new direction of this movable game object is equal to the given direction.
+	 * 		|	new.getDirection() == direction
+	 */
+	public void setDirection(double direction) {
+		assert this.isValidDirection(direction) :
+			"Precondition: Possible direction";
+		this.direction = direction;
+	}
+
+	/**
+	 * Variable registering the direction of this movable game object.
+	 */
+	private double direction;
+	
+	/**
+	 * Return the initial force to be exerted on the movable game object.
+	 * @return 	Initial force to be exerted on the movable game object.
+	 */
+	@Model
+	protected abstract double getInitialForce();
+	
+	/**
+	 * Return the initial velocity of this movable game object during a jump.
+	 * 
+	 * @return	The initial velocity of the movable game object equals the quotient of the movable game object's initial force and the movable game object's mass, divided by two.
+	 * 		|	result == (this.getInitialForce() / this.getMass()) * 0.5
+	 */
+	@Model
+	private double initialVelocity(){
+		return ((this.getInitialForce() / this.getMass()) * 0.5);
+	}
+	
+	/**
+	 * Return the time passed after a jump of this movable game object.
+	 * 
+	 */	
+	public double jumpTime(){
+	}
+	
+	/**
+	 * Return the x-coordinate of this movable game object during a jump after the given amount of time that has already passed.
+	 * 
+	 * @param	timePassed
+	 * 			The amount of time that has already passed during the jump.
+	 * @return	The in-jump x-coordinate of this movable game object after the given amount of time that has passed is equal to the movable game object's initial x-coordinate
+	 * 			incremented with the product of its initial velocity, the cosinus of its direction and the given time that has passed.
+	 * 		|	result == this.getX() + (this.initialVelocity() * Math.cos(direction) * timePassed)
+	 */	
+	@Model
+	private double jumpStepOnXAxis(double timePassed){
+		return (this.getX() + (this.initialVelocity() * Math.cos(this.getDirection()) * timePassed));
+	}
+	
+	/**
+	 * Return the y-coordinate of this movable game object during a jump after the given amount of time that has already passed.
+	 * 
+	 * @return	The in-jump y-coordinate of this movable game object after the given amount of time that has passed is equal to the movable game object's initial y-coordinate
+	 * 			incremented with the product of its initial velocity, the sinus of its direction and the given time that has passed,
+	 * 			and decremented with the product of Earth's standard acceleration coefficient, the squared time that has passed and the constant 0.5.
+	 * 		|	result == this.getY() + ((this.initialVelocity() * Math.sin(direction) * timePassed) - ((1/2) * earthsStandardAcceleration * timePassed^2))
+	 */		
+	@Model
+	private double jumpStepOnYAxis(double timePassed){
+		return (this.getY() + ((this.initialVelocity() * Math.sin(direction) * timePassed) - ((0.5) * EarthsStandardAcceleration * Math.pow(timePassed, 2))));
+	}	
+	
+	/**
+	 * Return the coordinates of this movable game object during a jump after the given amount of time that has already passed.
+	 * 
+	 * @return	The array of in-jump coordinates of this movable game object after the given amount of time that has passed consists of the appropriate x-coordinate and y-coordinate respectively.
+	 * 			Both coordinates equal the distance traveled on the appropriate axis during the jump after the given time that has already passed.
+	 * 		|	result[0] == jumpStepOnXAxis(timePassed)
+	 * 		|	result[1] == jumpStepOnYAxis(timePassed)
+	 */	
+	public double[] jumpStep(double timePassed){
+		double [] coordinatesAfterJumpStep = {jumpStepOnXAxis(timePassed),jumpStepOnYAxis(timePassed)};
+		return coordinatesAfterJumpStep;
+	}
+	
+	/**
+	 * Check whether the movable game object can jump.
+	 * 
+	 */	
+	@Model
+	private boolean canJump(){
+	}
+	
+	/**
+	 * Make this movable game object jump in the current direction.
+	 * 
+	 * @post	The new X-coordinate of the movable game object is equal the distance traveled on the x-axis during the time of the jump.
+	 * 		|	new.getX() == jumpStepOnXAxis(jumpTime())
+	 * @post	The new Y-coordinate of the movable game object is equal the distance traveled on the y-axis during the time of the jump.
+	 * 		|	new.getY() == jumpStepOnYAxis(jumpTime())
+	 * @throws 	UnsupportedOperationException("Cannot jump!")
+	 * 			The movable game object cannot jump.
+	 * 		|	! this.canJump()
+	 */	
+	public void jump(){
+		if(! this.canJump())
+			throw new UnsupportedOperationException("Cannot jump!");
+		else {
+			this.setX(jumpStepOnXAxis(this.jumpTime()));
+			this.setY(jumpStepOnYAxis(this.jumpTime()));
+		}
+	}
+	
+	/**
+	 * Constant representing the approximated value of Earth's standard acceleration coefficient.
+	 */	
+	@Model
+	protected static double EarthsStandardAcceleration = 9.80665;
+
+}

@@ -1,5 +1,5 @@
 package worms.model;
 
-public class Projectile extends GameObject {
+public class Projectile extends MovableGameObject {
 
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Raw;
 
 public class World {
 

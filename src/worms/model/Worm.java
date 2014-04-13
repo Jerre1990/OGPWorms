@@ -5,29 +5,20 @@ import worms.util.*;
 
 /**
  * 
- * A class of worms involving a name, an x-coordinate, a y-coordinate, an direction,
- * a radius and a current number of action points.
+ * A class of worms involving a position, a radius, a lower bound of that radius, a direction, a name and a current number of action points.
  * 
- * @Invar	The position of each worm is effective.
-		|	getPosition() != null
- * @Invar	Each worm can have its name as its name.
- * 		|	isPossibleName(getName())
- * @Invar	Each worm can have its radius as its radius.
- * 		|	isPossibleRadius(getRadius())
- * @Invar	Each worm can have its mass as its mass.
- * 		|	isPossibleNumber(getMass) && (getMass() >= 0)
+ * @Invar	The name of each worm is a valid name.
+ * 		|	isValidName(getName())
  * @Invar	Each worm can have its number of action points as its number of action points;
  * 		|	0 <= getNumberOfActionPoints() <= getMaxNumberOfActionPoints()
- * @Invar	Each worm can have the representative angle of its direction as its direction.
- * 		|	0 <= getDirection() < pi
  * 
  * 
- * @version 1.0
+ * @version 2.0
  * @author Jonas Thys & Jeroen Reinenbergh
  * 
  */
 
-public class Worm extends GameObject {
+public class Worm extends MovableGameObject {
 
 	/**
 	 * Initialize this new worm with given name, given x-coordinate, given y-coordinate,
@@ -45,8 +36,8 @@ public class Worm extends GameObject {
 	 * 			The radius of the spherical body of the worm expressed in metres.
 	 * @post 	The new name of this worm is equal to the given name.
 	 * 		|	new.getName() = name
-	 * @effect	The new name of this worm is a possible name for any worm.
-	 * 		|	isPossibleName(new.getName())
+	 * @effect	The new name of this worm is a valid name for any worm.
+	 * 		|	isValidName(new.getName())
 	 * @post 	The new radius of this worm is equal to the given radius.
 	 * 		|	new.getRadius() = radius
 	 * @effect	The new radius of this worm is a possible radius for any worm.
@@ -69,7 +60,7 @@ public class Worm extends GameObject {
 	 * 		|	! isPossibleRadius(radius)
 	 * @throws 	IllegalArgumentException("Name is not valid!")
 	 * 			The given name is not a valid name for any worm.
-	 * 		|	! isPossibleName(name)
+	 * 		|	! isValidName(name)
 	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
 	 * 			The given x-coordinate is not a valid coordinate for the position of this worm.
 	 * 		|	! getPosition().isvalidCoordinate(x)
@@ -97,7 +88,7 @@ public class Worm extends GameObject {
 	}	
 	
 	/**
-	 * Check whether the given name is a possible name for any worm.
+	 * Check whether the given name is a valid name for any worm.
 	 * 
 	 * @param	name
 	 * 			The name to check.
@@ -106,7 +97,7 @@ public class Worm extends GameObject {
 	 * 		|	result == (name.matches("[A-Z]"+"[A-Za-z\"\' ]+"))
 	 */
 	@Model
-	private static boolean isPossibleName(String name) {
+	private static boolean isValidName(String name) {
 		return name.matches("[A-Z]"+"[A-Za-z\"\' ]+");
 	}	
 	
@@ -117,14 +108,14 @@ public class Worm extends GameObject {
 	 * 			The new name of this worm.
 	 * @post	The new name of this worm is equal to the given name.
 	 * 		|	new.getName() == name
-	 * @effect	The new name of this worm is a possible name for any worm.
-	 * 		|	isPossibleName(new.getName())
+	 * @effect	The new name of this worm is a valid name for any worm.
+	 * 		|	isValidName(new.getName())
 	 * @throws 	IllegalArgumentException("Name is not valid!")
-	 * 			This worm cannot have the given name as its name.
-	 * 		|	! isPossibleName(name)
+	 * 			The name of this worm is not a valid name for any worm.
+	 * 		|	! isValidName(name)
 	 */	
 	public void setName(String name) throws IllegalArgumentException {
-		if (!isPossibleName(name))
+		if (!isValidName(name))
 			throw new IllegalArgumentException("Name is not valid!");
 		else this.name = name;
 	}
@@ -133,107 +124,6 @@ public class Worm extends GameObject {
 	 * Variable registering the name of this worm.
 	 */
 	private String name;
-
-	/**
-	 * Return the position of the worm.
-	 * 	The position expresses the position at which the worm is located
-	 * 	and contains the x-coordinate and the y-coordinate of the worm respectively.
-	 */
-	@Basic
-	private Position getPosition() {
-		return position;
-	}
-	
-	/**
-	 * Return the x-coordinate of the worm.
-	 * 	The x-coordinate expresses the position at which the worm is located on the x-axis.
-	 */
-	public double getX() {
-		return getPosition().getX();
-	}
-
-	/**
-	 * Return the y-coordinate of the worm.
-	 * 	The y-coordinate expresses the position at which the worm is located on the y-axis.
-	 */
-	public double getY() {
-		return getPosition().getY();
-	}
-	
-	/**
-	 * Set the position of this worm to the given position
-
-	 * @param	position
-	 * 			The new position of this worm.
-	 * @post	The new x-coordinate of this worm is equal to the given x-coordinate.
-	 * 		|	new.getPosition().getX() == x
-	 * @post	The new y-coordinate of this worm is equal to the given y-coordinate.
-	 * 		|	new.getPosition().getY() == y
-	 * @effect	The new x-coordinate of this worm is a valid coordinate.
-	 * 		|	new.getPosition().isValidCoordinate(new.getPosition().getX())
-	 * @effect	The new y-coordinate of this worm is a valid coordinate.
-	 * 		|	new.getPosition().isValidCoordinate(new.getPosition().getY())
-	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
-	 * 			The given x-coordinate is not a valid coordinate for the position of this worm.
-	 * 		|	! getPosition().isvalidCoordinate(x)
-	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
-	 * 			The given y-coordinate is not a valid coordinate for the position of this worm.
-	 * 		|	! getPosition().isValidCoordinate(y)
-	 */
-	private void setPosition(double x, double y) throws IllegalArgumentException {
-		this.position = new Position (x,y);
-	}
-	
-	/**
-	 * Variable registering the position of this worm, consisting of an x-coordinate and a y-coordinate.
-	 */
-	private Position position;
-
-	/**
-	 * Return the direction of the worm.
-	 * 	The direction expresses the direction towards which the worm is faced.
-	 */
-	@Basic
-	public double getDirection() {
-		return direction;
-	}
-
-	/**
-	 * Set the direction of this worm to the given direction
-	 * 
-	 * @param	direction
-	 * 			The new direction of this worm.
-	 * @pre		The given direction is a possible number and lies between zero and two times pi, including the former and excluding the latter.
-	 * 		|	isPossibleNumber(direction) && (direction >= 0) && (direction < 2 * pi)
-	 * @post	The new direction of this worm is equal to the given direction.
-	 * 		|	new.getDirection() == direction
-	 */
-	private void setDirection(double direction) {
-		this.direction = direction;
-	}
-
-	/**
-	 * Variable registering the direction of this worm.
-	 */
-	private double direction;
-
-	/**
-	 * Return the radius of the worm.
-	 * 	The radius expresses the radius of the spherical body of the worm.
-	 */
-	@Basic
-	public double getRadius() {
-		return radius;
-	}
-	
-	/**
-	 * Return the lower bound of the radius of the worm.
-	 * 	The lower bound of the radius expresses the lower bound of the radius of the spherical body of the worm.
-	 */
-	@Basic
-	public double getLowerBoundOfRadius() {
-		return lowerBoundOfRadius;
-	}
 
 	/**
 	 * Check whether the given radius is a possible radius for any worm.
@@ -249,22 +139,9 @@ public class Worm extends GameObject {
 	 */
 	@Model
 	private boolean isPossibleRadius(double radius){
-		boolean validMass = ((getMass(radius) >= 0) && isPossibleNumber(getMass(radius)));
+		boolean validMass = ((getMass(radius) >= 0) && isValidNumber(getMass(radius)));
 		boolean validMaxNumberOfActionPoints = (getMaxNumberOfActionPoints(radius) >= 0);
-		return (isPossibleNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, lowerBoundOfRadius) && validMass && validMaxNumberOfActionPoints);
-	}
-	
-	/**
-	 * Check whether the given number is a possible number for any Double-variable.
-	 * 
-	 * @param	number
-	 * 			The number to check.
-	 * @return	True if and only if the given number is not categorized as Not A Number in Double-representation.
-	 * 		|	result == (!Double.isNaN(number))
-	 */
-	@Model
-	private static boolean isPossibleNumber(Double number) {
-		return (!Double.isNaN(number));
+		return (isValidNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, lowerBoundOfRadius) && validMass && validMaxNumberOfActionPoints);
 	}
 
 	/**
@@ -296,28 +173,6 @@ public class Worm extends GameObject {
 	}
 
 	/**
-	 * Return the mass of the worm.
-	 * @param	radius
-	 * 			The given radius.
-	 * @return 	Mass of the worm based on calculations involving the given radius.
-	 * 		|	result == (1062 * (4 / 3) * Math.PI * Math.pow(radius, 3))
-	 */
-	@Model
-	private double getMass(double radius) {
-		double p = 1062;
-		return ((p * 4 * Math.PI * Math.pow(radius, 3)) / 3);
-	}
-	
-	/**
-	 * Return the mass of the worm.
-	 * @return 	Mass of the worm based on calculations involving the radius of the worm.
-	 * 		|	result == getMass(radius)
-	 */
-	public double getMass() {
-		return getMass(radius);
-	}
-
-	/**
 	 * Return the maximum number of action points of the worm.
 	 * @param	mass
 	 * 			The given mass.
@@ -345,16 +200,6 @@ public class Worm extends GameObject {
 	public int getMaxNumberOfActionPoints(){
 		return getMaxNumberOfActionPoints(getMass());
 	}	
-
-	/**
-	 * Variable registering the radius of this worm.
-	 */
-	private double radius;
-
-	/**
-	 * Variable registering the lower bound of the radius.
-	 */	
-	private double lowerBoundOfRadius = 0.25;
 
 	/**
 	 * Return the current number of action points of the worm.
@@ -589,20 +434,6 @@ public class Worm extends GameObject {
 	}
 	
 	/**
-	 * Return the initial velocity of this worm during a jump.
-	 * 
-	 * @return	The initial velocity of the worm equals the quotient of a certain force and the worm's mass, divided by two.
-	 * 			This force can be calculated as the sum of five times the worm's remaining number of action points on the one hand and its mass times Earth's standard acceleration coefficient on the other hand.
-	 * 		|	result == (force / getMass()) * 0.5
-	 * 		|	force == (5 * numberOfActionPoints) + (getMass() * standardAcceleration)
-	 */
-	@Model
-	private double initialVelocity(){
-		double force = (5 * numberOfActionPoints) + (getMass() * standardAcceleration);
-		return ((force / getMass()) * 0.5);
-	}
-	
-	/**
 	 * Return the horizontal distance covered by this worm during a jump.
 	 * 
 	 * @return	The horizontal jumping distance of this worm is equal to the product of its squared initial velocity, the sinus of its doubled direction and the inverse of Earth's standard acceleration coefficient.
@@ -624,44 +455,6 @@ public class Worm extends GameObject {
 	}
 	
 	/**
-	 * Return the x-coordinate of this worm during a jump after the given amount of time that has already passed.
-	 * 
-	 * @return	The in-jump x-coordinate of this worm after the given amount of time that has passed is equal to the worm's initial x-coordinate
-	 * 			incremented with the product of its initial velocity, the cosinus of its direction and the given time that has passed.
-	 * 		|	result == getX() + (initialVelocity() * Math.cos(direction) * timePassed)
-	 */	
-	@Model
-	private double jumpStepOnXAxis(double timePassed){
-		return (getX() + (initialVelocity() * Math.cos(direction) * timePassed));
-	}
-	
-	/**
-	 * Return the y-coordinate of this worm during a jump after the given amount of time that has already passed.
-	 * 
-	 * @return	The in-jump y-coordinate of this worm after the given amount of time that has passed is equal to the worm's initial y-coordinate
-	 * 			incremented with the product of its initial velocity, the sinus of its direction and the given time that has passed,
-	 * 			and decremented with the product of Earth's standard acceleration coefficient, the squared time that has passed and the constant 0.5.
-	 * 		|	result == getY() + ((initialVelocity() * Math.sin(direction) * timePassed) - ((1/2) * standardAcceleration * timePassed^2))
-	 */		
-	@Model
-	private double jumpStepOnYAxis(double timePassed){
-		return (getY() + ((initialVelocity() * Math.sin(direction) * timePassed) - ((0.5) * standardAcceleration * Math.pow(timePassed, 2))));
-	}	
-	
-	/**
-	 * Return the coordinates of this worm during a jump after the given amount of time that has already passed.
-	 * 
-	 * @return	The array of in-jump coordinates of this worm after the given amount of time that has passed consists of the appropriate x-coordinate and y-coordinate respectively.
-	 * 			Both coordinates equal the distance traveled on the appropriate axis during the jump after the given time that has already passed.
-	 * 		|	result[0] == jumpStepOnXAxis(timePassed)
-	 * 		|	result[1] == jumpStepOnYAxis(timePassed)
-	 */	
-	public double[] jumpStep(double timePassed){
-		double [] coordinatesAfterJumpStep = {jumpStepOnXAxis(timePassed),jumpStepOnYAxis(timePassed)};
-		return coordinatesAfterJumpStep;
-	}
-	
-	/**
 	 * Check whether the worm can jump.
 	 * 
 	 * @return	True if and only if the direction of this worm is not greater than pi and the time passed after a jump of this worm is not infinite, which implies that the direction of this worm is not equal to pi divided by two.
@@ -671,31 +464,4 @@ public class Worm extends GameObject {
 	private boolean canJump(){
 		return (Util.fuzzyLessThanOrEqualTo(direction, Math.PI) && (direction != Math.PI/2));
 	}
-	
-	/**
-	 * Make this worm jump in the current direction.
-	 * 
-	 * @post	The new X-coordinate of the worm is equal the distance traveled on the x-axis during the time of the jump.
-	 * 		|	new.getPosition().getX() == jumpStepOnXAxis(jumpTime())
-	 * @post	The new Y-coordinate of the worm is equal to the old Y-coordinate.
-	 * 		|	new.getPosition().getY() == this.getPosition().getY()
-	 * @post	The new number of action points of the worm is equal to zero.
-	 * 		|	new.getNumberOfActionPoints() == 0
-	 * @throws 	UnsupportedOperationException("Cannot jump!")
-	 * 			The worm cannot jump.
-	 * 		|	! canJump()
-	 */	
-	public void jump(){
-		if(! canJump())
-			throw new UnsupportedOperationException("Cannot jump!");
-		else {
-			setPosition(jumpStepOnXAxis(jumpTime()), getY());
-			setNumberOfActionPoints(0);
-		}
-	}
-	
-	/**
-	 * Constant representing the approximated value of Earth's standard acceleration coefficient.
-	 */	
-	private final double standardAcceleration = 9.80665;
 }
