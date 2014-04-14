@@ -37,18 +37,18 @@ public class Worm extends MovableGameObject {
 	 * @post 	The new name of this worm is equal to the given name.
 	 * 		|	new.getName() = name
 	 * @effect	The new name of this worm is a valid name for any worm.
-	 * 		|	isValidName(new.getName())
+	 * 		|	this.isValidName(new.getName())
 	 * @post 	The new radius of this worm is equal to the given radius.
 	 * 		|	new.getRadius() = radius
-	 * @effect	The new radius of this worm is a possible radius for any worm.
-	 * 		|	isPossibleRadius(new.getRadius())
+	 * @effect	This worm can have the new radius as its radius.
+	 * 		|	this.canHaveAsRadius(new.getRadius())
 	 * @post 	The new direction of this worm is equal to the given direction.
 	 * 		|	new.getDirection() = direction
-	 * @effect	The new direction of this worm is a possible direction for any worm.
-	 * 		|	0 <= new.getDirection() < 2 * pi
+	 * @effect	The new direction of this worm is a valid direction for any worm.
+	 * 		|	this.isValidDirection(new.getDirection())
 	 * @post 	The new position of this worm contains the given x-coordinate and y-coordinate.
-	 * 		|	new.getPosition().getX() = x
-	 * 		|	new.getPosition().getY() = y
+	 * 		|	new.getX() = x
+	 * 		|	new.getY() = y
 	 * @post	The new position of this worm is an effective position.
 	 * 		|	new.getPosition() != null
 	 * @post	The new current number of action points of this worm is equal to the maximum number of action points of this worm.
@@ -56,26 +56,27 @@ public class Worm extends MovableGameObject {
 	 * @effect	The new number of action points of this worm is a possible number of action points for any worm.
 	 * 		|	0 <= new.getNumberOfActionPoints <= new.getMaxNumberOfActionPoints
 	 * @throws 	IllegalArgumentException("Invalid radius!")
-	 * 			The given radius is not a possible radius for any worm.
-	 * 		|	! isPossibleRadius(radius)
+	 * 			This worm cannot have the given radius as its radius.
+	 * 		|	! this.canHaveAsRadius(radius)
 	 * @throws 	IllegalArgumentException("Name is not valid!")
 	 * 			The given name is not a valid name for any worm.
-	 * 		|	! isValidName(name)
+	 * 		|	! this.isValidName(name)
 	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
-	 * 			The given x-coordinate is not a valid coordinate for the position of this worm.
-	 * 		|	! getPosition().isvalidCoordinate(x)
+	 * 			The given x-coordinate is not a valid coordinate for the position of any worm.
+	 * 		|	! this.getPosition().isvalidCoordinate(x)
 	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
-	 * 			The given y-coordinate is not a valid coordinate for the position of this worm.
-	 * 		|	! getPosition().isValidCoordinate(y)
+	 * 			The given y-coordinate is not a valid coordinate for the position of any worm.
+	 * 		|	! this.getPosition().isValidCoordinate(y)
 	 * 
 	 */
 	
 	public Worm (String name, double radius, double direction, double x, double y) throws IllegalArgumentException {
-		setRadius(radius);
-		setDirection(direction);
-		setName(name);
-		setPosition(x,y);
-		setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
+		this.setRadius(radius);
+		this.setDirection(direction);
+		this.setName(name);
+		this.setX(x);
+		this.setY(y);
+		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
 	}
 
 	/**
@@ -97,7 +98,7 @@ public class Worm extends MovableGameObject {
 	 * 		|	result == (name.matches("[A-Z]"+"[A-Za-z\"\' ]+"))
 	 */
 	@Model
-	private static boolean isValidName(String name) {
+	private boolean isValidName(String name) {
 		return name.matches("[A-Z]"+"[A-Za-z\"\' ]+");
 	}	
 	
@@ -109,13 +110,13 @@ public class Worm extends MovableGameObject {
 	 * @post	The new name of this worm is equal to the given name.
 	 * 		|	new.getName() == name
 	 * @effect	The new name of this worm is a valid name for any worm.
-	 * 		|	isValidName(new.getName())
+	 * 		|	this.isValidName(new.getName())
 	 * @throws 	IllegalArgumentException("Name is not valid!")
 	 * 			The name of this worm is not a valid name for any worm.
-	 * 		|	! isValidName(name)
+	 * 		|	! this.isValidName(name)
 	 */	
 	public void setName(String name) throws IllegalArgumentException {
-		if (!isValidName(name))
+		if (!this.isValidName(name))
 			throw new IllegalArgumentException("Name is not valid!");
 		else this.name = name;
 	}
@@ -130,18 +131,13 @@ public class Worm extends MovableGameObject {
 	 * 
 	 * @param	radius
 	 * 			The radius to check.
-	 * @return	True if and only if the given radius is a valid number,
-	 * 			if it is not smaller than its lower bound,
-	 * 			and if the newly calculated mass is a valid mass for any worm.
-	 * 		|	result == (isPossibleNumber(radius) && (radius >= lowerBoundOfRadius) && validMass)
-	 * 		|	validMass == ((this.getMass(radius) > 0) && isPossibleNumber(this.getMass(radius)))
-	 * 		|	validMaxNumberOfActionPoints == (this.getMaxNumberOfActionPoints(radius) > 0)
+	 * @return	True if and only if this movable game object can have the given radius as its radius
+	 * 			and if the newly calculated maximum number of action points of this worm is positive.
+	 * 		|	result == (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0))
 	 */
-	@Model
-	private boolean isPossibleRadius(double radius){
-		boolean validMass = ((getMass(radius) >= 0) && isValidNumber(getMass(radius)));
-		boolean validMaxNumberOfActionPoints = (getMaxNumberOfActionPoints(radius) >= 0);
-		return (isValidNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, lowerBoundOfRadius) && validMass && validMaxNumberOfActionPoints);
+	@Model @Override
+	protected boolean canHaveAsRadius(double radius){
+		return (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0));
 	}
 
 	/**
@@ -164,7 +160,7 @@ public class Worm extends MovableGameObject {
 	 * 		|	! isPossibleRadius(radius)
 	 */
 	public void setRadius(double radius) throws IllegalArgumentException {
-		if (!isPossibleRadius(radius))
+		if (!canHaveAsRadius(radius))
 			throw new IllegalArgumentException("Invalid radius!");
 		else{
 			this.radius = radius;

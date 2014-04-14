@@ -20,6 +20,60 @@ import be.kuleuven.cs.som.annotate.*;
 public abstract class MovableGameObject extends GameObject{
 	
 	/**
+	 * Initialize this new movable game object with given x-coordinate, given y-coordinate, given radius, given lower bound of this radius and given direction.
+
+	 * @param	x
+	 * 			The x-coordinate of the movable game object expressed in metres.
+	 * @param	y
+	 * 			The y-coordinate of the movable game object expressed in metres.
+	 * @param	radius
+	 * 			The radius of the spherical body of the movable game object expressed in metres.
+	 * @param	lowerBound
+	 * 			The lower bound of the radius of the spherical body of the movable game object expressed in metres.
+	 * @param	direction
+	 * 			The direction towards which the movable game object faces expressed in radians.
+	 * @Pre		The given direction is a valid direction for any movable game object
+	 * 		|	this.isValidDirection(direction)
+	 * @post	The new movable game object is initialized as a new game object with given x-coordinate, given y-coordinate, given radius and given lower bound of this radius.
+	 * 		|	new.getX() = x
+	 * 		|	new.getY() = y
+	 * 		|	new.getRadius() = radius
+	 * 		|	new.getLowerBoundOfRadius() = lowerBound
+	 * @post 	The new direction of this movable game object is equal to the given direction.
+	 * 		|	new.getDirection() = direction
+	 * @effect	The new position of this movable game object is an effective position.
+	 * 		|	new.getPosition() != null
+	 * @effect	This movable game object can have the new radius as its radius.
+	 * 		|	this.canHaveAsRadius(new.getRadius())
+	 * @effect	The new lower bound of the radius of this movable game object is a valid lower bound for any movable game object.
+	 * 		|	this.isValidLowerBoundOfRadius(new.getLowerBoundOfRadius())
+	 * @effect	The new x-coordinate of this movable game object is a valid x-coordinate for any movable game object.
+	 * 		|	this.getPosition.isValidCoordinate(new.getX())
+	 * @effect	The new y-coordinate of this movable game object is a valid y-coordinate for any movable game object.
+	 * 		|	this.getPosition.isValidCoordinate(new.getY())
+	 * @effect	The new direction of this movable game object is a valid direction for any movable game object.
+	 * 		|	this.isValidDirection(new.getDirection())
+	 * @effect	The newly calculated mass of this movable game object is a valid mass for any movable game object.
+	 * 		|	this.isValidMass(new.getMass())
+	 * @throws 	IllegalArgumentException("Invalid radius!")
+	 * 			This movable game object cannot have the given radius as its radius.
+	 * 		|	! this.canHaveAsRadius(radius)
+	 * @throws	IllegalArgumentException("Invalid lower bound of radius!")
+	 * 			The given lower bound is not a valid lower bound for the radius of any movable game object.
+	 * 		|	! this.isValidLowerBoundOfRadius(lowerBound)
+	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
+	 * 			The given x-coordinate is not a valid coordinate for any movable game object.
+	 * 		|	! this.getPosition().isvalidCoordinate(x)
+	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
+	 * 			The given y-coordinate is not a valid coordinate for any movable game object.
+	 * 		|	! this.getPosition().isValidCoordinate(y)
+	 */
+	public MovableGameObject(double x, double y, double radius, double lowerBound, double direction){
+		super(x, y, radius, lowerBound);
+		this.setDirection(direction);
+	}
+	
+	/**
 	 * Check whether the calculated mass is a possible mass for any movable game object.
 	 * 
 	 * @param	radius
@@ -133,8 +187,20 @@ public abstract class MovableGameObject extends GameObject{
 	/**
 	 * Return the time passed after a jump of this movable game object.
 	 * 
+	 * @param	timeStep
+	 * 			An elementary time interval during which it may be assumed that the movable game object will not completely move through a piece of impassable terrain.
+	 * @return	The time passed after a jump of this movable game object during which it did not pass completely through any impassable terrain.
+	 * 		|	return jumpTime
+	 * 			in
+	 * 				jumpTime = 0.0
+	 * 				while (! this.getWorld().isImpassable(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep),this.getRadius()))
+	 * 					jumpTime = jumpTime + timeStep
 	 */	
-	public double jumpTime(){
+	public double jumpTime(double timeStep){
+		double jumpTime = 0.0;
+		while (! this.getWorld().isImpassable(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep),this.getRadius()))
+			jumpTime = jumpTime + timeStep;
+		return jumpTime;
 	}
 	
 	/**
@@ -157,11 +223,11 @@ public abstract class MovableGameObject extends GameObject{
 	 * @return	The in-jump y-coordinate of this movable game object after the given amount of time that has passed is equal to the movable game object's initial y-coordinate
 	 * 			incremented with the product of its initial velocity, the sinus of its direction and the given time that has passed,
 	 * 			and decremented with the product of Earth's standard acceleration coefficient, the squared time that has passed and the constant 0.5.
-	 * 		|	result == this.getY() + ((this.initialVelocity() * Math.sin(direction) * timePassed) - ((1/2) * earthsStandardAcceleration * timePassed^2))
+	 * 		|	result == this.getY() + ((this.initialVelocity() * Math.sin(direction) * timePassed) - ((1/2) * EARTHS_STANDARD_ACCELERATION * timePassed^2))
 	 */		
 	@Model
 	private double jumpStepOnYAxis(double timePassed){
-		return (this.getY() + ((this.initialVelocity() * Math.sin(direction) * timePassed) - ((0.5) * EarthsStandardAcceleration * Math.pow(timePassed, 2))));
+		return (this.getY() + ((this.initialVelocity() * Math.sin(direction) * timePassed) - ((0.5) * EARTHS_STANDARD_ACCELERATION * Math.pow(timePassed, 2))));
 	}	
 	
 	/**
@@ -188,27 +254,28 @@ public abstract class MovableGameObject extends GameObject{
 	/**
 	 * Make this movable game object jump in the current direction.
 	 * 
+	 * @param	timeStep
+	 * 			An elementary time interval during which it may be assumed that the movable game object will not completely move through a piece of impassable terrain.
 	 * @post	The new X-coordinate of the movable game object is equal the distance traveled on the x-axis during the time of the jump.
-	 * 		|	new.getX() == jumpStepOnXAxis(jumpTime())
+	 * 		|	new.getX() == jumpStepOnXAxis(jumpTime(timeStep))
 	 * @post	The new Y-coordinate of the movable game object is equal the distance traveled on the y-axis during the time of the jump.
-	 * 		|	new.getY() == jumpStepOnYAxis(jumpTime())
+	 * 		|	new.getY() == jumpStepOnYAxis(jumpTime(timeStep))
 	 * @throws 	UnsupportedOperationException("Cannot jump!")
 	 * 			The movable game object cannot jump.
 	 * 		|	! this.canJump()
 	 */	
-	public void jump(){
+	public void jump(double timeStep){
 		if(! this.canJump())
 			throw new UnsupportedOperationException("Cannot jump!");
 		else {
-			this.setX(jumpStepOnXAxis(this.jumpTime()));
-			this.setY(jumpStepOnYAxis(this.jumpTime()));
+			this.setX(jumpStepOnXAxis(this.jumpTime(timeStep)));
+			this.setY(jumpStepOnYAxis(this.jumpTime(timeStep)));
 		}
 	}
 	
 	/**
 	 * Constant representing the approximated value of Earth's standard acceleration coefficient.
 	 */	
-	@Model
-	protected static double EarthsStandardAcceleration = 9.80665;
+	public static double EARTHS_STANDARD_ACCELERATION = 9.80665;
 
 }

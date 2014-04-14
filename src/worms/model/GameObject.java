@@ -20,13 +20,61 @@ import be.kuleuven.cs.som.annotate.*;
  */
 
 public abstract class GameObject {
+	
+	/**
+	 * Initialize this new game object with given x-coordinate, given y-coordinate, given radius and given lower bound of this radius.
+
+	 * @param	x
+	 * 			The x-coordinate of the game object expressed in metres.
+	 * @param	y
+	 * 			The y-coordinate of the game object expressed in metres.
+	 * @param	radius
+	 * 			The radius of the spherical body of the game object expressed in metres.
+	 * @param	lowerBound
+	 * 			The lower bound of the radius of the spherical body of the game object expressed in metres.
+	 * @post 	The new radius of this game object is equal to the given radius.
+	 * 		|	new.getRadius() = radius
+	 * @post 	The new lower bound of the radius of this game object is equal to the given lower bound.
+	 * 		|	new.getLowerBoundOfRadius() = lowerBound
+	 * @post 	The new position of this game object contains the given x-coordinate and y-coordinate.
+	 * 		|	new.getX() = x
+	 * 		|	new.getY() = y
+	 * @effect	The new position of this game object is an effective position.
+	 * 		|	new.getPosition() != null
+	 * @effect	This game object can have the new radius as its radius.
+	 * 		|	this.canHaveAsRadius(new.getRadius())
+	 * @effect	The new lower bound of the radius of this game object is a valid lower bound for any game object.
+	 * 		|	this.isValidLowerBoundOfRadius(new.getLowerBoundOfRadius())
+	 * @effect	The new x-coordinate of this game object is a valid x-coordinate for any game object.
+	 * 		|	this.getPosition.isValidCoordinate(new.getX())
+	 * @effect	The new y-coordinate of this game object is a valid y-coordinate for any game object.
+	 * 		|	this.getPosition.isValidCoordinate(new.getY())
+	 * @throws 	IllegalArgumentException("Invalid radius!")
+	 * 			This game object cannot have the given radius as its radius.
+	 * 		|	! this.canHaveAsRadius(radius)
+	 * @throws	IllegalArgumentException("Invalid lower bound of radius!")
+	 * 			The given lower bound is not a valid lower bound for the radius of any game object.
+	 * 		|	! this.isValidLowerBoundOfRadius(lowerBound)
+	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
+	 * 			The given x-coordinate is not a valid coordinate for any game object.
+	 * 		|	! this.getPosition().isvalidCoordinate(x)
+	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
+	 * 			The given y-coordinate is not a valid coordinate for any game object.
+	 * 		|	! this.getPosition().isValidCoordinate(y)
+	 */
+	public GameObject(double x, double y, double radius, double lowerBound) throws IllegalArgumentException {
+		this.setX(x);
+		this.setY(y);
+		this.setRadius(radius);
+		this.setLowerBoundOfRadius(lowerBound);
+	}
 
 	/**
 	 * Return the position of the game object.
 	 * 	The position expresses the position at which the game object is located
 	 * 	and contains the x-coordinate and the y-coordinate of the game object respectively.
 	 */
-	@Basic
+	@Basic @Model
 	private Position getPosition() {
 		return this.position;
 	}
@@ -248,6 +296,10 @@ public abstract class GameObject {
 	 */
 	protected boolean canHaveAsWorld(World gameWorld){
 		return ((gameWorld != null) && gameWorld.canHaveAsGameObject(this));
+	}
+	
+	public boolean hasProperWorld(){
+		return (this.canHaveAsWorld(this.getWorld()) || (this.getWorld() == null));
 	}
 	
 	/**
