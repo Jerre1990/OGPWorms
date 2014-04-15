@@ -160,14 +160,18 @@ public class Worm extends MovableGameObject {
 	 * 			The new radius of this worm.
 	 * @post	The new radius of this worm is equal to the given radius.
 	 * 		|	new.getRadius() == radius
-	 * @effect	The new radius of this worm is a possible radius.
-	 * 		|	isPossibleRadius(new.getRadius())
+	 * @effect	This worm can have its new radius as its radius.
+	 * 		|	this.canHaveAsRadius(new.getRadius())
 	 * @effect	The new mass of this worm is equal to the newly calculated mass.
 	 * 			new.getMass() == (1062 * (4 / 3) * Math.PI * Math.pow(radius, 3))
 	 * @effect	The new maximum number of action points of this worm is equal to the newly calculated maximum number of action points.
 	 * 		|	new.getMaxNumberOfActionPoints() == Math.round(this.getMass())
+	 * @effect	The new maximum number of hit points of this worm is equal to the newly calculated maximum number of hit points.
+	 * 		|	new.getMaxNumberOfHitPoints() == Math.round(this.getMass())
 	 * @effect	The new number of action points of this worm complies to its invariant (boundaries defined in the setter).
 	 * 		|	new.setNumberOfActionPoints(this.getNumberOfActionPoints)
+	 * @effect	The new number of hit points of this worm complies to its invariant (boundaries defined in the setter).
+	 * 		|	new.setNumberOfHitPoints(this.getNumberOfHitPoints)
 	 * @throws 	IllegalArgumentException("Invalid radius!")
 	 * 			The given radius is not a possible radius for any worm.
 	 * 		|	! isPossibleRadius(radius)
@@ -176,13 +180,14 @@ public class Worm extends MovableGameObject {
 		if (!canHaveAsRadius(radius))
 			throw new IllegalArgumentException("Invalid radius!");
 		else{
-			this.radius = radius;
+			super.setRadius(radius);
 			setNumberOfActionPoints(numberOfActionPoints);
+			setNumberOfHitPoints(numberOfHitPoints);
 		}
 	}
 
 	/**
-	 * Return the maximum number of action points of the worm.
+	 * Return the mass of this worm, rounded to the nearest integer.
 	 * @param	mass
 	 * 			The given mass.
 	 * @return	Mass of this worm, rounded to the nearest integer.
@@ -201,13 +206,24 @@ public class Worm extends MovableGameObject {
 	}
 	
 	/**
+	 * Return the maximum number of action points for a worm with given mass.
+	 * @param	mass
+	 * 			The given mass
+	 * @return	Maximum number of action points for a worm based on calculations involving the given mass.
+	 * 		|	result == massRoundedToNearestInteger(mass)
+	 */
+	private int getMaxNumberOfActionPoints(double mass){
+		return massRoundedToNearestInteger(mass);
+	}
+	
+	/**
 	 * Return the maximum number of action points of the worm.
 	 * @return	Maximum number of action points of the worm based on calculations involving the mass of the worm.
-	 * 		|	result == massRoundedToNearestInteger(this.getMass())
+	 * 		|	result == getMaxNumberOfActionPoints(this.getMass())
 	 */
 	@Raw
 	public int getMaxNumberOfActionPoints(){
-		return massRoundedToNearestInteger(getMass());
+		return getMaxNumberOfActionPoints(this.getMass());
 	}
 	
 	/**
@@ -247,14 +263,25 @@ public class Worm extends MovableGameObject {
 	private int numberOfActionPoints;
 
 	/**
+	 * Return the maximum number of hit points for a worm with given mass.
+	 * @param	mass
+	 * 			The given mass
+	 * @return	Maximum number of hit points for a worm based on calculations involving the given mass.
+	 * 		|	result == massRoundedToNearestInteger(mass)
+	 */
+	private int getMaxNumberOfHitPoints(double mass){
+		return massRoundedToNearestInteger(mass);
+	}
+	
+	/**
 	 * Return the maximum number of hit points of the worm.
 	 * @return	Maximum number of hit points of the worm based on calculations involving the mass of the worm.
-	 * 		|	result == massRoundedToNearestInteger(this.getMass())
+	 * 		|	result == getMaxNumberOfHitPoints(this.getMass())
 	 */
 	@Raw
 	public int getMaxNumberOfHitPoints(){
-		return massRoundedToNearestInteger(getMass());
-	}	
+		return getMaxNumberOfHitPoints(this.getMass());
+	}
 
 	/**
 	 * Return the current number of hit points of the worm.
