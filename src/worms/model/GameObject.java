@@ -191,13 +191,14 @@ public abstract class GameObject {
 	 * 
 	 * @param	radius
 	 * 			The radius to check.
-	 * @return	True if and only if the given radius is a valid number and
-	 * 			if it is not smaller than the lower bound of the radius of this game object.
-	 * 		|	result == (this.isValidNumber(radius) && (radius >= this.getLowerBoundOfRadius()))
+	 * @return	True if and only if the given radius is a valid number,
+	 * 			if it is not smaller than the lower bound of the radius of this game object
+	 * 			and if it is finite.
+	 * 		|	result == (this.isValidNumber(radius) && (radius >= this.getLowerBoundOfRadius()) && (radius <= Double.MAX_VALUE))
 	 */
 	@Model
 	protected boolean canHaveAsRadius(double radius){
-		return (this.isValidNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, this.getLowerBoundOfRadius()));
+		return (this.isValidNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, this.getLowerBoundOfRadius()) && (radius <= Double.MAX_VALUE));
 	}
 	
 	/**

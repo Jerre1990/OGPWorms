@@ -5,12 +5,14 @@ import worms.util.*;
 
 /**
  * 
- * A class of worms involving a position, a radius, a lower bound of that radius, a direction, a name and a current number of action points.
+ * A class of worms involving a position, a radius, a lower bound of that radius, a direction, a name, a current number of action points and a current number of hit points.
  * 
  * @Invar	The name of each worm is a valid name.
  * 		|	isValidName(getName())
- * @Invar	Each worm can have its number of action points as its number of action points;
+ * @Invar	Each worm can have its current number of action points as its current number of action points.
  * 		|	0 <= getNumberOfActionPoints() <= getMaxNumberOfActionPoints()
+ * @Invar	Each worm can have its current number of hit points as its current number of hit points.
+ * 		|	0 <= getNumberOfHitPoints() <= getMaxNumberOfHitPoints()
  * 
  * 
  * @version 2.0
@@ -21,62 +23,73 @@ import worms.util.*;
 public class Worm extends MovableGameObject {
 
 	/**
-	 * Initialize this new worm with given name, given x-coordinate, given y-coordinate,
-	 * given direction and given radius.
+	 * Initialize this new worm with given x-coordinate, given y-coordinate, given radius, given lower bound of this radius, given direction and given name.
 	 * 
-	 * @param	name
-	 * 			The name of the worm.
 	 * @param	x
 	 * 			The x-coordinate of the worm expressed in metres.
 	 * @param	y
 	 * 			The y-coordinate of the worm expressed in metres.
-	 * @param	direction
-	 * 			The direction towards which the worm faces expressed in radians.
 	 * @param	radius
 	 * 			The radius of the spherical body of the worm expressed in metres.
-	 * @post 	The new name of this worm is equal to the given name.
-	 * 		|	new.getName() = name
-	 * @effect	The new name of this worm is a valid name for any worm.
-	 * 		|	this.isValidName(new.getName())
-	 * @post 	The new radius of this worm is equal to the given radius.
-	 * 		|	new.getRadius() = radius
-	 * @effect	This worm can have the new radius as its radius.
-	 * 		|	this.canHaveAsRadius(new.getRadius())
-	 * @post 	The new direction of this worm is equal to the given direction.
-	 * 		|	new.getDirection() = direction
-	 * @effect	The new direction of this worm is a valid direction for any worm.
-	 * 		|	this.isValidDirection(new.getDirection())
-	 * @post 	The new position of this worm contains the given x-coordinate and y-coordinate.
+	 * @param	direction
+	 * 			The direction towards which the worm faces expressed in radians.
+	 * @Pre		The given direction is a valid direction for any worm
+	 * 		|	this.isValidDirection(direction)
+	 * @post	The new worm is initialized as a new movable game object with given x-coordinate, given y-coordinate, given direction, given radius and 0.25 as lower bound of this radius.
 	 * 		|	new.getX() = x
 	 * 		|	new.getY() = y
-	 * @post	The new position of this worm is an effective position.
-	 * 		|	new.getPosition() != null
+	 * 		|	new.getRadius() = radius
+	 * 		|	new.getLowerBoundOfRadius() = 0.25
+	 * 		|	new.getDirection() = direction
+	 * @post 	The new name of this worm is equal to the given name.
+	 * 		|	new.getName() = name
 	 * @post	The new current number of action points of this worm is equal to the maximum number of action points of this worm.
 	 * 		|	new.getNumberOfActionPoints() = new.getMaxNumberOfActionPoints()
-	 * @effect	The new number of action points of this worm is a possible number of action points for any worm.
+	 * @post	The new current number of hit points of this worm is equal to the maximum number of hit points of this worm.
+	 * 		|	new.getNumberOfHitPoints() = new.getMaxNumberOfHitPoints()
+	 * @effect	The new name of this worm is a valid name for any worm.
+	 * 		|	this.isValidName(new.getName())
+	 * @effect	This worm can have the new number of action points as its current number of action points.
 	 * 		|	0 <= new.getNumberOfActionPoints <= new.getMaxNumberOfActionPoints
-	 * @throws 	IllegalArgumentException("Invalid radius!")
-	 * 			This worm cannot have the given radius as its radius.
-	 * 		|	! this.canHaveAsRadius(radius)
+	 * @effect	This worm can have the new number of hit points as its current number of hit points.
+	 * 		|	0 <= new.getNumberOfActionPoints <= new.getMaxNumberOfActionPoints
+	 * @effect	The new position of this worm is an effective position.
+	 * 		|	new.getPosition() != null
+	 * @effect	This worm can have the new radius as its radius.
+	 * 		|	this.canHaveAsRadius(new.getRadius())
+	 * @effect	The new lower bound of the radius of this worm is a valid lower bound for any worm.
+	 * 		|	this.isValidLowerBoundOfRadius(new.getLowerBoundOfRadius())
+	 * @effect	The new x-coordinate of this worm is a valid x-coordinate for any worm.
+	 * 		|	this.getPosition.isValidCoordinate(new.getX())
+	 * @effect	The new y-coordinate of this worm is a valid y-coordinate for any worm.
+	 * 		|	this.getPosition.isValidCoordinate(new.getY())
+	 * @effect	The new direction of this worm is a valid direction for any worm.
+	 * 		|	this.isValidDirection(new.getDirection())
+	 * @effect	The newly calculated mass of this worm is a valid mass for any worm.
+	 * 		|	this.isValidMass(new.getMass())
 	 * @throws 	IllegalArgumentException("Name is not valid!")
 	 * 			The given name is not a valid name for any worm.
 	 * 		|	! this.isValidName(name)
+	 * @throws 	IllegalArgumentException("Invalid radius!")
+	 * 			This worm cannot have the given radius as its radius.
+	 * 		|	! this.canHaveAsRadius(radius)
+	 * @throws	IllegalArgumentException("Invalid lower bound of radius!")
+	 * 			The given lower bound is not a valid lower bound for the radius of any worm.
+	 * 		|	! this.isValidLowerBoundOfRadius(lowerBound)
 	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
-	 * 			The given x-coordinate is not a valid coordinate for the position of any worm.
+	 * 			The given x-coordinate is not a valid coordinate for any worm.
 	 * 		|	! this.getPosition().isvalidCoordinate(x)
 	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
-	 * 			The given y-coordinate is not a valid coordinate for the position of any worm.
+	 * 			The given y-coordinate is not a valid coordinate for any worm.
 	 * 		|	! this.getPosition().isValidCoordinate(y)
 	 * 
 	 */
 	
-	public Worm (String name, double radius, double direction, double x, double y) throws IllegalArgumentException {
-		this.setRadius(radius);
-		this.setDirection(direction);
+	public Worm (double x, double y, double radius, double direction, String name) throws IllegalArgumentException {
+		super(x ,y ,radius ,0.25, direction);
 		this.setName(name);
-		this.setX(x);
-		this.setY(y);
 		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
+		this.setNumberOfHitPoints(this.getMaxNumberOfHitPoints());
 	}
 
 	/**
@@ -137,7 +150,7 @@ public class Worm extends MovableGameObject {
 	 */
 	@Model @Override
 	protected boolean canHaveAsRadius(double radius){
-		return (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0));
+		return (super.canHaveAsRadius(radius) && (massRoundedToNearestInteger(radius) >= 0));
 	}
 
 	/**
@@ -172,12 +185,12 @@ public class Worm extends MovableGameObject {
 	 * Return the maximum number of action points of the worm.
 	 * @param	mass
 	 * 			The given mass.
-	 * @return	Maximum number of action points of the worm based on calculations involving the given mass.
+	 * @return	Mass of this worm, rounded to the nearest integer.
 	 * 		|	if (Math.round(mass) > Integer.MAX_VALUE) result == Integer.MAX_VALUE
 	 * 		|	else result = Math.round(mass)
 	 */
 	@Model
-	private int getMaxNumberOfActionPoints(double mass){
+	private int massRoundedToNearestInteger(double mass){
 		long longMass = Math.round(mass);
 		int intMass;
 		if(longMass > Integer.MAX_VALUE){
@@ -190,13 +203,13 @@ public class Worm extends MovableGameObject {
 	/**
 	 * Return the maximum number of action points of the worm.
 	 * @return	Maximum number of action points of the worm based on calculations involving the mass of the worm.
-	 * 		|	result == getMaxNumberOfActionPoints(this.getMass())
+	 * 		|	result == massRoundedToNearestInteger(this.getMass())
 	 */
 	@Raw
 	public int getMaxNumberOfActionPoints(){
-		return getMaxNumberOfActionPoints(getMass());
-	}	
-
+		return massRoundedToNearestInteger(getMass());
+	}
+	
 	/**
 	 * Return the current number of action points of the worm.
 	 * 	The current number of action points expresses the number of action points this worm has left.
@@ -227,11 +240,57 @@ public class Worm extends MovableGameObject {
 			numberOfActionPoints = this.getMaxNumberOfActionPoints();
 		this.numberOfActionPoints = numberOfActionPoints;
 	}
-	
+
 	/**
 	 * Variable registering the current number of action points of this worm.
 	 */	
 	private int numberOfActionPoints;
+
+	/**
+	 * Return the maximum number of hit points of the worm.
+	 * @return	Maximum number of hit points of the worm based on calculations involving the mass of the worm.
+	 * 		|	result == massRoundedToNearestInteger(this.getMass())
+	 */
+	@Raw
+	public int getMaxNumberOfHitPoints(){
+		return massRoundedToNearestInteger(getMass());
+	}	
+
+	/**
+	 * Return the current number of hit points of the worm.
+	 * 	The current number of hit points expresses the number of hit points this worm has left.
+	 */	
+	@Basic
+	public int getNumberOfHitPoints() {
+		return numberOfHitPoints;
+	}
+
+	/**
+	 * Set the number of action points of this worm to the given number of action points.
+	 * 
+	 * @param	numberOfHitPoints
+	 * 			The new number of hit points for this worm.
+	 * @post	If the given number of hit points is not below zero and not above the maximum number of hit points,
+	 * 			the new number of hit points of this worm is equal to the given number of hit points.
+	 * 			If the given number of hit points is negative, the new number of hit points is equal to zero.
+	 * 			If the given number of hit points is greater than the maximum number of hit points, the new number
+	 * 			of hit points is equal to the maximum number of hit points.
+	 * 		|	if ((numberOfHitPoints >= 0) && (numberOfHitPoints <= this.getMaxNumberOfHitPoints())) new.getNumberOfHitPoints == numberOfHitPoints
+	 * 		|	else if (numberOfHitPoints < 0) new.getNumberOfHitPoints == 0
+	 * 		|	else if (numberOfHitPoints > this.getMaxNumberOfHitPoints()) new.getNumberOfHitPoints == this.getMaxNumberOfHitPoints
+	 */
+	private void setNumberOfHitPoints(int numberOfHitPoints){
+		if(numberOfHitPoints < 0)
+			numberOfHitPoints = 0;
+		else if(numberOfHitPoints > this.getMaxNumberOfHitPoints())
+			numberOfHitPoints = this.getMaxNumberOfHitPoints();
+		this.numberOfHitPoints = numberOfHitPoints;
+	}
+	
+	/**
+	 * Variable registering the current number of hit points of this worm.
+	 */	
+	private int numberOfHitPoints;
 		
 	/**
 	 * Check whether the given number of steps is a possible number of steps for any worm.

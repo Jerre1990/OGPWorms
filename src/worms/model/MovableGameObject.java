@@ -8,7 +8,7 @@ import be.kuleuven.cs.som.annotate.*;
  * 
  * @Invar	Each movable game object can have its radius as its radius.
  * 		|	this.canHaveAsRadius(this.getRadius())
- * @Invar	Each movable game object can have its direction as its direction.
+ * @Invar	Each movable game object has a valid direction.
  * 		|	this.isValidDirection(this.getDirection())
  * 
  * 
@@ -21,7 +21,7 @@ public abstract class MovableGameObject extends GameObject{
 	
 	/**
 	 * Initialize this new movable game object with given x-coordinate, given y-coordinate, given radius, given lower bound of this radius and given direction.
-
+	 * 
 	 * @param	x
 	 * 			The x-coordinate of the movable game object expressed in metres.
 	 * @param	y
