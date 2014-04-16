@@ -3,6 +3,7 @@ package worms.model;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ public class World {
 		this.width = width;
 		this.height = height;
 		setPassableMap(passableMap);
+		setRandom(random);
 	}
 
 	@Basic
@@ -91,6 +93,16 @@ public class World {
 	
 	private boolean[][] passableMap;
 	
+	public Random getRandom() {
+		return random;
+	}
+
+	public void setRandom(Random random) {
+		this.random = random;
+	}
+
+	Random random;
+	
 	/**
 	 * @return	
 	 */
@@ -120,8 +132,11 @@ public class World {
 		if (object.getWorld() != this){
 			return false;
 		}
-		return false;
+		
+		
 	}
+	return true;
+	
 	}
 	
 	/**
@@ -162,11 +177,12 @@ public class World {
 	 */
 	public void terminate() {
 		for (GameObject object: objects)
-			if (! object.isTerminated()) {
+			if (! object.isRemovedFromWorld()) {
 				object.setWorld(null);
 				this.objects.remove(object);
-				this.isTerminated = true;
+				
 		}
+		this.isTerminated = true;
 	}
 	
 	/**
@@ -175,7 +191,7 @@ public class World {
 	 * 			( (object == null)
 	 * 			|| canHaveAsGameObject(object) )
 	 */
-	private final Set<GameObject> objects = new HashSet<GameObject>();
+	private final Collection<GameObject> objects = new HashSet<GameObject>();
 	
 	@Basic @Raw
 	public boolean isTerminated(){
@@ -199,6 +215,9 @@ public class World {
 			throw new IllegalArgumentException("This is not a proper object for this world");
 		if (object.getWorld() != null)
 			throw new IllegalArgumentException("This object appears in another world");
+		if (isStarted == true && ( object instanceof Worm || object instanceof Food )){
+			throw new IllegalArgumentException("Cannot add worms or worm food during the game");
+		}
 		else
 			this.objects.add(object);
 			object.setWorld(this);
@@ -214,9 +233,9 @@ public class World {
 	 * 			The game object to check.
 	 * @return	if (object == null)
 	 * 				then result == false
-	 * 			if (! this.isTerminated())
+	 * 			if (this.isTerminated())
 	 * 				then result == false
-	 * 			if (! object.isTerminated())
+	 * 			if (! object.getWorld() == null)
 	 * 				then result == false
 	 * 			else result == 
 	 * 				(! objects.equals(object))
@@ -224,7 +243,7 @@ public class World {
 	public boolean canHaveAsGameObject(GameObject object) {
 		return ( (object != null)
 				&& (! this.isTerminated())
-				&& (! object.isTerminated())
+				&& (object.getWorld() == null)
 				&& (! objects.equals(object)));
 	}
 	
@@ -266,39 +285,118 @@ public class World {
 			throw new IllegalArgumentException();
 		if (method.getReturnType() == void.class) 
 			throw new IllegalArgumentException() ;
-		
-		Collection<Object> result = new HashSet<Object>();
-		for (GameObject gameObject: gameObjects)
+		Collection<Object> result;
+		Method[] methods = Food.class.getMethods();
+		if (Arrays.asList(methods).contains(method)){
+			Set<Object> result = new HashSet<Object>();
+			for (GameObject gameObject: gameObjects)
+				try {
+					result.add(method.invoke(gameObject));
+				}	catch (IllegalAccessException exc) {
+					assert false;
+					}
+		}
+			
+		else {
+				List<Object> result = new ArrayList<Object>();
+				for (GameObject gameObject: gameObjects)
 			try {
-				result.add(method.invoke(gameObject));		
+				result.add(method.invoke(gameObject));
 			}	catch (IllegalAccessException exc) {
 				assert false;
 			}
-		
-		return result;		
-	}
-	
-	
-	public Collection<Object> getAllCoordinatesOnRadius(double x, double y, double radius){
-		Collection<Object> result = new HashSet<Object>();
-		double direction = 0;
-		double xStart = x + radius*(Math.cos(direction));
-		double yStart = y + radius*(Math.sin(direction));
-		for (direction = 0; direction <= 2* (Math.PI); )
-			if (passableMap[yStart][xStart]){
-				direction = direction + Double.MIN_VALUE;
 			}
-			else return false
 		return result;
+				
+	}
+	/**
+	 * Check whether the given coordinate is a valid coordinate.
+	 * 
+	 * @param 	coordinate
+	 * 			The x or y coordinate to check.
+	 * @param 	upperBound
+	 * 			The maximum value of coordinate which is the width, in case of an x coordinate, or the height, in case of a y coordinate.
+	 * @return	result == (coordinate<= upperBound)
+	 */
+	public boolean isValidCoordinateForConversion(double coordinate, double upperBound){
+		if(coordinate<= upperBound && 0 <= coordinate){
+		return true;
+		}
+		else return false;
 	}
 	
+	/**
+	 * Return the pixel coordinate associated with the given x coordinate.
+	 * 
+	 * @param 	x
+	 * 			The x coordinate to convert to a pixel coordinate
+	 * @throws	IllegalArgumentException
+	 * 			(! isValidCoordinateForConversion(x, width))	
+	 */
+	public int getPixelXCoordinate(double x) throws IllegalArgumentException {
+		if (isValidCoordinateForConversion(x, width)){
+		double pixelWidth =passableMap.length/width;
+		int pixelCoordinate = passableMap.length;
+			for (double i = passableMap.length; i>=0;){
+			if (x>=i) {
+				break;
+				
+			}
+			pixelCoordinate = pixelCoordinate - 1;
+			i = i - pixelWidth;
+		}
+		return pixelCoordinate;
+		}
+		else throw new IllegalArgumentException("The x coordinate is too large");
+	}
+	
+	/**
+	 * 
+	 * @param 	y
+	 * 			The x coordinate to convert to a pixel coordinate
+	 * @throws 	IllegalArgumentException
+	 * 			(! isValidCoordinateForConversion(y, height))
+	 */
+	public int getPixelYCoordinate(double y) throws IllegalArgumentException{
+		if (isValidCoordinateForConversion(y, height)){
+		double pixelWidth =passableMap[0].length/height;
+		int pixelCoordinate = passableMap[0].length;
+			for (double i = passableMap[0].length; i>=0;){
+			if (y>=i) {
+				break;
+				
+			}
+			pixelCoordinate = pixelCoordinate - 1;
+			i = i - pixelWidth;
+		}
+		return pixelCoordinate;
+		}
+		else throw new IllegalArgumentException("The y coordinate is too large");
+	}
+	
+
+	/**
+	 * Check whether a circle with a center determined by given x coordinate and y coordinate and given radius is impassable terrain.
+	 * 
+	 * @param 	x
+	 * 			The x coordinate of the center of the circle to check.
+	 * @param 	y
+	 * 			The y coordinate of the center of the circle to check.
+	 * @param 	radius
+	 * 			The radius of the circle to check.	
+	 * @return	for each direction in [0,2*PI]
+	 * 				if(passableMap[getPixelXCoordinate(yStart)][getPixelXCoordinate(xStart)])
+	 * 					result == false
+	 * 				else
+	 * 					result == true
+	 * 				
+	 */
 	public boolean isImpassable(double x, double y, double radius){
-		Collection<Object> result = new HashSet<Object>();
 		double direction = 0;
 		double xStart = x + radius*(Math.cos(direction));
 		double yStart = y + radius*(Math.sin(direction));
 		for (direction = 0; direction <= 2* (Math.PI); )
-			if (passableMap[yStart][xStart]){
+			if (passableMap[getPixelXCoordinate(xStart)][getPixelYCoordinate(yStart)]){
 				direction = direction + Double.MIN_VALUE;
 				 xStart = x + radius*(Math.cos(direction));
 				 yStart = y + radius*(Math.sin(direction));
@@ -308,14 +406,72 @@ public class World {
 		return false;
 	}
 	
-	public boolean isAdjacentLocation(double x, double y, double radius, GameObject object){
+	/**
+	 * 
+	 * @param 	x
+	 * 			The x coordinate of the center of the circle to check.
+	 * @param 	y
+	 * 			The y coordinate of the center of the circle to check.
+	 * @param 	radius
+	 * 			The radius of the circle to check.	
+	 * @return	for each i in getPixelXCoordinate(x - radius) ... getPixelXCoordinate(x + radius)
+	 * 				for each i in getPixelYCoordinate(y - radius) ... getPixelYCoordinate(y + radius
+	 * 					if (passableMap[xLowerBound][yLowerBound])
+	 * 						result == true;
+	 * 					else result == false;
+	 * 
+	 */		
+	public boolean isImpassable2(double x, double y, double radius){
+		int xUpperBound = getPixelXCoordinate(x + radius);
+		int yUpperBound = getPixelYCoordinate(y + radius);
+		int xLowerBound = getPixelXCoordinate(x - radius);
+		int yLowerBound = getPixelYCoordinate(y - radius);
+		outerbound:
+		while ( xLowerBound<= xUpperBound)
+			while (yLowerBound<= yUpperBound)
+				if (passableMap[xLowerBound][yLowerBound]){
+					xLowerBound = xLowerBound + 1 ;
+				}
+				else break outerbound;
+			yLowerBound = yLowerBound + 1;
+		
+	return true;
+	
+	}
+	
+	
+	/**
+	 * Check whether a circle with a center determined by given x coordinate and y coordinate and given radius is adjacent to impassable terrain.
+	 * 
+	 * @param 	x
+	 * 			The x coordinate of the center of the circle to check.
+	 * @param 	y
+	 * 			The y coordinate of the center of the circle to check.
+	 * @param 	radius
+	 * 			The radius of the circle to check.		
+	 * @return	if (isImpassable(x, y, radius)
+	 * 				result == false
+	 * 			else result == (isImpassable (x, y, radius*0.1)
+	 */
+	public boolean isAdjacent(double x, double y, double radius){
 		double radiusExtended = radius*0.1;
-		if (isImpassable(x, y, radiusExtended )){
+		if (isImpassable(x, y, radius)){
 			return false;
-		}
-		return true;
+		} 
+		else return (isImpassable (x, y, radiusExtended));
 		
 	}
+	
+	
+	public void startGame(){
+		isStarted = true;
+	}
+	
+	public boolean isStarted(){
+		return isStarted;
+	}
+	
+	private boolean isStarted;
 }
 
 
