@@ -2,7 +2,10 @@ package worms.model;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Random;
 
 import org.junit.*;
@@ -26,7 +29,10 @@ public class WorldTest {
 	
 	private static boolean[][] map, map2, map3, map4;
 	
-	private static Random random = new Random(54);
+	private static Random random, random2,random3;
+	
+	
+	private static GameObject object1, object2, object3, object4, object5, object6;
 
 	/**
 	 * Set up a mutable test fixture
@@ -44,6 +50,13 @@ public class WorldTest {
 				else map[i][u] = true;
 		}			
 		world1 = new World(10.36, 15.877, map, random);
+		
+		world1.addAsGameObject(object1);
+		world1.addAsGameObject(object2);
+		world1.addAsGameObject(object3);
+		world1.addAsGameObject(object4);
+		world1.addAsGameObject(object5);
+		
 	}
 
 
@@ -71,8 +84,8 @@ public class WorldTest {
 					map3[i][u] = false;
 				else map3[i][u] = true;
 		}
-		world2 = new World(25.58, 30.56, map2, random);
-		world3 = new World(18.62, 13.457, map3, random);
+		world2 = new World(25.58, 30.56, map2, random2);
+		world3 = new World(18.62, 13.457, map3, random3);
 	}	
 	
 	@Test
@@ -84,7 +97,6 @@ public class WorldTest {
 		 for (int i=0; i>map4.length; i++) {
 		assertTrue(Arrays.equals(map4[i], myWorld.getPassableMap()[i]));
 		}
-		assertEquals(random, myWorld.getRandom());
 	}
 	
 	@Test
@@ -99,4 +111,179 @@ public class WorldTest {
 		world1.setPassableMap(map2);
 		assertArrayEquals(map2, world1.getPassableMap());
 	}
+	
+	@Test 
+	public void isValidWidth_LegalCaseTrue() {
+		assertTrue(world1.isValidWidth(5.5));
+	}
+	
+	@Test 
+	public void isValidWidth_LegalCaseFalse() {
+		assertFalse(world1.isValidWidth(-10));
+	}
+	
+	@Test 
+	public void isValidHeight_LegalCaseTrue() {
+		assertTrue(world1.isValidHeight(7.65));
+	}
+	
+	@Test 
+	public void isValidHeight_LegalCaseFalse() {
+		assertFalse(world1.isValidHeight(-20.3));
+	}
+	
+	@Test 
+	public void hasProperGameObjects_LegalCaseTrue() {
+		assertTrue(world1.hasProperGameObjects());
+	}
+	
+	@Test 
+	public void hasProperGameObjects_LegalCaseFalseNullReference() {
+		world1.addAsGameObject(null);
+		assertFalse(world1.hasProperGameObjects());
+	}
+	
+	@Test 
+	public void hasProperGameObjects_LegalCaseFalseWorldTerminated() {
+		world1.terminate();
+		assertFalse(world1.hasProperGameObjects());
+	}
+	
+	@Test 
+	public void hasProperGameObjects_LegalCaseFalseObjectInOtherWorld() {
+		object5.setWorld(world2);
+		assertFalse(world1.hasProperGameObjects());
+	}
+	
+	@Test 
+	public void hasProperGameObjects_LegalCaseFalseObjectTwoTimesInWorld() {
+		world1.addAsGameObject(object5);
+		assertFalse(world1.hasProperGameObjects());
+	}
+	
+	@Test 
+	public void hasProperGameObjects_LegalCaseFalseObjectNotReferencingWorld() {
+		object5.setWorld(null);
+		assertFalse(world1.hasProperGameObjects());
+	}
+	
+	@Test 
+	public void canHaveAsGameObject_LegalCaseTrue() {
+		assertTrue(world1.canHaveAsGameObject(object1));
+	}
+	
+	@Test 
+	public void canHaveAsGameObject_LegalCaseFalseNullReference() {
+		assertFalse(world1.canHaveAsGameObject(null));
+	}
+	
+	@Test 
+	public void canHaveAsGameObject_LegalCaseFalseWorldTerminated() {
+		world1.terminate();
+		assertFalse(world1.canHaveAsGameObject(object1));
+	}
+	
+	@Test 
+	public void canHaveAsGameObject_LegalCaseFalseObjectInOtherWorld() {
+		object1.setWorld(world2);
+		assertFalse(world1.canHaveAsGameObject(object1));
+	}
+	
+	@Test 
+	public void canHaveAsGameObject_LegalCaseFalseTwoTimesInWorld() {
+		world1.addAsGameObject(object5);
+		assertFalse(world1.canHaveAsGameObject(object1));
+	}
+	
+	@Test 
+	public void hasAsGameObject_LegalCaseTrue() {
+		assertTrue(world1.hasAsGameObject(object5));
+	}
+	
+	@Test 
+	public void hasAsGameObject_LegalCaseFalse() {
+		assertFalse(world1.hasAsGameObject(object6));
+	}
+	
+	@Test 
+	public void removeAsGameObject_LegalCase() {
+		world1.removeAsGameObject(object5);
+		assertFalse(world1.hasAsGameObject(object5));
+		assertEquals(object5.getWorld(), world1);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void removeAsGameObject_ObjectNotInWorld() throws Exception {
+		world1.removeAsGameObject(object6);
+	}
+	
+	@Test 
+	public void terminate_LegalCase() {
+		GameObject[] objects = world1.getObjects().toArray(new GameObject[5]);
+		for (int i = 0; i<5;i++){
+			assertTrue(objects[i].equals(null));
+		}
+		assertTrue(world1.isTerminated());
+	}
+	
+	@Test 
+	public void isTerminated_LegalCaseTrue() {
+		world1.terminate();
+		assertTrue(world1.isTerminated());
+	}
+	
+	@Test 
+	public void isTerminated_LegalCaseFalse() {
+		assertFalse(world1.isTerminated());
+	}
+	
+	@Test 
+	public void addAsGameObject_LegalCaseTrue() {
+		world1.addAsGameObject(object6);
+		assertTrue(world1.hasAsGameObject(object6));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAsGameObject_NullReference() throws Exception {
+		world1.addAsGameObject(null);
+		assertFalse(world1.hasAsGameObject(null));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAsGameObject_WorldTerminated() throws Exception {
+		world1.terminate();
+		world1.addAsGameObject(object6);
+		assertFalse(world1.hasAsGameObject(object6));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAsGameObject_ObjectInOtherWorld() throws Exception {
+		object6.setWorld(world2);
+		world1.addAsGameObject(object6);
+		assertFalse(world1.hasAsGameObject(object6));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAsGameObject_TwoObjectsInOtherWorld() throws Exception {
+		object5.setWorld(world1);
+		world1.addAsGameObject(object5);
+		assertEquals(world1.getNbGameObjects(), 5);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAsGameObject_GameStartedAddWorm() throws Exception {
+		world1.startGame();
+		object6 = (Worm) object6;
+		world1.addAsGameObject(object6);
+		assertFalse(world1.hasAsGameObject(object6));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAsGameObject_GameStartedAddFood() throws Exception {
+		world1.startGame();
+		object6 = (Food) object6;
+		world1.addAsGameObject(object6);
+		assertFalse(world1.hasAsGameObject(object6));
+	}
+	
 }

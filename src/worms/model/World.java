@@ -41,7 +41,7 @@ public class World {
 		this.width = width;
 		this.height = height;
 		setPassableMap(passableMap);
-		setRandom(random);
+		isTerminated = false;
 	}
 
 	@Basic
@@ -93,15 +93,6 @@ public class World {
 	
 	private boolean[][] passableMap;
 	
-	public Random getRandom() {
-		return random;
-	}
-
-	public void setRandom(Random random) {
-		this.random = random;
-	}
-
-	Random random;
 	
 	/**
 	 * @return	
@@ -133,7 +124,6 @@ public class World {
 			return false;
 		}
 		
-		
 	}
 	return true;
 	
@@ -152,14 +142,13 @@ public class World {
 	 * @param	object
 	 * 			The object to be removed
 	 * @post	! new.hasAsGameObject(object)
-	 * @post	if (hasAsGameObject(object))
-	 * 				((new object).getWorld() == null)
-	 * @throws	(! hasAsGameObject)
+	 * @post	((new object).getWorld() == this)	 * 				
+	 * @throws	IllegalArgumentException
+	 * 			(! hasAsGameObject)
 	 */
 	public void removeAsGameObject(GameObject object) throws IllegalArgumentException {
 		if (hasAsGameObject(object)) {
 			this.objects.remove(object);
-			object.setWorld(null);
 		}
 		else throw new IllegalArgumentException("This object does not belong to this world");
 		
@@ -170,18 +159,16 @@ public class World {
 	 * 
 	 * @post	new.isTerminated()
 	 * 
-	 *@effect	for each object in getAllGameObjects:
-	 *			if (! object.isTerminated())
+	 * @effect	for each object in getAllGameObjects:
+	 *			if (! isRemovedFromWorld())
 	 *				then this.removeAsGameObject(object) 	
 	 * 
 	 */
 	public void terminate() {
 		for (GameObject object: objects)
 			if (! object.isRemovedFromWorld()) {
-				object.setWorld(null);
 				this.objects.remove(object);
-				
-		}
+			}
 		this.isTerminated = true;
 	}
 	
@@ -193,6 +180,10 @@ public class World {
 	 */
 	private final Collection<GameObject> objects = new HashSet<GameObject>();
 	
+	public Collection<GameObject> getObjects() {
+		return objects;
+	}
+
 	@Basic @Raw
 	public boolean isTerminated(){
 		return this.isTerminated;

@@ -1,5 +1,8 @@
 package worms.model;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import worms.util.Util;
 import be.kuleuven.cs.som.annotate.*;
 
@@ -354,4 +357,9 @@ public abstract class GameObject {
 	
 	private boolean removedFromWorld;
 	
+	@Raw
+	public GameObject getGameObject(){
+		GameObject result;
+		return result;
+	}
 }
