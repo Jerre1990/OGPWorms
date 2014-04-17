@@ -152,9 +152,9 @@ public class World {
 	private boolean isPassablePartOfPixeledHollowedCircle(Position center, double radiusOfCircle, double radiusOfVoid, boolean[] quadrantsToCheck) throws IllegalArgumentException{
 		boolean isPassable = true;
 		if (! (radiusOfVoid < radiusOfCircle))
-			throw new IllegalArgumentException("Not a valid hollowed circle!");
+			radiusOfVoid = 0;
 		if (quadrantsToCheck.length != 4)
-			throw new IllegalArgumentException("Not enough checkable quandrants!");
+			quadrantsToCheck = new boolean[] {true,true,true,true};
 		double centerX = center.getX();
 		double centerY = center.getY();
 		double centerXDoubled = 2 * centerX;
@@ -166,8 +166,8 @@ public class World {
 		double pixelWidth = this.getPixelWidth();
 		double pixelHeight = this.getPixelHeight();
 		while (isPassable){
-			while (x <= xMax){
-				while (y <= yMax){
+			while (x < xMax){
+				while (y < yMax){
 					if ((this.isImpassablePosition(new Position(x,y)) && quadrantsToCheck[0]) || (this.isImpassablePosition(new Position(x,(centerYDoubled - y))) && quadrantsToCheck[3]) || (this.isImpassablePosition(new Position((centerXDoubled - x),y)) && quadrantsToCheck[1]) || (this.isImpassablePosition(new Position((centerXDoubled - x),(centerYDoubled - y))) && quadrantsToCheck[2]))
 						isPassable = false;
 					y += pixelHeight;
@@ -185,14 +185,21 @@ public class World {
 		return this.isPassablePartOfPixeledHollowedCircle(center, radius, 0, fullCircle);
 	}
 	
+	private boolean isAdjacentToImpassableTerrain(Position center, double radius, boolean[] quadrants){
+		boolean[] fullCircle = {true,true,true,true};
+		boolean isPassable = this.isPassablePartOfPixeledHollowedCircle(center, radius, 0, fullCircle);
+		boolean isAdjacent = ! this.isPassablePartOfPixeledHollowedCircle(center, (radius * 1.1), radius, quadrants);
+		return (isPassable && isAdjacent);
+	}
+	
 	public boolean isAdjacentToImpassableTerrain(Position center, double radius){
 		boolean[] fullCircle = {true,true,true,true};
-		if (this.getPixelWidth() > this.getPixelHeight()){
-			double nextRadius = 
-		}
-		boolean isPassable = this.isPassablePartOfPixeledHollowedCircle(center, radius, 0, fullCircle);
-		boolean isAdjacent = ! this.isPassablePartOfPixeledHollowedCircle(center, radius, (radius * 1.1), fullCircle);
-		return (isPassable && isAdjacent);
+		return this.isAdjacentToImpassableTerrain(center, radius, fullCircle);
+	}
+	
+	public boolean hasUnderGround(Position center, double radius){
+		boolean[] bottomHalfOfCircle = {false,false,true,true};
+		return this.isAdjacentToImpassableTerrain(center, radius, bottomHalfOfCircle);
 	}
 
 	/**
