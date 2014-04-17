@@ -200,6 +200,9 @@ public abstract class MovableGameObject extends GameObject{
 	private double initialVelocity(){
 		return ((this.getInitialForce() / this.getMass()) * 0.5);
 	}
+	
+	@Model
+	protected abstract boolean stopConditionDuringJump(Position inFlightPosition);
 		
 	/**
 	 * Return the time passed after a jump of this movable game object.
@@ -207,16 +210,17 @@ public abstract class MovableGameObject extends GameObject{
 	 * @param	timeStep
 	 * 			An elementary time interval during which it may be assumed that the movable game object will not completely move through a piece of impassable terrain.
 	 * @return	The time passed after a jump of this movable game object during which it did not pass completely through any impassable terrain.
-	 * 		|	return jumpTime
-	 * 			in
-	 * 				jumpTime = 0.0
-	 * 				while (! this.getWorld().isImpassable(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep),this.getRadius()))
-	 * 					jumpTime = jumpTime + timeStep
+	 * 		|	
 	 */
 	public double jumpTime(double timeStep){
 		double jumpTime = 0.0;
-		while (! this.getWorld().isImpassable(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep),this.getRadius()))
-			jumpTime = jumpTime + timeStep;
+		Position newPosition = new Position(this.jumpStepOnXAxis(jumpTime),this.jumpStepOnYAxis(jumpTime));
+		while (this.getWorld().isPassable(newPosition,this.getRadius())){
+			jumpTime += timeStep;
+			newPosition = new Position(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep));
+			if (this.stopConditionDuringJump(newPosition))
+				break;
+		}
 		return jumpTime;
 	}
 	
@@ -244,7 +248,7 @@ public abstract class MovableGameObject extends GameObject{
 	 */		
 	@Model
 	private double jumpStepOnYAxis(double timePassed){
-		return (this.getY() + ((this.initialVelocity() * Math.sin(direction) * timePassed) - ((0.5) * EARTHS_STANDARD_ACCELERATION * Math.pow(timePassed, 2))));
+		return (this.getY() + ((this.initialVelocity() * Math.sin(this.getDirection()) * timePassed) - ((0.5) * EARTHS_STANDARD_ACCELERATION * Math.pow(timePassed, 2))));
 	}	
 	
 	/**
@@ -256,19 +260,12 @@ public abstract class MovableGameObject extends GameObject{
 	 * 		|	result[1] == jumpStepOnYAxis(timePassed)
 	 */	
 	public double[] jumpStep(double timePassed){
-		double [] coordinatesAfterJumpStep = {jumpStepOnXAxis(timePassed),jumpStepOnYAxis(timePassed)};
+		double [] coordinatesAfterJumpStep = {this.jumpStepOnXAxis(timePassed),this.jumpStepOnYAxis(timePassed)};
 		return coordinatesAfterJumpStep;
 	}
 	
-	/**
-	 * Check whether this movable game object can jump.
-	 * 
-	 * @return	True if and only if some part of the area covered by this movable game object is impassable in the world in which this movable game object resides.
-	 * 		|	result == this.getWorld().isImpassable(this.getX(), this.getY(), this.getRadius())
-	 */	
-	@Model
-	protected boolean canJump(){
-		return this.getWorld().isImpassable(this.getX(), this.getY(), this.getRadius());
+	protected boolean canJump(double timeStep){
+		return (this.jumpTime(timeStep) != 0.0);
 	}
 	
 	/**
@@ -285,12 +282,9 @@ public abstract class MovableGameObject extends GameObject{
 	 * 		|	! this.canJump()
 	 */	
 	public void jump(double timeStep){
-		if(! this.canJump())
+		if (this.canJump(timeStep))
 			throw new UnsupportedOperationException("Cannot jump!");
-		else {
-			this.setX(jumpStepOnXAxis(this.jumpTime(timeStep)));
-			this.setY(jumpStepOnYAxis(this.jumpTime(timeStep)));
-		}
+		this.setPosition(this.jumpStepOnXAxis(this.jumpTime(timeStep)), this.jumpStepOnYAxis(this.jumpTime(timeStep)));
 	}
 	
 	/**

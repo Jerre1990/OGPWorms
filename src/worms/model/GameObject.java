@@ -120,7 +120,7 @@ public abstract class GameObject {
 	 * 			The given y-coordinate is not a valid coordinate for the position of any game object.
 	 * 		|	! this.getPosition().isValidCoordinate(y)
 	 */
-	private void setPosition(double x, double y) throws IllegalArgumentException {
+	protected void setPosition(double x, double y) throws IllegalArgumentException {
 		position = new Position (x,y);
 	}
 	

@@ -267,7 +267,7 @@ public class Worm extends MovableGameObject {
 	 * @effect	The new number of action points of this worm complies to its invariant (boundaries defined in the setter).
 	 * 		|	0 <= new.getNumberOfActionPoints() <= new.getMaxNumberOfActionPoints()
 	 */
-	public void restoreNumberOfActionPoints(){
+	protected void restoreNumberOfActionPoints(){
 		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
 	}
 
@@ -338,7 +338,7 @@ public class Worm extends MovableGameObject {
 	 * @effect	The new number of hit points of this worm complies to its invariant (boundaries defined in the setter).
 	 * 		|	0 <= new.getNumberOfHitPoints() <= new.getMaxNumberOfHitPoints()
 	 */
-	public void decreaseNumberOfHitPointsBy(int decrement){
+	protected void decreaseNumberOfHitPointsBy(int decrement){
 		this.setNumberOfHitPoints(this.getNumberOfHitPoints() - decrement);
 	}
 	
@@ -436,16 +436,22 @@ public class Worm extends MovableGameObject {
 		return ((5 * this.getNumberOfActionPoints()) + (this.getMass() * EARTHS_STANDARD_ACCELERATION));
 	}
 	
-	/**
-	 * Check whether this worm can jump.
-	 * 
-	 * @return	True if and only if this worm can jump as a movable game object
-	 * 			and if the current number of action points of this worm is not zero.
-	 * 		|	result == super.canJump() && (this.getNumberOfActionPoints() > 0)
-	 */	
+	@Override
+	protected boolean stopConditionDuringJump(Position inFlightPosition){
+		return this.getWorld().isAdjacentToImpassableTerrain(inFlightPosition, this.getRadius());
+	}
+	
 	@Model @ Override
-	protected boolean canJump(){
-		return (super.canJump() && (this.getNumberOfActionPoints() > 0));
+	protected boolean canJump(double timeStep){
+		double jumpTime = this.jumpTime(timeStep);
+		double[] jumpStep = this.jumpStep(jumpTime);
+		return (super.canJump(timeStep) && (this.getNumberOfActionPoints() > 0) && (this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius()));
+	}
+	
+	@Override
+	public void jump(double timeStep){
+		super.jump(timeStep);
+		this.setNumberOfActionPoints(0);
 	}
 
 	private double getSlopeOfPossibleMove(double xAfterMove, double yAfterMove){
