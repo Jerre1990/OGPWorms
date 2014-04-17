@@ -67,6 +67,51 @@ public class Position {
 	}	
 	
 	/**
+	 * Return the x-coordinate of this position, expressed in pixels with given width.
+	 * 
+	 * @param 	pixelWidth
+	 * 			The given width of a pixel
+	 * @return	The x-coordinate of this position, expressed in pixels
+	 * 		|	Result == 
+	 */
+	private int getPixelCoordinateOfX(double pixelWidth) throws UnsupportedOperationException{
+		long longResult = Math.round(this.getX()/pixelWidth);
+		if (longResult > Integer.MAX_VALUE)
+			throw new UnsupportedOperationException("Pixelcoordinate is too big!");
+		return (int)longResult;
+	}
+	
+	/**
+	 * Return the y-coordinate of this position, expressed in pixels with given height.
+	 * 
+	 * @param 	pixelHeight
+	 * 			The given height of a pixel
+	 * @return	The y-coordinate of this position, expressed in pixels
+	 * 		|	Result == 
+	 */
+	private int getPixelCoordinateOfY(double pixelHeight) throws UnsupportedOperationException{
+		long longResult = Math.round(this.getY()/pixelHeight);
+		if (longResult > Integer.MAX_VALUE)
+			throw new UnsupportedOperationException("Pixelcoordinate is too big!");
+		return (int)longResult;
+	}
+	
+	/**
+	 * Return the coordinates of this position expressed in pixels with given width and height.
+	 * 
+	 * @param 	pixelWidth
+	 * 			The given width of a pixel
+	 * @param 	pixelHeight
+	 * 			The given height of a pixel
+	 * @return	The coordinates of this position, expressed in pixels
+	 * 		|	Result == {this.getPixelCoordinateOfX(pixelWidth), this.getPixelCoordinateOfY(pixelHeight)}
+	 */
+	public int[] getPixelCoordinates(double pixelWidth, double pixelHeight){
+		int[] pixelCoordinates = {this.getPixelCoordinateOfX(pixelWidth), this.getPixelCoordinateOfY(pixelHeight)};
+		return pixelCoordinates;
+	}
+	
+	/**
 	 * Check whether the given coordinate is a valid coordinate for any position.
 	 * 
 	 * @param 	coordinate
@@ -129,6 +174,50 @@ public class Position {
 	@Override
 	public String toString () {
 		return "(" + getX() + "," + getY() + ")";
+	}
+	
+	/**
+	 * Return the euclidean distance between two positions of which the coordinates are given.
+	 * 
+	 * @param	x1
+	 * 			The x-coordinate of the first position
+	 * @param	x2
+	 * 			The x-coordinate of the second position
+	 * @param	y1
+	 * 			The y-coordinate of the first position
+	 * @param	y2
+	 * 			The y-coordinate of the second position
+	 * @return	The euclidean distance between the two positions, defined by the given coordinates.
+	 * 		|	result == Math.sqrt(Math.pow((x2 - x1),2) + Math.pow((y2 - y1),2))
+	 */
+	public static double euclideanDistance(double x1, double x2, double y1, double y2){
+		return Math.sqrt(Math.pow((x2 - x1),2) + Math.pow((y2 - y1),2));
+	}
+	
+	/**
+	 * Return the euclidean distance between this position and the given position.
+	 * 
+	 * @param	otherPosition
+	 * 			The given position to which the euclidean distance shall be calculated starting from this position
+	 * @return	The euclidean distance between this position and the given position
+	 * 		|	result == euclideanDistance(this.getX(), otherPosition.getX(), this.getY(), otherPosition.getY())
+	 */
+	public double distanceFromPosition(Position otherPosition){
+		return euclideanDistance(this.getX(), otherPosition.getX(), this.getY(), otherPosition.getY());
+	}
+	
+	/**
+	 * Return the euclidean distance between this position and the given position which is explicitly expressed in coordinates.
+	 * 
+	 * @param	x
+	 * 			The x-coordinate of the given position to which the euclidean distance shall be calculated starting from this position
+	 * @param	y
+	 * 			The y-coordinate of the given position to which the euclidean distance shall be calculated starting from this position
+	 * @return	The euclidean distance between this position and the given position
+	 * 		|	result == euclideanDistance(this.getX(), x, this.getY(), y)
+	 */
+	public double distanceFromPositionWithCoordinates(double x, double y){
+		return euclideanDistance(this.getX(), x, this.getY(), y);
 	}
 
 }

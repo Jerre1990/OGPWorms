@@ -77,8 +77,8 @@ public abstract class GameObject {
 	 * 	The position expresses the position at which the game object is located
 	 * 	and contains the x-coordinate and the y-coordinate of the game object respectively.
 	 */
-	@Basic @Model
-	private Position getPosition() {
+	@Basic
+	public Position getPosition() {
 		return this.position;
 	}
 
@@ -141,7 +141,7 @@ public abstract class GameObject {
 	 * 			The given x-coordinate is not a valid coordinate for the position of any game object.
 	 * 		|	! this.getPosition().isValidCoordinate(x)
 	 */
-	public void setX(double x) throws IllegalArgumentException{
+	protected void setX(double x) throws IllegalArgumentException{
 		this.setPosition(x,getY());
 	}
 
@@ -162,7 +162,7 @@ public abstract class GameObject {
 	 * 			The given y-coordinate is not a possible coordinate for the position of any game object.
 	 * 		|	! this.getPosition().isValidCoordinate(y)
 	 */
-	public void setY(double y) throws IllegalArgumentException{
+	protected void setY(double y) throws IllegalArgumentException{
 		this.setPosition(getX(),y);
 	}
 
@@ -264,7 +264,7 @@ public abstract class GameObject {
 	 * 			The given lower bound is not a valid lower bound for any game object.
 	 * 		|	! this.isValidLowerBoundOfRadius(lowerBound)
 	 */
-	public void setLowerBoundOfRadius(double lowerBound) throws IllegalArgumentException {
+	protected void setLowerBoundOfRadius(double lowerBound) throws IllegalArgumentException {
 		if (!this.isValidLowerBoundOfRadius(lowerBound))
 			throw new IllegalArgumentException("Invalid lower bound of radius!");
 		else{

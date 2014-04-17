@@ -1,5 +1,7 @@
 package worms.model;
 
+import java.util.Arrays;
+
 import be.kuleuven.cs.som.annotate.*;
 import worms.util.*;
 
@@ -140,17 +142,17 @@ public class Worm extends MovableGameObject {
 	private String name;
 
 	/**
-	 * Check whether the given radius is a possible radius for any worm.
+	 * Check whether this worm can have the given radius as its radius.
 	 * 
 	 * @param	radius
 	 * 			The radius to check.
 	 * @return	True if and only if this movable game object can have the given radius as its radius
-	 * 			and if the newly calculated maximum number of action points of this worm is positive.
-	 * 		|	result == (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0))
+	 * 			and if the newly calculated maximum number of action points and hit points of this worm are positive.
+	 * 		|	result == (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0) && (getMaxNumberOfHitPoints(radius) >= 0))
 	 */
 	@Model @Override
 	protected boolean canHaveAsRadius(double radius){
-		return (super.canHaveAsRadius(radius) && (massRoundedToNearestInteger(radius) >= 0));
+		return (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0) && (getMaxNumberOfHitPoints(radius) >= 0));
 	}
 
 	/**
@@ -160,22 +162,23 @@ public class Worm extends MovableGameObject {
 	 * 			The new radius of this worm.
 	 * @post	The new radius of this worm is equal to the given radius.
 	 * 		|	new.getRadius() == radius
-	 * @effect	This worm can have its new radius as its radius.
+	 * @post	This worm can have its new radius as its radius.
 	 * 		|	this.canHaveAsRadius(new.getRadius())
 	 * @effect	The new mass of this worm is equal to the newly calculated mass.
-	 * 			new.getMass() == (1062 * (4 / 3) * Math.PI * Math.pow(radius, 3))
+	 * 			new.getMass() == this.getMass(new.getRadius())
 	 * @effect	The new maximum number of action points of this worm is equal to the newly calculated maximum number of action points.
-	 * 		|	new.getMaxNumberOfActionPoints() == Math.round(this.getMass())
+	 * 		|	new.getMaxNumberOfActionPoints() == this.getMaxNumberOfActionPoints(new.getRadius())
 	 * @effect	The new maximum number of hit points of this worm is equal to the newly calculated maximum number of hit points.
-	 * 		|	new.getMaxNumberOfHitPoints() == Math.round(this.getMass())
+	 * 		|	new.getMaxNumberOfHitPoints() == this.getMaxNumberOfHitPoints(new.getRadius())
 	 * @effect	The new number of action points of this worm complies to its invariant (boundaries defined in the setter).
-	 * 		|	new.setNumberOfActionPoints(this.getNumberOfActionPoints)
+	 * 		|	0 <= new.getNumberOfActionPoints() <= new.getMaxNumberOfActionPoints()
 	 * @effect	The new number of hit points of this worm complies to its invariant (boundaries defined in the setter).
-	 * 		|	new.setNumberOfHitPoints(this.getNumberOfHitPoints)
+	 * 		|	0 <= new.getNumberOfHitPoints() <= new.getMaxNumberOfHitPoints()
 	 * @throws 	IllegalArgumentException("Invalid radius!")
-	 * 			The given radius is not a possible radius for any worm.
-	 * 		|	! isPossibleRadius(radius)
+	 * 			This worm cannot have the given radius as its radius.
+	 * 		|	! isValidRadius(radius)
 	 */
+	@Override
 	public void setRadius(double radius) throws IllegalArgumentException {
 		if (!canHaveAsRadius(radius))
 			throw new IllegalArgumentException("Invalid radius!");
@@ -187,22 +190,22 @@ public class Worm extends MovableGameObject {
 	}
 
 	/**
-	 * Return the mass of this worm, rounded to the nearest integer.
-	 * @param	mass
-	 * 			The given mass.
-	 * @return	Mass of this worm, rounded to the nearest integer.
-	 * 		|	if (Math.round(mass) > Integer.MAX_VALUE) result == Integer.MAX_VALUE
-	 * 		|	else result = Math.round(mass)
+	 * Return the given double precision number, rounded to the nearest integer.
+	 * @param	number
+	 * 			The given double precision number.
+	 * @return	The given double precision number, rounded to the nearest integer.
+	 * 		|	if (Math.round(number) > Integer.MAX_VALUE) result == Integer.MAX_VALUE
+	 * 		|	else result = Math.round(number)
 	 */
 	@Model
-	private int massRoundedToNearestInteger(double mass){
-		long longMass = Math.round(mass);
-		int intMass;
-		if(longMass > Integer.MAX_VALUE){
-			intMass = Integer.MAX_VALUE;
+	private int roundedToNearestInteger(double number){
+		long longNumber = Math.round(number);
+		int intNumber;
+		if(longNumber > Integer.MAX_VALUE){
+			intNumber = Integer.MAX_VALUE;
 		}
-		else intMass = (int) longMass;
-		return intMass;
+		else intNumber = (int) longNumber;
+		return intNumber;
 	}
 	
 	/**
@@ -210,10 +213,10 @@ public class Worm extends MovableGameObject {
 	 * @param	mass
 	 * 			The given mass
 	 * @return	Maximum number of action points for a worm based on calculations involving the given mass.
-	 * 		|	result == massRoundedToNearestInteger(mass)
+	 * 		|	result == roundedToNearestInteger(mass)
 	 */
 	private int getMaxNumberOfActionPoints(double mass){
-		return massRoundedToNearestInteger(mass);
+		return roundedToNearestInteger(mass);
 	}
 	
 	/**
@@ -245,9 +248,9 @@ public class Worm extends MovableGameObject {
 	 * 			If the given number of action points is negative, the new number of action points is equal to zero.
 	 * 			If the given number of action points is greater than the maximum number of action points, the new number
 	 * 			of action points is equal to the maximum number of action points.
-	 * 		|	if ((numberOfActionPoints >= 0) && (numberOfActionPoints <= this.getMaxNumberOfActionPoints())) new.getNumberOfActionPoints == numberOfActionPoints
-	 * 		|	else if (numberOfActionPoints < 0) new.getNumberOfActionPoints == 0
-	 * 		|	else if (numberOfActionPoints > this.getMaxNumberOfActionPoints()) new.getNumberOfActionPoints == this.getMaxNumberOfActionPoints
+	 * 		|	if ((numberOfActionPoints >= 0) && (numberOfActionPoints <= this.getMaxNumberOfActionPoints())) new.getNumberOfActionPoints() == numberOfActionPoints
+	 * 		|	else if (numberOfActionPoints < 0) new.getNumberOfActionPoints() == 0
+	 * 		|	else if (numberOfActionPoints > this.getMaxNumberOfActionPoints()) new.getNumberOfActionPoints() == this.getMaxNumberOfActionPoints()
 	 */
 	private void setNumberOfActionPoints(int numberOfActionPoints){
 		if(numberOfActionPoints < 0)
@@ -255,6 +258,17 @@ public class Worm extends MovableGameObject {
 		else if(numberOfActionPoints > this.getMaxNumberOfActionPoints())
 			numberOfActionPoints = this.getMaxNumberOfActionPoints();
 		this.numberOfActionPoints = numberOfActionPoints;
+	}
+	
+	/**
+	 * Restore the current number of action points of this worm to its maximum.
+	 * @post	The new number of action points of this worm is equal to the maximum number of action points of this worm.
+	 * 		|	new.getNumberOfActionPoints() == this.getMaxNumberOfActionPoints()
+	 * @effect	The new number of action points of this worm complies to its invariant (boundaries defined in the setter).
+	 * 		|	0 <= new.getNumberOfActionPoints() <= new.getMaxNumberOfActionPoints()
+	 */
+	public void restoreNumberOfActionPoints(){
+		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
 	}
 
 	/**
@@ -267,10 +281,10 @@ public class Worm extends MovableGameObject {
 	 * @param	mass
 	 * 			The given mass
 	 * @return	Maximum number of hit points for a worm based on calculations involving the given mass.
-	 * 		|	result == massRoundedToNearestInteger(mass)
+	 * 		|	result == roundedToNearestInteger(mass)
 	 */
 	private int getMaxNumberOfHitPoints(double mass){
-		return massRoundedToNearestInteger(mass);
+		return roundedToNearestInteger(mass);
 	}
 	
 	/**
@@ -302,9 +316,9 @@ public class Worm extends MovableGameObject {
 	 * 			If the given number of hit points is negative, the new number of hit points is equal to zero.
 	 * 			If the given number of hit points is greater than the maximum number of hit points, the new number
 	 * 			of hit points is equal to the maximum number of hit points.
-	 * 		|	if ((numberOfHitPoints >= 0) && (numberOfHitPoints <= this.getMaxNumberOfHitPoints())) new.getNumberOfHitPoints == numberOfHitPoints
-	 * 		|	else if (numberOfHitPoints < 0) new.getNumberOfHitPoints == 0
-	 * 		|	else if (numberOfHitPoints > this.getMaxNumberOfHitPoints()) new.getNumberOfHitPoints == this.getMaxNumberOfHitPoints
+	 * 		|	if ((numberOfHitPoints >= 0) && (numberOfHitPoints <= this.getMaxNumberOfHitPoints())) new.getNumberOfHitPoints() == numberOfHitPoints
+	 * 		|	else if (numberOfHitPoints < 0) new.getNumberOfHitPoints() == 0
+	 * 		|	else if (numberOfHitPoints > this.getMaxNumberOfHitPoints()) new.getNumberOfHitPoints() == this.getMaxNumberOfHitPoints()
 	 */
 	private void setNumberOfHitPoints(int numberOfHitPoints){
 		if(numberOfHitPoints < 0)
@@ -315,137 +329,43 @@ public class Worm extends MovableGameObject {
 	}
 	
 	/**
+	 * Decrease the current number of hit points of this worm by the given number.
+	 * 
+	 * @param 	decrement
+	 * 			The given number to decrement the current number of hit points with.
+	 * @post	The new number of hit points of this worm is equal to the old number of hit points, decremented with the given number.
+	 * 		|	new.getNumberOfHitPoints() == this.getNumberOfHitPoints() - decrement
+	 * @effect	The new number of hit points of this worm complies to its invariant (boundaries defined in the setter).
+	 * 		|	0 <= new.getNumberOfHitPoints() <= new.getMaxNumberOfHitPoints()
+	 */
+	public void decreaseNumberOfHitPointsBy(int decrement){
+		this.setNumberOfHitPoints(this.getNumberOfHitPoints() - decrement);
+	}
+	
+	/**
 	 * Variable registering the current number of hit points of this worm.
 	 */	
 	private int numberOfHitPoints;
-		
-	/**
-	 * Check whether the given number of steps is a possible number of steps for any worm.
-	 * 
-	 * @param	numberOfSteps
-	 * 			The number of steps to check.
-	 * @return	True if and only if the given number of steps is not smaller than zero.
-	 * 		|	result == (numberOfSteps >= 0)
-	 */
-	@Model
-	private boolean isPossibleNumberOfSteps(int numberOfSteps){
-		return numberOfSteps >= 0;
-	}
-
-	/**
-	 * Return the amount of action points this worm has to pay for moving the given number of steps.
-	 * 
-	 * @param 	numberOfSteps
-	 * 			The number of steps to be taken by the worm in the current direction.
-	 * @return	The amount of action points to be paid equals the number of steps times the weighted direction.
-	 * 		|	result == numberOfSteps*(ceil(|cos(direction)|+|4*sin(direction)|))
-	 * @throws 	IllegalArgumentException("Invalid number of steps!")
-	 * 			The given number of steps is not a possible number of steps for any worm.
-	 * 		|	! isPossibleNumberOfSteps(numberOfSteps)
-	 */
-	@Model
-	private int amountOfActionPointsForMoving(int numberOfSteps ) throws IllegalArgumentException {
-		if (!isPossibleNumberOfSteps(numberOfSteps)) 
-			throw new IllegalArgumentException("Invalid number of steps!");
-		else {
-			double horizontalComponent = Math.abs(Math.cos(direction));
-			double verticalComponent = Math.abs(4 * Math.sin(direction));
-			int decrement = (int) Math.ceil(horizontalComponent + verticalComponent);
-			return (numberOfSteps * decrement);
-		}
-	}
-
-	/**
-	 * Check whether the worm can move the given number of steps.
-	 * 
-	 * @param	numberOfSteps
-	 * 			The number of steps to be taken by the worm in the current direction.
-	 * @return	True if and only if the current number of action points is not smaller than the amount of action points required to move the worm with the given number of steps.
-	 * 		|	result == (numberOfActionPoints >= amountOfActionPointsForMoving(numberOfSteps))
-	 * @throws 	IllegalArgumentException("Invalid number of steps!")
-	 * 			The given number of steps is not a possible number of steps for any worm.
-	 * 		|	! isPossibleNumberOfSteps(numberOfSteps)
-	 */	
-	public boolean canMove(int numberOfSteps) throws IllegalArgumentException {
-		if (! isPossibleNumberOfSteps(numberOfSteps))
-			throw new IllegalArgumentException("Invalid number of steps!");
-		else return (numberOfActionPoints >= amountOfActionPointsForMoving(numberOfSteps));
-	}
-
-	/**
-	 * Move this worm in the current direction for the given number of steps.
-	 * 
-	 * @param	numberOfSteps
-	 * 			The number of steps to be taken by the worm in the current direction.
-	 * @post	The new X-coordinate of the worm is equal to the old X-coordinate plus the cosinus of the angle of the current direction, multiplied by the number of steps and the radius of this worm.
-	 * 		|	new.getX() == this.getX() + Math.cos(direction)*numberOfSteps*radius
-	 * @post	The new Y-coordinate of the worm is equal to the old Y-coordinate plus the sinus of the angle of the current direction, multiplied by the number of steps and the radius of this worm.
-	 * 		|	new.getY() == this.getY() + Math.sin(direction)*numberOfSteps*radius
-	 * @throws 	IllegalArgumentException("Number of steps is too small!")
-	 * 			The given number of steps is not a valid number of steps for any worm.
-	 * 		|	! isPossibleNumberOfSteps(numberOfSteps)
-	 */
-	@Model
-	private void move(int numberOfSteps) throws IllegalArgumentException {
-		if (!isPossibleNumberOfSteps(numberOfSteps)) 
-			throw new IllegalArgumentException("Invalid number of steps!");
-		else {
-			double incrementX = Math.cos(direction) * radius;
-			double incrementY = Math.sin(direction) * radius;
-			double newX = getX() + (numberOfSteps * incrementX);
-			double newY = getY() + (numberOfSteps * incrementY);
-			setPosition (newX, newY);
-		}
-	}
-	
-	/** 
-	 * Move this worm while paying the appropriate amount of action points.
-	 * 
-	 * @param 	numberOfSteps
-	 * 			The number of steps to be taken by the worm in the current direction.
-	 * @effect	The new X-coordinate of the worm is equal to the old X-coordinate plus the cosinus of the angle of the current direction, multiplied by the number of steps and the radius of this worm.
-	 * 		|	new.getX() == this.getX() + Math.cos(direction)*numberOfSteps*radius
-	 * @effect	The new Y-coordinate of the worm is equal to the old Y-coordinate plus the sinus of the angle of the current direction, multiplied by the number of steps and the radius of this worm.
-	 * 		|	new.getY() == this.getY() + Math.sin(direction)*numberOfSteps*radius
-	 * @post	The new number of action points equals the old number of action points reduced with the amount of action points to be paid for moving the given number of steps.
-	 * 		|	new.getNumberOfActionPoints() == this.getNumberOfActionPoints - amountOfActionPointsForMoving(numberOfSteps)
-	 * @throws 	UnsupportedOperationException("Cannot move!")
-	 * 			The worm cannot move the given number of steps.
-	 * 		|	! canMove(numberOfSteps)
-	 * @throws 	IllegalArgumentException("Invalid number of steps!")
-	 * 			The given number of steps is not a possible number of steps for any worm.
-	 * 		|	! isPossibleNumberOfSteps(numberOfSteps)
-	 */
-	public void activeMove(int numberOfSteps) throws UnsupportedOperationException, IllegalArgumentException {
-		if (! canMove(numberOfSteps))
-			throw new UnsupportedOperationException("Cannot move!");
-		else {
-			move(numberOfSteps);
-			setNumberOfActionPoints(numberOfActionPoints - amountOfActionPointsForMoving(numberOfSteps));
-		}
-	}
 		
 	/**
 	 * Return the amount of action points this worm has to pay to turn by the given angle.
 	 * 
 	 * @param 	turnByAngle
 	 * 			The angle by which this worm will be turned.
-	 * @return	If the effective angle is equal to zero, the resulting amount of action points to be paid is also equal to zero.
-	 * 			This effective angle is equal to the converted representative angle of the given angle to turn by.
-	 * 		|	if (effectiveAngle == 0) result == 0
-	 * @return	If the effective angle is not equal to zero, the resulting amount of action points to be paid is equal to the quotient of 60 and a factor that is calculated by dividing 2 times pi by the effective angle.
-	 * 			This effective angle is equal to the converted representative angle of the given angle to turn by if it is not greater than pi, else it is equal to its radian complement.
-	 * 		|	if (effectiveAngle != 0) result == ceil(60 / ((2*pi)/effectiveAngle))	
-	 * 		|	if (convertToRepresentativeAngle(turnByAngle) > (2 * pi)) effectiveAngle == (2 * Math.PI) - convertToRepresentativeAngle(turnByAngle)
-	 * 		|	else effectiveAngle == convertToRepresentativeAngle(turnByAngle)
+	 * @return	If the converted representative angle to turn by is equal to zero, the resulting amount of action points to be paid is also equal to zero.
+	 * 		|	if (this.convertToRepresentativeAngle(turnByAngle) == 0) result == 0
+	 * @return	If the converted representative angle to turn by is not equal to zero, the resulting amount of action points to be paid is equal to the quotient of 60 and a factor that is calculated by dividing 2 times pi by the converted representative angle to turn by.
+	 * 		|	if (this.convertToRepresentativeAngle(turnByAngle) != 0) result == ceil(60 / ((2*pi)/effectiveAngle))
+	 * 		|	where
+	 * 		|		if (this.convertToRepresentativeAngle(turnByAngle) > (2 * pi)) effectiveAngle == (2 * Math.PI) - this.convertToRepresentativeAngle(turnByAngle)
+	 * 		|		else effectiveAngle == this.convertToRepresentativeAngle(turnByAngle)
 	 */
 	@Model
 	private int amountOfActionPointsForTurning(double turnByAngle){
-		double effectiveAngle = convertToRepresentativeAngle(turnByAngle);
+		double effectiveAngle = this.convertToRepresentativeAngle(turnByAngle);
 		int decrement;
-		if(effectiveAngle == 0){
+		if(effectiveAngle == 0)
 			decrement = 0;
-		}
 		else{
 			if(effectiveAngle > Math.PI)
 				effectiveAngle = (2 * Math.PI) - effectiveAngle;
@@ -461,14 +381,15 @@ public class Worm extends MovableGameObject {
 	 * @param	angle
 	 * 			The angle to be converted.
 	 * @return	The converted angle is a geometrically identical angle that lies between zero and two times pi, excluding the latter.
-	 * 		|	angle = result + (constant * 2 * pi)
-	 * 		|	0 <= result < (2 * pi)
+	 * 		|	if ((angle % (2 * pi)) < 0) result == (angle % (2 * pi)) + (2 * pi)
+	 * 		|	else result == angle % (2 * pi)
 	 */	
+	@Model
 	private double convertToRepresentativeAngle(double angle){
-		while(angle < 0){
-			angle += 2 * Math.PI;
-		}
-		return (angle % (2 * Math.PI));
+		double representativeAngle = angle % (2 * Math.PI);
+		if (representativeAngle < 0)
+			representativeAngle += 2 * Math.PI;
+		return representativeAngle;
 	}
 
 	/**
@@ -476,74 +397,76 @@ public class Worm extends MovableGameObject {
 	 * 
 	 * @param	turnByAngle
 	 * 			The angle by which this worm will be turned.
-	 * @pre		The sum of the representative angle of the given angle to turn by and the direction of this worm lies between zero and two times pi, including the former and excluding the latter.
-	 * 		|	((turnByAngle + getDirection()) >= 0) && ((turnByAngle + getDirection()) < 2 * pi)
+	 * @Pre		The sum of the worm's current direction and the given angle to turn by is a valid direction for any worm.
+	 * 		|	this.isValidDirection(this.getDirection() + turnByAngle)
 	 * @return	True if and only if the current number of action points is not smaller than the amount of action points required to turn the worm by the given angle.
-	 * 		|	result == (numberOfActionPoints >= amountOfActionPointsForTurning(turnByAngle))
+	 * 		|	result == (this.getNumberOfActionPoints() >= this.amountOfActionPointsForTurning(turnByAngle))
 	 */
 	public boolean canTurn(double turnByAngle){
-		return (numberOfActionPoints >= amountOfActionPointsForTurning(turnByAngle));
+		return (this.getNumberOfActionPoints() >= this.amountOfActionPointsForTurning(turnByAngle));
 	}
 
-	/**
-	 * Turn the direction of this worm by the given angle.
-	 * 
-	 * @param 	turnByAngle
-	 * 			The angle by which this worm will be turned.
-	 * @post	The new direction of this worm is equal to the old direction incremented with the given angle to turn by.
-	 * 		|	new.getDirection() == this.getDirection() + turnByAngle
-	 */
-	@Model
-	private void turn(double turnByAngle){
-		setDirection(getDirection() + turnByAngle);
-	}
-	
 	/**
 	 * Turn this worm while paying the appropriate amount of action points.
 	 * 
 	 * @param 	turnByAngle
 	 * 			The angle by which this worm will be turned.
-	 * @pre		This worm can turn by the given angle.
+	 * @Pre		This worm can turn by the given angle.
 	 * 		|	this.canTurn(turnByAngle)
 	 * @post	The new number of action points equals the old number of action points reduced with the amount of action points to be paid for turning by the given angle.
-	 * 		|	new.getNumberOfActionPoints() == this.getNumberOfActionPoints - amountOfActionPointsForTurning(turnByAngle)
+	 * 		|	new.getNumberOfActionPoints() == this.getNumberOfActionPoints - this.amountOfActionPointsForTurning(turnByAngle)
 	 * @post	The new direction of this worm is equal to the old direction incremented with the given angle.
 	 * 		|	new.getDirection() == this.getDirection() + turnByAngle
 	 */
-	public void activeTurn(double turnByAngle){
-		turn(turnByAngle);
-		setNumberOfActionPoints(numberOfActionPoints - amountOfActionPointsForTurning(turnByAngle));
+	@Override
+	public void turn(double turnByAngle){
+		assert this.canTurn(turnByAngle) :
+			"Precondition: The worm can turn by the given angle";
+		super.turn(turnByAngle);
+		setNumberOfActionPoints(this.getNumberOfActionPoints() - this.amountOfActionPointsForTurning(turnByAngle));
 	}
 	
 	/**
-	 * Return the horizontal distance covered by this worm during a jump.
-	 * 
-	 * @return	The horizontal jumping distance of this worm is equal to the product of its squared initial velocity, the sinus of its doubled direction and the inverse of Earth's standard acceleration coefficient.
-	 * 		|	result == (initialVelocity()^2 * sin(direction * 2)) / standardAcceleration
-	 */	
-	@Model
-	private double horizontalJumpDistance(){
-		return ((Math.pow(initialVelocity(), 2) * Math.sin(direction * 2)) / standardAcceleration);
+	 * Return the initial force to be exerted on the worm.
+	 * @return 	Initial force to be exerted on the worm.
+	 * 		|	result == (5 * this.getNumberOfActionPoints()) + (this.getMass() * EARTHS_STANDARD_ACCELERATION)
+	 */
+	@Model @Override
+	protected double getInitialForce(){
+		return ((5 * this.getNumberOfActionPoints()) + (this.getMass() * EARTHS_STANDARD_ACCELERATION));
 	}
 	
 	/**
-	 * Return the time passed after a jump of this worm.
+	 * Check whether this worm can jump.
 	 * 
-	 * @return	The jump time equals the quotient of the worm's horizontal jump distance and the product of its initial velocity and the cosinus of its direction.
-	 * 		|	result == horizontalJumpDistance() / (initialVelocity() * Math.cos(direction))
+	 * @return	True if and only if this worm can jump as a movable game object
+	 * 			and if the current number of action points of this worm is not zero.
+	 * 		|	result == super.canJump() && (this.getNumberOfActionPoints() > 0)
 	 */	
-	public double jumpTime(){
-		return (horizontalJumpDistance() / (initialVelocity() * Math.cos(direction)));
+	@Model @ Override
+	protected boolean canJump(){
+		return (super.canJump() && (this.getNumberOfActionPoints() > 0));
+	}
+
+	private double getSlopeOfPossibleMove(double xAfterMove, double yAfterMove){
+		return Math.atan((this.getY() - yAfterMove)/(this.getX() - xAfterMove));
 	}
 	
-	/**
-	 * Check whether the worm can jump.
-	 * 
-	 * @return	True if and only if the direction of this worm is not greater than pi and the time passed after a jump of this worm is not infinite, which implies that the direction of this worm is not equal to pi divided by two.
-	 * 		|	result == ((direction <= Math.PI) && (direction != Math.PI/2))
-	 */	
-	@Model
-	private boolean canJump(){
-		return (Util.fuzzyLessThanOrEqualTo(direction, Math.PI) && (direction != Math.PI/2));
+	private double getDistanceOfPossibleMove(double xAfterMove, double yAfterMove){
+		return this.getPosition().distanceFromPositionWithCoordinates(xAfterMove, yAfterMove);
 	}
+	
+	private double getDivergenceOfPossibleMove(double xAfterMove, double yAfterMove){
+		return Math.abs(this.getRadius() - this.getSlopeOfPossibleMove(xAfterMove, yAfterMove));
+	}
+
+	private int amountOfActionPointsForMoving(double xAfterMove, double yAfterMove){
+		double slopeAfterMove = this.getSlopeOfPossibleMove(xAfterMove, yAfterMove);
+		return (int) Math.ceil(Math.abs(Math.cos(slopeAfterMove)) + Math.abs(4 * Math.sin(slopeAfterMove)));
+	}
+
+	private boolean canMove(double xAfterMove, double yAfterMove){
+		return (this.getNumberOfActionPoints() >= this.amountOfActionPointsForMoving(xAfterMove, yAfterMove));
+	}
+	
 }

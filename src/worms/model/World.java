@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.Set;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 
 public class World {
@@ -58,7 +59,7 @@ public class World {
 	 * @param 	width
 	 * @return 	result == ((width >= lowerBoundOfWidth) && (width <= upperBoundOfWidth))
 	 */
-	public boolean isValidWidth(double width){
+	private boolean isValidWidth(double width){
 		return ((width >= lowerBoundOfWidth) && (width <= upperBoundOfWidth));
 	}
 	
@@ -66,7 +67,7 @@ public class World {
 	 * @param 	height
 	 * @return 	result == ((height >= lowerBoundOfHeight) && (height <= upperBoundOfHeight))
 	 */
-	public boolean isValidHeight(double height){
+	private boolean isValidHeight(double height){
 		return ((height >= lowerBoundOfHeight) && (height <= upperBoundOfHeight));
 	}
 	
@@ -87,13 +88,113 @@ public class World {
 		return this.passableMap;
 	}
 	
-	public void setPassableMap(boolean[][] map){
+	public int getWidthInPixels(){
+		return this.getPassableMap()[0].length;
+	}
+	
+	public int getHeightInPixels(){
+		return this.getPassableMap().length;
+	}
+	
+	private void setPassableMap(boolean[][] map) throws IllegalArgumentException{
+		if (map.length == 0)
+			throw new IllegalArgumentException("Empty map!");
+		else if (map[0].length == 0)
+			throw new IllegalArgumentException("Empty map!");
 		this.passableMap = map;
 	}
 	
 	private boolean[][] passableMap;
 	
+	@Model
+	private double getPixelWidth(){
+		return (this.getWidth()/this.getWidthInPixels());
+	}
 	
+	@Model
+	private double getPixelHeight(){
+		return (this.getHeight()/this.getHeightInPixels());
+	}
+	
+	/**
+	 * @param 	center
+	 * @param	radius
+	 * @return	result == 
+	 */
+	public boolean isLocatedInWorld(Position center, double radius){
+		double x = center.getX();
+		double y = center.getY();
+		int MaxPixelCoordinates[] = this.getPixelCoordinates(new Position((x + radius),(y + radius)));
+		int MinPixelCoordinates[] = this.getPixelCoordinates(new Position((x - radius),(y - radius)));
+		return ((MinPixelCoordinates[0] >= 0) && (MinPixelCoordinates[1] >= 0) && (MaxPixelCoordinates[0] <= this.getWidthInPixels()) && (MaxPixelCoordinates[1] <= this.getHeightInPixels()));
+	}
+
+	/**
+	 * @return	result == position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight())
+	 * @throws	IllegalArgumentException("Object is not located in this world!")
+	 * 			! this.isLocatedInWorld(position, 0)	
+	 */
+	public int[] getPixelCoordinates(Position position) throws IllegalArgumentException{
+		if (!this.isLocatedInWorld(position, 0))
+			throw new IllegalArgumentException("Object is not located in this world!");
+		return position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight());
+	}
+	
+	private boolean isImpassablePosition(Position position) throws IllegalArgumentException{
+		int[] pixelCoordinates = this.getPixelCoordinates(position);
+		return this.getPassableMap()[pixelCoordinates[0]][pixelCoordinates[1]];
+	}
+	
+	private double getPositiveYCoordinateOfCircle(Position center, double x, double radius){
+		return (Math.sqrt(Math.pow(radius, 2) - Math.pow((x - center.getX()), 2)) + center.getY());
+	}
+	
+	private boolean isPassablePartOfPixeledHollowedCircle(Position center, double radiusOfCircle, double radiusOfVoid, boolean[] quadrantsToCheck) throws IllegalArgumentException{
+		boolean isPassable = true;
+		if (! (radiusOfVoid < radiusOfCircle))
+			throw new IllegalArgumentException("Not a valid hollowed circle!");
+		if (quadrantsToCheck.length != 4)
+			throw new IllegalArgumentException("Not enough checkable quandrants!");
+		double centerX = center.getX();
+		double centerY = center.getY();
+		double centerXDoubled = 2 * centerX;
+		double centerYDoubled = 2 * centerY;
+		double x = centerX + radiusOfVoid;
+		double y = centerY + radiusOfVoid;
+		double xMax = centerX + radiusOfCircle;
+		double yMax = centerY + radiusOfCircle;
+		double pixelWidth = this.getPixelWidth();
+		double pixelHeight = this.getPixelHeight();
+		while (isPassable){
+			while (x <= xMax){
+				while (y <= yMax){
+					if ((this.isImpassablePosition(new Position(x,y)) && quadrantsToCheck[0]) || (this.isImpassablePosition(new Position(x,(centerYDoubled - y))) && quadrantsToCheck[3]) || (this.isImpassablePosition(new Position((centerXDoubled - x),y)) && quadrantsToCheck[1]) || (this.isImpassablePosition(new Position((centerXDoubled - x),(centerYDoubled - y))) && quadrantsToCheck[2]))
+						isPassable = false;
+					y += pixelHeight;
+				}
+				x += pixelWidth;
+				y = this.getPositiveYCoordinateOfCircle(center, x, radiusOfVoid);
+				yMax = this.getPositiveYCoordinateOfCircle(center, x, radiusOfCircle);
+			}	
+		}
+		return isPassable;
+	}
+	
+	public boolean isImpassable(Position center, double radius){
+		boolean[] fullCircle = {true,true,true,true};
+		return this.isPassablePartOfPixeledHollowedCircle(center, radius, 0, fullCircle);
+	}
+	
+	public boolean isAdjacentToImpassableTerrain(Position center, double radius){
+		boolean[] fullCircle = {true,true,true,true};
+		if (this.getPixelWidth() > this.getPixelHeight()){
+			double nextRadius = 
+		}
+		boolean isPassable = this.isPassablePartOfPixeledHollowedCircle(center, radius, 0, fullCircle);
+		boolean isAdjacent = ! this.isPassablePartOfPixeledHollowedCircle(center, radius, (radius * 1.1), fullCircle);
+		return (isPassable && isAdjacent);
+	}
+
 	/**
 	 * @return	
 	 */
@@ -300,159 +401,6 @@ public class World {
 		return result;
 				
 	}
-	/**
-	 * Check whether the given coordinate is a valid coordinate.
-	 * 
-	 * @param 	coordinate
-	 * 			The x or y coordinate to check.
-	 * @param 	upperBound
-	 * 			The maximum value of coordinate which is the width, in case of an x coordinate, or the height, in case of a y coordinate.
-	 * @return	result == (coordinate<= upperBound)
-	 */
-	public boolean isValidCoordinateForConversion(double coordinate, double upperBound){
-		if(coordinate<= upperBound && 0 <= coordinate){
-		return true;
-		}
-		else return false;
-	}
-	
-	/**
-	 * Return the pixel coordinate associated with the given x coordinate.
-	 * 
-	 * @param 	x
-	 * 			The x coordinate to convert to a pixel coordinate
-	 * @throws	IllegalArgumentException
-	 * 			(! isValidCoordinateForConversion(x, width))	
-	 */
-	public int getPixelXCoordinate(double x) throws IllegalArgumentException {
-		if (isValidCoordinateForConversion(x, width)){
-		double pixelWidth =passableMap.length/width;
-		int pixelCoordinate = passableMap.length;
-			for (double i = passableMap.length; i>=0;){
-			if (x>=i) {
-				break;
-				
-			}
-			pixelCoordinate = pixelCoordinate - 1;
-			i = i - pixelWidth;
-		}
-		return pixelCoordinate;
-		}
-		else throw new IllegalArgumentException("The x coordinate is too large");
-	}
-	
-	/**
-	 * 
-	 * @param 	y
-	 * 			The x coordinate to convert to a pixel coordinate
-	 * @throws 	IllegalArgumentException
-	 * 			(! isValidCoordinateForConversion(y, height))
-	 */
-	public int getPixelYCoordinate(double y) throws IllegalArgumentException{
-		if (isValidCoordinateForConversion(y, height)){
-		double pixelWidth =passableMap[0].length/height;
-		int pixelCoordinate = passableMap[0].length;
-			for (double i = passableMap[0].length; i>=0;){
-			if (y>=i) {
-				break;
-				
-			}
-			pixelCoordinate = pixelCoordinate - 1;
-			i = i - pixelWidth;
-		}
-		return pixelCoordinate;
-		}
-		else throw new IllegalArgumentException("The y coordinate is too large");
-	}
-	
-
-	/**
-	 * Check whether a circle with a center determined by given x coordinate and y coordinate and given radius is impassable terrain.
-	 * 
-	 * @param 	x
-	 * 			The x coordinate of the center of the circle to check.
-	 * @param 	y
-	 * 			The y coordinate of the center of the circle to check.
-	 * @param 	radius
-	 * 			The radius of the circle to check.	
-	 * @return	for each direction in [0,2*PI]
-	 * 				if(passableMap[getPixelXCoordinate(yStart)][getPixelXCoordinate(xStart)])
-	 * 					result == false
-	 * 				else
-	 * 					result == true
-	 * 				
-	 */
-	public boolean isImpassable(double x, double y, double radius){
-		double direction = 0;
-		double xStart = x + radius*(Math.cos(direction));
-		double yStart = y + radius*(Math.sin(direction));
-		for (direction = 0; direction <= 2* (Math.PI); )
-			if (passableMap[getPixelXCoordinate(xStart)][getPixelYCoordinate(yStart)]){
-				direction = direction + Double.MIN_VALUE;
-				 xStart = x + radius*(Math.cos(direction));
-				 yStart = y + radius*(Math.sin(direction));
-			}
-			else return true;
-	
-		return false;
-	}
-	
-	/**
-	 * 
-	 * @param 	x
-	 * 			The x coordinate of the center of the circle to check.
-	 * @param 	y
-	 * 			The y coordinate of the center of the circle to check.
-	 * @param 	radius
-	 * 			The radius of the circle to check.	
-	 * @return	for each i in getPixelXCoordinate(x - radius) ... getPixelXCoordinate(x + radius)
-	 * 				for each i in getPixelYCoordinate(y - radius) ... getPixelYCoordinate(y + radius
-	 * 					if (passableMap[xLowerBound][yLowerBound])
-	 * 						result == true;
-	 * 					else result == false;
-	 * 
-	 */		
-	public boolean isImpassable2(double x, double y, double radius){
-		int xUpperBound = getPixelXCoordinate(x + radius);
-		int yUpperBound = getPixelYCoordinate(y + radius);
-		int xLowerBound = getPixelXCoordinate(x - radius);
-		int yLowerBound = getPixelYCoordinate(y - radius);
-		outerbound:
-		while ( xLowerBound<= xUpperBound)
-			while (yLowerBound<= yUpperBound)
-				if (passableMap[xLowerBound][yLowerBound]){
-					xLowerBound = xLowerBound + 1 ;
-				}
-				else break outerbound;
-			yLowerBound = yLowerBound + 1;
-		
-	return true;
-	
-	}
-	
-	
-	/**
-	 * Check whether a circle with a center determined by given x coordinate and y coordinate and given radius is adjacent to impassable terrain.
-	 * 
-	 * @param 	x
-	 * 			The x coordinate of the center of the circle to check.
-	 * @param 	y
-	 * 			The y coordinate of the center of the circle to check.
-	 * @param 	radius
-	 * 			The radius of the circle to check.		
-	 * @return	if (isImpassable(x, y, radius)
-	 * 				result == false
-	 * 			else result == (isImpassable (x, y, radius*0.1)
-	 */
-	public boolean isAdjacent(double x, double y, double radius){
-		double radiusExtended = radius*0.1;
-		if (isImpassable(x, y, radius)){
-			return false;
-		} 
-		else return (isImpassable (x, y, radiusExtended));
-		
-	}
-	
 	
 	public void startGame(){
 		isStarted = true;

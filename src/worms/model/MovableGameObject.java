@@ -110,7 +110,7 @@ public abstract class MovableGameObject extends GameObject{
 	@Model
 	private double getMass(double radius) {
 		double p = 1062;
-		return ((p * 4 * Math.PI * Math.pow(radius, 3)) / 3);
+		return ((p * 4.0 * Math.PI * Math.pow(radius, 3)) / 3.0);
 	}
 	
 	/**
@@ -155,10 +155,27 @@ public abstract class MovableGameObject extends GameObject{
 	 * @post	The new direction of this movable game object is equal to the given direction.
 	 * 		|	new.getDirection() == direction
 	 */
-	public void setDirection(double direction) {
+	protected void setDirection(double direction) {
 		assert this.isValidDirection(direction) :
-			"Precondition: Possible direction";
+			"Precondition: Valid direction";
 		this.direction = direction;
+	}
+
+	/**
+	 * Turn the direction of this movable game object by the given angle.
+	 * 
+	 * @param 	turnByAngle
+	 * 			The angle by which this movable game object will be turned.
+	 * @Pre		The sum of the movable game object's current direction and the given angle to turn by is a valid direction for any movable game object.
+	 * 		|	this.isValidDirection(this.getDirection() + turnByAngle)
+	 * @post	The new direction of this movable game object is equal to the old direction incremented with the given angle to turn by.
+	 * 		|	new.getDirection() == this.getDirection() + turnByAngle
+	 */
+	@Model
+	protected void turn(double turnByAngle){
+		assert this.isValidDirection(this.getDirection() + turnByAngle) :
+			"Precondition: Valid sum of current direction and given angle to turn by";		
+		setDirection(this.getDirection() + turnByAngle);
 	}
 
 	/**
@@ -183,7 +200,7 @@ public abstract class MovableGameObject extends GameObject{
 	private double initialVelocity(){
 		return ((this.getInitialForce() / this.getMass()) * 0.5);
 	}
-	
+		
 	/**
 	 * Return the time passed after a jump of this movable game object.
 	 * 
@@ -195,7 +212,7 @@ public abstract class MovableGameObject extends GameObject{
 	 * 				jumpTime = 0.0
 	 * 				while (! this.getWorld().isImpassable(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep),this.getRadius()))
 	 * 					jumpTime = jumpTime + timeStep
-	 */	
+	 */
 	public double jumpTime(double timeStep){
 		double jumpTime = 0.0;
 		while (! this.getWorld().isImpassable(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep),this.getRadius()))
@@ -244,11 +261,14 @@ public abstract class MovableGameObject extends GameObject{
 	}
 	
 	/**
-	 * Check whether the movable game object can jump.
+	 * Check whether this movable game object can jump.
 	 * 
+	 * @return	True if and only if some part of the area covered by this movable game object is impassable in the world in which this movable game object resides.
+	 * 		|	result == this.getWorld().isImpassable(this.getX(), this.getY(), this.getRadius())
 	 */	
 	@Model
-	private boolean canJump(){
+	protected boolean canJump(){
+		return this.getWorld().isImpassable(this.getX(), this.getY(), this.getRadius());
 	}
 	
 	/**
