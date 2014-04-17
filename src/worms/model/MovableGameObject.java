@@ -214,7 +214,7 @@ public abstract class MovableGameObject extends GameObject{
 	 */
 	public double jumpTime(double timeStep){
 		double jumpTime = 0.0;
-		Position newPosition = new Position(this.jumpStepOnXAxis(jumpTime),this.jumpStepOnYAxis(jumpTime));
+		Position newPosition = this.getPosition();
 		while (this.getWorld().isPassable(newPosition,this.getRadius())){
 			jumpTime += timeStep;
 			newPosition = new Position(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep));

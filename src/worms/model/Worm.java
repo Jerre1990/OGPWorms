@@ -92,7 +92,22 @@ public class Worm extends MovableGameObject {
 		this.setName(name);
 		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
 		this.setNumberOfHitPoints(this.getMaxNumberOfHitPoints());
+		this.setAlive(true);
 	}
+	
+	public boolean isAlive(){
+		return this.alive;
+	}
+	
+	private void setAlive(boolean flag){
+		this.alive = flag;
+	}
+	
+	protected void kill(){
+		this.setAlive(false);
+	}
+	
+	private boolean alive;
 
 	/**
 	 * Return the name of the worm.
@@ -321,8 +336,10 @@ public class Worm extends MovableGameObject {
 	 * 		|	else if (numberOfHitPoints > this.getMaxNumberOfHitPoints()) new.getNumberOfHitPoints() == this.getMaxNumberOfHitPoints()
 	 */
 	private void setNumberOfHitPoints(int numberOfHitPoints){
-		if(numberOfHitPoints < 0)
+		if(numberOfHitPoints <= 0){
 			numberOfHitPoints = 0;
+			this.kill();
+		}
 		else if(numberOfHitPoints > this.getMaxNumberOfHitPoints())
 			numberOfHitPoints = this.getMaxNumberOfHitPoints();
 		this.numberOfHitPoints = numberOfHitPoints;
@@ -339,6 +356,8 @@ public class Worm extends MovableGameObject {
 	 * 		|	0 <= new.getNumberOfHitPoints() <= new.getMaxNumberOfHitPoints()
 	 */
 	protected void decreaseNumberOfHitPointsBy(int decrement){
+		if (decrement < 0)
+			decrement = 0;
 		this.setNumberOfHitPoints(this.getNumberOfHitPoints() - decrement);
 	}
 	
@@ -452,6 +471,32 @@ public class Worm extends MovableGameObject {
 	public void jump(double timeStep){
 		super.jump(timeStep);
 		this.setNumberOfActionPoints(0);
+	}
+	
+	public void fall(){
+		double decrementY = this.getWorld().getPixelHeight();
+		double newY = this.getY() - decrementY;
+		double x = this.getX();
+		double radius = this.getRadius();
+		boolean landed = false;
+		Position newPosition = new Position(x,newY);
+		while (this.getWorld().isPassable(newPosition,radius)){
+			if (this.getWorld().hasUnderGround(newPosition, radius)){
+				landed = true;
+				break;
+			}
+			newY -= decrementY;
+			newPosition = new Position(x,newY);
+		}
+		if (landed){
+			double decrement = 3 * this.getPosition().distanceFromPosition(newPosition);
+			int intDecrement;
+			if (decrement > Integer.MAX_VALUE)
+				intDecrement = Integer.MAX_VALUE;
+			else intDecrement = (int) Math.round(decrement);
+			this.decreaseNumberOfHitPointsBy(intDecrement);
+		}
+		else this.kill();
 	}
 
 	private double getSlopeOfPossibleMove(double xAfterMove, double yAfterMove){

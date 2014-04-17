@@ -107,12 +107,12 @@ public class World {
 	private boolean[][] passableMap;
 	
 	@Model
-	private double getPixelWidth(){
+	protected double getPixelWidth(){
 		return (this.getWidth()/this.getWidthInPixels());
 	}
 	
 	@Model
-	private double getPixelHeight(){
+	protected double getPixelHeight(){
 		return (this.getHeight()/this.getHeightInPixels());
 	}
 	
@@ -202,7 +202,7 @@ public class World {
 		return this.isAdjacentToImpassableTerrain(center, radius, fullCircle);
 	}
 	
-	public boolean hasUnderGround(Position center, double radius){
+	protected boolean hasUnderGround(Position center, double radius){
 		boolean[] bottomHalfOfCircle = {false,false,true,true};
 		return this.isAdjacentToImpassableTerrain(center, radius, bottomHalfOfCircle);
 	}
