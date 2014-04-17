@@ -124,6 +124,10 @@ public abstract class GameObject {
 		position = new Position (x,y);
 	}
 	
+	protected void setPosition(Position newPosition) throws IllegalArgumentException {
+		position = newPosition;
+	}
+	
 	/**
 	 * Set the x-coordinate of this game object to the given x-coordinate
 	 * 

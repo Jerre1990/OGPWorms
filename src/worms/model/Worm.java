@@ -1,5 +1,6 @@
 package worms.model;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import be.kuleuven.cs.som.annotate.*;
@@ -472,11 +473,18 @@ public class Worm extends MovableGameObject {
 	@Override
 	public void jump(double timeStep){
 		super.jump(timeStep);
-		this.fall();
+		if (this.canFall())
+			this.fall();
 		this.setNumberOfActionPoints(0);
 	}
 	
-	public void fall(){
+	public boolean canFall(){
+		return !this.getWorld().isAdjacentToImpassableFloor(this.getPosition(), this.getRadius());
+	}
+	
+	public void fall() throws UnsupportedOperationException{
+		if(!this.canFall())
+			throw new UnsupportedOperationException("Cannot fall!");
 		double decrementY = this.getWorld().getPixelHeight();
 		double newY = this.getY() - decrementY;
 		double x = this.getX();
@@ -484,7 +492,7 @@ public class Worm extends MovableGameObject {
 		boolean landed = false;
 		Position newPosition = new Position(x,newY);
 		while (this.getWorld().isPassable(newPosition,radius)){
-			if (this.getWorld().isAdjacentToImpassableFloor(newPosition, radius)){
+			if (!this.canFall()){
 				landed = true;
 				break;
 			}
@@ -501,26 +509,73 @@ public class Worm extends MovableGameObject {
 		}
 		else this.kill();
 	}
-
-	private double getSlopeOfPossibleMove(double xAfterMove, double yAfterMove){
-		return Math.atan((this.getY() - yAfterMove)/(this.getX() - xAfterMove));
+	
+	private Position checkCirclePieceForOptimalMove(Method test) throws Exception{
+		double direction = this.getDirection();
+		double divergedDirection = direction;
+		double limitForDivergedDirection = divergedDirection + 0.7875;
+		double radius = this.getRadius();
+		double distance = radius;
+		double distanceStep;
+		Position testPosition = null;
+		boolean candidateFound = false;
+		if (this.getWorld().getPixelWidth() <= this.getWorld().getPixelHeight())
+			distanceStep = this.getWorld().getPixelWidth();
+		else distanceStep = this.getWorld().getPixelHeight();
+		outerloop:
+		while (divergedDirection <= limitForDivergedDirection){
+			while (distance > 0){
+				testPosition = new Position((distance * Math.cos(divergedDirection)), (distance * Math.sin(divergedDirection)));
+				Object[] args = new Object[] {testPosition, radius};
+				if (Boolean.TRUE.equals(test.invoke(this.getWorld(), args))){
+					candidateFound = true;
+					break outerloop;
+				}
+				testPosition = new Position((distance * Math.cos((2 * direction) - divergedDirection)), (distance * Math.sin((2 * direction) - divergedDirection)));
+				args = new Object[] {testPosition, radius};
+				if (Boolean.TRUE.equals(test.invoke(this.getWorld(), args))){
+					candidateFound = true;
+					break outerloop;
+				}
+				distance -= distanceStep;
+			}
+			distance = radius;
+			divergedDirection += 0.0175;
+		}
+		if (candidateFound)
+			return testPosition;
+		else return null;
 	}
 	
-	private double getDistanceOfPossibleMove(double xAfterMove, double yAfterMove){
-		return this.getPosition().distanceFromPositionWithCoordinates(xAfterMove, yAfterMove);
-	}
-	
-	private double getDivergenceOfPossibleMove(double xAfterMove, double yAfterMove){
-		return Math.abs(this.getRadius() - this.getSlopeOfPossibleMove(xAfterMove, yAfterMove));
+	private double getSlope(Position other){
+		return ((other.getY() - this.getY())/(other.getX() - this.getX()));
 	}
 
-	private int amountOfActionPointsForMoving(double xAfterMove, double yAfterMove){
-		double slopeAfterMove = this.getSlopeOfPossibleMove(xAfterMove, yAfterMove);
+	private int amountOfActionPointsForMoving(Position newPosition){
+		double slopeAfterMove = this.getSlope(newPosition);
 		return (int) Math.ceil(Math.abs(Math.cos(slopeAfterMove)) + Math.abs(4 * Math.sin(slopeAfterMove)));
 	}
+	
+	private Position positionAfterMove() throws Exception{
+		Position newPosition1 = this.checkCirclePieceForOptimalMove(this.getWorld().getClass().getMethod("isAdjacentToImpassableFloor", new Class[]{Position.class, Double.class}));
+		Position newPosition2 = this.checkCirclePieceForOptimalMove(this.getWorld().getClass().getMethod("isPassable", new Class[]{Position.class, Double.class}));
+		if (newPosition1 != null)
+			return newPosition1;
+		else if (newPosition2 != null)
+			return newPosition2;
+		else return null;
+	}
 
-	private boolean canMove(double xAfterMove, double yAfterMove){
-		return (this.getNumberOfActionPoints() >= this.amountOfActionPointsForMoving(xAfterMove, yAfterMove));
+	public boolean canMove() throws Exception{
+		Position newPosition = this.positionAfterMove();
+		return (newPosition != null && (this.getNumberOfActionPoints() >= this.amountOfActionPointsForMoving(newPosition)));
 	}
 	
+	public void move() throws Exception{
+		if (this.canMove()){
+			this.setPosition(this.positionAfterMove());
+			if (this.canFall())
+				this.fall();
+		}
+	}
 }
