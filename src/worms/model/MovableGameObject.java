@@ -202,7 +202,7 @@ public abstract class MovableGameObject extends GameObject{
 	}
 	
 	@Model
-	protected abstract boolean stopConditionDuringJump(Position inFlightPosition);
+	protected abstract boolean stopConditionDuringJump(Position inFlightPosition, boolean goingUp);
 		
 	/**
 	 * Return the time passed after a jump of this movable game object.
@@ -213,13 +213,19 @@ public abstract class MovableGameObject extends GameObject{
 	 * 		|	
 	 */
 	public double jumpTime(double timeStep){
-		double jumpTime = 0.0;
+		double jumpTime = 0;
+		double oldY = this.getY();
+		double newY = oldY;
+		boolean goingUp = (this.jumpStepOnYAxis(timeStep) > oldY);
 		Position newPosition = this.getPosition();
 		while (this.getWorld().isPassable(newPosition,this.getRadius())){
-			jumpTime += timeStep;
-			newPosition = new Position(this.jumpStepOnXAxis(jumpTime + timeStep),this.jumpStepOnYAxis(jumpTime + timeStep));
-			if (this.stopConditionDuringJump(newPosition))
+			if (this.stopConditionDuringJump(newPosition, goingUp))
 				break;
+			jumpTime += timeStep;
+			oldY = newY;
+			newY = this.jumpStepOnYAxis(jumpTime);
+			goingUp = (newY > oldY);
+			newPosition = new Position(this.jumpStepOnXAxis(jumpTime),newY);
 		}
 		return jumpTime;
 	}
@@ -265,7 +271,7 @@ public abstract class MovableGameObject extends GameObject{
 	}
 	
 	protected boolean canJump(double timeStep){
-		return (this.jumpTime(timeStep) != 0.0);
+		return (this.jumpTime(timeStep) != 0);
 	}
 	
 	/**

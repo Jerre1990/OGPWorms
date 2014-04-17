@@ -456,20 +456,23 @@ public class Worm extends MovableGameObject {
 	}
 	
 	@Override
-	protected boolean stopConditionDuringJump(Position inFlightPosition){
-		return this.getWorld().isAdjacentToImpassableTerrain(inFlightPosition, this.getRadius());
+	protected boolean stopConditionDuringJump(Position inFlightPosition, boolean goingUp){
+		if (goingUp)
+			return this.getWorld().isAdjacentToImpassableCeiling(inFlightPosition, this.getRadius());
+		else return this.getWorld().isAdjacentToImpassableFloor(inFlightPosition, this.getRadius());
 	}
 	
 	@Model @ Override
 	protected boolean canJump(double timeStep){
 		double jumpTime = this.jumpTime(timeStep);
 		double[] jumpStep = this.jumpStep(jumpTime);
-		return (super.canJump(timeStep) && (this.getNumberOfActionPoints() > 0) && (this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius()));
+		return (super.canJump(timeStep) && (this.getNumberOfActionPoints() > 0) && !(this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius()));
 	}
 	
 	@Override
 	public void jump(double timeStep){
 		super.jump(timeStep);
+		this.fall();
 		this.setNumberOfActionPoints(0);
 	}
 	
@@ -481,7 +484,7 @@ public class Worm extends MovableGameObject {
 		boolean landed = false;
 		Position newPosition = new Position(x,newY);
 		while (this.getWorld().isPassable(newPosition,radius)){
-			if (this.getWorld().hasUnderGround(newPosition, radius)){
+			if (this.getWorld().isAdjacentToImpassableFloor(newPosition, radius)){
 				landed = true;
 				break;
 			}

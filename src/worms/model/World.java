@@ -202,9 +202,14 @@ public class World {
 		return this.isAdjacentToImpassableTerrain(center, radius, fullCircle);
 	}
 	
-	protected boolean hasUnderGround(Position center, double radius){
+	protected boolean isAdjacentToImpassableFloor(Position center, double radius){
 		boolean[] bottomHalfOfCircle = {false,false,true,true};
 		return this.isAdjacentToImpassableTerrain(center, radius, bottomHalfOfCircle);
+	}
+	
+	protected boolean isAdjacentToImpassableCeiling(Position center, double radius){
+		boolean[] topHalfOfCircle = {true,true,false,false};
+		return this.isAdjacentToImpassableTerrain(center, radius, topHalfOfCircle);
 	}
 
 	/**
