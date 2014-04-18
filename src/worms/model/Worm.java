@@ -1,7 +1,9 @@
 package worms.model;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import be.kuleuven.cs.som.annotate.*;
 import worms.util.*;
@@ -578,4 +580,56 @@ public class Worm extends MovableGameObject {
 				this.fall();
 		}
 	}
+	
+	private final List<Weapon> weapons = new ArrayList<Weapon>();
+	
+	public List<Weapon> getAllWeapons(){
+		return weapons;
+	}
+	
+	public void removeWeapon(Weapon weapon){
+		this.weapons.remove(weapon);
+		
+	}
+	
+	public boolean canHaveAsWeapon(Weapon weapon){
+		return (weapon != null);
+	}
+	
+	public void addWeapon(Weapon weapon){
+		weapons.add(weapon);
+	}
+	
+	public boolean hasProperWeapons(){
+		for (Weapon weapon: this.weapons){
+			if (! canHaveAsWeapon(weapon))
+				return false;
+			if (weapon.getWorm() !=this)
+				return false;
+			else
+				return true;
+		}
+		
+		return true;
+	}
+	
+	public Team getTeam(){
+		return this.team;
+	}
+	
+	public boolean canHaveAsTeam(Team team){
+		return (team == null || team.canHaveAsWorm(this));
+	}
+	
+	public boolean hasProperTeam() {
+		return (canHaveAsTeam(getTeam()) && getTeam().hasAsWorm(this));
+	}
+	
+	public void setTeam(Team team) throws IllegalArgumentException {
+		if (! canHaveAsTeam(team) || ! team.hasAsWorm(this))
+			throw new IllegalArgumentException("not a valid team");
+		else this.team = team;
+	}
+	
+	Team team;
 }

@@ -365,9 +365,5 @@ public abstract class GameObject {
 	
 	private boolean removedFromWorld;
 	
-	@Raw
-	public GameObject getGameObject(){
-		GameObject result;
-		return result;
-	}
+	
 }

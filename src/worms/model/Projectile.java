@@ -34,4 +34,26 @@ public class Projectile extends MovableGameObject {
 		
 	}
 	
+	public boolean canHaveAsWeapon(Weapon weapon){
+		return (weapon == null || weapon.canHaveAsProjectile(this));
+	}
+	
+	
+	public boolean hasProperWeapon(){
+		return ( canHaveAsWeapon(getWeapon()) && getWeapon().hasAsProjectile(this));
+	}
+	
+	public Weapon getWeapon(){
+		return this.weapon;
+	}
+	
+	public void setWeapon(Weapon weapon){
+		if(! canHaveAsWeapon(weapon)){
+			throw new IllegalArgumentException("Not a valid weapon");
+		}
+		else this.weapon = weapon;
+	}
+	
+	Weapon weapon;
+	
 }
