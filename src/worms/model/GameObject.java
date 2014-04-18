@@ -285,6 +285,10 @@ public abstract class GameObject {
 	 * Variable registering the lower bound of the radius of this game object.
 	 */	
 	private double lowerBoundOfRadius;
+	
+	protected boolean partialOverlapWith(GameObject other){
+		return (this.getPosition().distanceFromPosition(other.getPosition()) < (this.getRadius() + other.getRadius()));
+	}
 
 	/**
 	 * Return the current game world of this game object.
