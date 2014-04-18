@@ -27,9 +27,13 @@ public class WorldTest {
 
 	private static World world1, world2, world3;
 	
+	private static Random random = new Random();
+	
+
+	
 	private static boolean[][] map, map2, map3, map4;
 	
-	private static Random random, random2,random3;
+	//private static Random random, random2,random3;
 	
 	
 	private static GameObject object1, object2, object3, object4, object5, object6;
@@ -42,13 +46,23 @@ public class WorldTest {
 	 */
 	@Before
 	public void setUpMutableFixture() throws Exception {
-		map = new boolean[50][60];
-		for (int i = 0; i<=map.length-1;){
-			for (int u = 0; u<map[0].length;)
-				if (map[i][u] = (map[1][6] ||map[5][46] ||map[3][25] ||map[7][3] ||map[49][2] ||map[3][0] ||map[45][37]))
-					map[i][u] = false;
+		int mountainWidth = 8;
+		map = new boolean[99][79];
+		for (int i = 0; i<map.length;){
+			for (int u = 0; u<map[0].length;){
+				if (i == 0){
+				map[i][u] = false;	
+				}
+				else 
+						if (i < u % mountainWidth || i == u){
+							map[i][u] = false;
+						}
 				else map[i][u] = true;
-		}			
+			}
+			if(i< mountainWidth){
+			mountainWidth = mountainWidth -1;
+			}
+		}
 		world1 = new World(10.36, 15.877, map, random);
 		
 		world1.addAsGameObject(object1);
@@ -84,8 +98,8 @@ public class WorldTest {
 					map3[i][u] = false;
 				else map3[i][u] = true;
 		}
-		world2 = new World(25.58, 30.56, map2, random2);
-		world3 = new World(18.62, 13.457, map3, random3);
+		world2 = new World(25.58, 30.56, map2, random);
+		world3 = new World(18.62, 13.457, map3, random);
 	}	
 	
 	@Test
@@ -112,6 +126,7 @@ public class WorldTest {
 		assertArrayEquals(map2, world1.getPassableMap());
 	}
 	
+	/**
 	@Test 
 	public void isValidWidth_LegalCaseTrue() {
 		assertTrue(world1.isValidWidth(5.5));
@@ -131,7 +146,7 @@ public class WorldTest {
 	public void isValidHeight_LegalCaseFalse() {
 		assertFalse(world1.isValidHeight(-20.3));
 	}
-	
+	*/
 	@Test 
 	public void hasProperGameObjects_LegalCaseTrue() {
 		assertTrue(world1.hasProperGameObjects());
@@ -206,7 +221,7 @@ public class WorldTest {
 	}
 	
 	@Test 
-	public void removeAsGameObject_LegalCase() {
+	public void removeAsGameObject_LegalCase() throws Exception {
 		world1.removeAsGameObject(object5);
 		assertFalse(world1.hasAsGameObject(object5));
 		assertEquals(object5.getWorld(), world1);
@@ -238,7 +253,7 @@ public class WorldTest {
 	}
 	
 	@Test 
-	public void addAsGameObject_LegalCaseTrue() {
+	public void addAsGameObject_LegalCaseTrue() throws Exception {
 		world1.addAsGameObject(object6);
 		assertTrue(world1.hasAsGameObject(object6));
 	}
@@ -284,6 +299,43 @@ public class WorldTest {
 		object6 = (Food) object6;
 		world1.addAsGameObject(object6);
 		assertFalse(world1.hasAsGameObject(object6));
+	}
+	
+	@Test 
+	public void isLocatedInWorld_LegalCaseTrue() throws Exception {
+		assertTrue(world1.isLocatedInWorld(new Position((5),(6)), 0));
+	}
+	
+	@Test 
+	public void isLocatedInWorld_LegalCaseFalseNegativeCoordinate() {
+		assertFalse(world1.isLocatedInWorld(new Position((-5),(6)), 0));
+	}
+	
+	@Test 
+	public void isLocatedInWorld_LegalCaseFalseTooLarge() {
+		assertFalse(world1.isLocatedInWorld(new Position((856),(6)), 0));
+	}
+	
+	
+	@Test 
+	public void getPixelCoordinates_LegalCase() {
+		assertEquals(world1.getPixelCoordinates(new Position((5),(6))),"[38][39]" );
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void getPixelCoordinates_NotLocatedInWorld() throws Exception {
+		assertEquals(world1.getPixelCoordinates(new Position((-5),(6))),"[38][39]" );
+	}
+	
+
+	@Test 
+	public void isPassable_LegalCaseTrue() {
+		assertTrue(world1.isPassable(new Position((16),(6)), 0 ));
+	}
+	
+	@Test 
+	public void isPassable_LegalCaseFalse() {
+		assertTrue(world1.isPassable(new Position((0),(6)), 0 ));
 	}
 	
 }

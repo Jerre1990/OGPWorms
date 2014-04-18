@@ -96,7 +96,7 @@ public class World {
 		return this.getPassableMap().length;
 	}
 	
-	private void setPassableMap(boolean[][] map) throws IllegalArgumentException{
+	public void setPassableMap(boolean[][] map) throws IllegalArgumentException{
 		if (map.length == 0)
 			throw new IllegalArgumentException("Empty map!");
 		else if (map[0].length == 0)
@@ -381,7 +381,7 @@ public class World {
 	 * 			method.getReturnType() == void.class
 	 * @throws 	InvocationTargetException
 	 */
-	public static Collection<Object> getAllObjectsFrom(Collection<GameObject> gameObjects, Method method) throws IllegalArgumentException, InvocationTargetException {
+	/**public static Collection<Object> getAllObjectsFrom(Collection<GameObject> gameObjects, Method method) throws IllegalArgumentException, InvocationTargetException {
 		if (gameObjects == null){
 			throw new IllegalArgumentException();
 		}
@@ -418,7 +418,7 @@ public class World {
 		return result;
 				
 	}
-	
+	*/
 	public void startGame(){
 		isStarted = true;
 	}
