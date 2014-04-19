@@ -327,7 +327,6 @@ public class WorldTest {
 		assertEquals(world1.getPixelCoordinates(new Position((-5),(6))),"[38][39]" );
 	}
 	
-
 	@Test 
 	public void isPassable_LegalCaseTrue() {
 		assertTrue(world1.isPassable(new Position((16),(6)), 0 ));

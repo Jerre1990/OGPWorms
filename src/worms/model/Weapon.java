@@ -87,7 +87,7 @@ public class Weapon extends Identifiable{
 	Worm worm;
 	
 	public boolean canHaveAsProjectile(Projectile projectile){
-		return (projectile != null && projectile.canHaveAsWeapon(this);
+		return (projectile != null && projectile.canHaveAsWeapon(this));
 	}
 	
 	public Projectile getProjectile(){

@@ -4,23 +4,16 @@ import be.kuleuven.cs.som.annotate.Model;
 
 public class Projectile extends MovableGameObject {
 
-	public Projectile(Worm controllingWorm, double radiusOfProjectile, double initialForce) {
-		super((1.1 * controllingWorm.getRadius() * Math.cos(controllingWorm.getDirection())), (1.1 * controllingWorm.getRadius() * Math.sin(controllingWorm.getDirection())), radiusOfProjectile, 0, controllingWorm.getDirection());
-		this.controllingWorm = controllingWorm;
+	public Projectile(Weapon weapon, double radiusOfProjectile, double initialForce) {
+		super((1.1 * weapon.getWorm().getRadius() * Math.cos(weapon.getWorm().getDirection())), (1.1 * weapon.getWorm().getRadius() * Math.sin(weapon.getWorm().getDirection())), radiusOfProjectile, 0, weapon.getWorm().getDirection());
 		this.initialForce = initialForce;
 	}
 	
-	public void adjustProjectile(Worm controllingWorm){
-		this.setX(1.1 * controllingWorm.getRadius() * Math.cos(controllingWorm.getDirection()));
-		this.setY(1.1 * controllingWorm.getRadius() * Math.sin(controllingWorm.getDirection()));
-		this.setDirection(controllingWorm.getDirection());
+	public void adjustProjectile(){
+		this.setX(1.1 * this.getWeapon().getWorm().getRadius() * Math.cos(this.getWeapon().getWorm().getDirection()));
+		this.setY(1.1 * this.getWeapon().getWorm().getRadius() * Math.sin(this.getWeapon().getWorm().getDirection()));
+		this.setDirection(this.getWeapon().getWorm().getDirection());
 	}
-	
-	public Worm getControllingWorm(){
-		return this.controllingWorm;
-	}
-		
-	private final Worm controllingWorm;
 
 	@Model @Override
 	protected double getInitialForce(){
