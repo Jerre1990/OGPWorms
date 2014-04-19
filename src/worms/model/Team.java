@@ -60,26 +60,41 @@ public class Team extends Identifiable{
 	
 	List<Worm> worms = new ArrayList<Worm>();
 	
-	
+	/**
+	 * Terminate this team.
+	 * 
+	 * @post	new.isTerminated()
+	 * @effect	for each worm in getAllWorms():
+	 * 					then this.removeAsWorm(worm) && worm.setTeam(null)
+	 */
 	public void terminate(){
 		this.isTerminated = true;
-		worms.clear();
 		for (Worm worm: this.worms) {
-			if (worm.isAlive()) {
 				worm.setTeam(null);
 				this.worms.remove(worm);
-			}
+			
 		}
 	}
 	
 	public boolean isTerminated() {
 		return isTerminated;
 	}
-	
+	/**
+	 * Variable registering whether or not this team is terminated.
+	 */
 	boolean isTerminated;
-	
+		
+	/**
+	 * Check whether this team can have the given worm as its worm.
+	 * @param 	worm
+	 * 			The worm to check.
+	 * @return	if (worm == null || this.isTerminated)
+	 * 				result == false
+	 * 			else result == true
+	 */
+	@Raw
 	public boolean canHaveAsWorm(Worm worm){
-		if (worm == null || isTerminated)
+		if (worm == null || this.isTerminated)
 		return false;
 		else return true;
 	}
@@ -110,6 +125,15 @@ public class Team extends Identifiable{
 			this.worms.remove(worm);
 			worm.setTeam(null);
 		}
+	}
+	/**
+	 * Return a set collecting all worms associated with this team.
+	 * @return	! result.contains(null)
+	 * @return	for each worm in worms
+	 * 				(result.contains(worm) == this.hasAsWorm(worm))
+	 */
+	public List<Worm> getAllWorms(){
+		return this.worms;
 	}
 	
 }

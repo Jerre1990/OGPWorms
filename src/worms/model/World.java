@@ -42,7 +42,6 @@ public class World {
 		this.width = width;
 		this.height = height;
 		setPassableMap(passableMap);
-		isTerminated = false;
 	}
 
 	@Basic
@@ -235,7 +234,7 @@ public class World {
 	@Raw
 	public boolean hasProperGameObjects(){
 	for (GameObject object: this.objects){
-		if (!canHaveAsGameObject(object)){
+		if (! canHaveAsGameObject(object)){
 			return false;
 		}
 		if (object.getWorld() != this){
@@ -272,23 +271,6 @@ public class World {
 		
 	}
 	
-	/**
-	 * Terminate this world.
-	 * 
-	 * @post	new.isTerminated()
-	 * 
-	 * @effect	for each object in getAllGameObjects:
-	 *			if (! isRemovedFromWorld())
-	 *				then this.removeAsGameObject(object) 	
-	 * 
-	 */
-	public void terminate() {
-		for (GameObject object: objects)
-			if (! object.isRemovedFromWorld()) {
-				this.objects.remove(object);
-			}
-		this.isTerminated = true;
-	}
 	
 	/**
 	 * @invar	objects != null
@@ -300,11 +282,6 @@ public class World {
 	
 	public Collection<GameObject> getObjects() {
 		return objects;
-	}
-
-	@Basic @Raw
-	public boolean isTerminated(){
-		return this.isTerminated;
 	}
 	
 	/**
@@ -346,7 +323,7 @@ public class World {
 			object.setPosition(new Position(x,y));
 	}
 	
-	private boolean isTerminated;
+
 	
 	
 	/**
@@ -364,13 +341,10 @@ public class World {
 	 * 				(! objects.equals(object))
 	 */
 	public boolean canHaveAsGameObject(GameObject object) {
-		return ( (object != null)
-				&& (! this.isTerminated())
+		return 	( (object != null)
 				&& (object.getWorld() == null)
 				&& (! objects.equals(object)));
 	}
-	
-	
 	
 	
 	/**

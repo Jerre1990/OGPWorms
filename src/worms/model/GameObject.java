@@ -66,8 +66,7 @@ public abstract class GameObject {
 	 * 		|	! this.getPosition().isValidCoordinate(y)
 	 */
 	public GameObject(double x, double y, double radius, double lowerBound) throws IllegalArgumentException {
-		this.setX(x);
-		this.setY(y);
+		this.setPosition(x, y);
 		this.setRadius(radius);
 		this.setLowerBoundOfRadius(lowerBound);
 	}
@@ -336,7 +335,7 @@ public abstract class GameObject {
 	/**
 	 * Variable registering the game world in which this game object currently resides.
 	 */
-	private World world;
+	private World world=null;
 	
 	/**
 	 * Remove this game object from its game world.
