@@ -218,13 +218,13 @@ public class World {
 	
 	public boolean isPassable(Position center, double radius){
 		boolean[] fullCircle = {true,true,true,true};
-		return this.isPassablePartOfPixeledRadiusOfCircle(center, radius, fullCircle);
+		return this.isPassablePartOfPixeledHollowedCircle(center, radius,0, fullCircle);
 	}
 	
 	private boolean isAdjacentToImpassableTerrain(Position center, double radius, boolean[] quadrants){
 		boolean[] fullCircle = {true,true,true,true};
-		boolean isPassable = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, fullCircle);
-		boolean isAdjacent = ! this.isPassablePartOfPixeledRadiusOfCircle(center, (radius * 1.1), quadrants);
+		boolean isPassable = this.isPassablePartOfPixeledHollowedCircle(center, radius,0, fullCircle);
+		boolean isAdjacent = ! this.isPassablePartOfPixeledHollowedCircle(center, (radius * 1.1),0, quadrants);
 		return (isPassable && isAdjacent);
 	}
 	
@@ -242,7 +242,59 @@ public class World {
 		boolean[] topHalfOfCircle = {true,true,false,false};
 		return this.isAdjacentToImpassableTerrain(center, radius, topHalfOfCircle);
 	}
+<<<<<<< HEAD
 
+=======
+	
+	public Worm getActiveWorm(){
+		Worm activeWorm = null;
+		List<Worm> allWorms = this.getAllWorms();
+		for(Worm worm : allWorms){
+			if(worm.isActive())
+				activeWorm = worm;
+			break;
+		}
+		return activeWorm;
+	}
+	
+	public void startNextTurn(){
+		List<Worm> allWorms = this.getAllWorms();
+		for(Worm worm : allWorms){
+			if(!worm.isAlive());
+			allWorms.remove(worm);
+		}
+		int nextIndex = allWorms.indexOf(this.getActiveWorm()) + 1;
+		if(nextIndex == allWorms.size())
+			nextIndex = 0;
+		allWorms.get(nextIndex).activate();
+	}
+	
+	public boolean isFinished(){
+		return (this.getWinners() == null);
+	}
+	
+	public List<Worm> getWinners(){
+		List<Worm> allWorms = this.getAllWorms();
+		List<Team> liveTeams = new ArrayList<Team>();
+		for(Worm worm : allWorms){
+			if(!worm.isAlive())
+				allWorms.remove(worm);
+			else
+				liveTeams.add(worm.getTeam());
+		}
+		if(allWorms.size() == 1)
+			return allWorms;
+		else if(allWorms.size() > 1){
+			Team team = allWorms.get(0).getTeam();
+			for(Team teamToCheck : liveTeams){
+				if(teamToCheck != team)
+					return new ArrayList<Worm>();
+			}
+			return allWorms;
+		}
+		else return null;
+	}
+>>>>>>> 5a0bc6f8567b496ae092a42c696ab9949e175812
 	
 	/**
 	 * 
@@ -303,6 +355,22 @@ public class World {
 	
 	public List<GameObject> getObjects() {
 		return objects;
+	}
+	
+	public List<Worm> getAllWorms(){
+		List<GameObject> result = new ArrayList<GameObject>();
+		List<Worm> resultWorms = new ArrayList<Worm>();
+		result = this.getAllObjectsFrom("Worm", this.getObjects());
+			for (GameObject object: result){
+				try{
+					Worm worm = (Worm) object;
+					resultWorms.add(worm);
+				}
+				catch (ClassCastException exc) {
+					assert false;
+				}
+			}
+			return resultWorms;
 	}
 	
 	/**
