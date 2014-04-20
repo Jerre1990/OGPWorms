@@ -4,8 +4,8 @@ import be.kuleuven.cs.som.annotate.Model;
 
 public class Projectile extends MovableGameObject {
 
-	public Projectile(Weapon weapon) {
-		super((1.1 * weapon.getWorm().getRadius() * Math.cos(weapon.getWorm().getDirection())), (1.1 * weapon.getWorm().getRadius() * Math.sin(weapon.getWorm().getDirection())), radiusOfProjectile, 0, weapon.getWorm().getDirection());
+	public Projectile(Worm controllingWorm, double projectileRadius, double initialForce) {
+		super((controllingWorm.getX() + (1.1 * controllingWorm.getRadius() * Math.cos(controllingWorm.getDirection()))), (controllingWorm.getY() + (1.1 * controllingWorm.getRadius() * Math.sin(controllingWorm.getDirection()))), projectileRadius, projectileRadius, controllingWorm.getDirection());
 		this.initialForce = initialForce;
 	}
 	

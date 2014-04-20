@@ -88,8 +88,14 @@ public class Weapon extends Identifiable{
 	}
 	
 	public void shoot(){
-		if (this.canShoot())
+		if (this.canShoot()){
 			this.setAmmo(this.getAmmo() - 1);
+			this.addAsProjectile(new Projectile(this.getWorm(), this.getRadiusOfProjectile(), this.getInitialForceOfProjectile()));
+		}
+	}
+	
+	public void adjustWeapon(){
+		this.getProjectile().adjustProjectile();
 	}
 	
 	boolean isTerminated;
