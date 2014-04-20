@@ -123,11 +123,15 @@ public class World {
 	public boolean isLocatedInWorld(Position center, double radius){
 		double x = center.getX();
 		double y = center.getY();
-		int MaxPixelCoordinates[] = this.getPixelCoordinates(new Position((x + radius),(y + radius)));
-		int MinPixelCoordinates[] = this.getPixelCoordinates(new Position((x - radius),(y - radius)));
+		int MaxPixelCoordinates[] = this.getUncheckedPixelCoordinates(new Position((x + radius),(y + radius)));
+		int MinPixelCoordinates[] = this.getUncheckedPixelCoordinates(new Position((x - radius),(y - radius)));
 		return ((MinPixelCoordinates[0] >= 0) && (MinPixelCoordinates[1] >= 0) && (MaxPixelCoordinates[0] <= this.getWidthInPixels()) && (MaxPixelCoordinates[1] <= this.getHeightInPixels()));
 	}
 
+	private int[] getUncheckedPixelCoordinates(Position position){
+		return position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight());
+	}
+	
 	/**
 	 * @return	result == position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight())
 	 * @throws	IllegalArgumentException("Object is not located in this world!")
@@ -136,7 +140,7 @@ public class World {
 	public int[] getPixelCoordinates(Position position) throws IllegalArgumentException{
 		if (!this.isLocatedInWorld(position, 0))
 			throw new IllegalArgumentException("Object is not located in this world!");
-		return position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight());
+		return this.getUncheckedPixelCoordinates(position);
 	}
 	
 	private boolean isImpassablePosition(Position position) throws IllegalArgumentException{

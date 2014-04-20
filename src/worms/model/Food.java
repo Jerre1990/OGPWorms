@@ -25,8 +25,17 @@ public class Food extends GameObject {
 	 */
 	public Food(Position position){
 		super(position, 0.2, 0.2);
+		this.setPercentualIncreaseOfRadius(0.1);
 	}
 	
+	public double getPercentualIncreaseOfRadius(){
+		return this.percentualIncreaseOfRadiusWhenEaten;
+	}
 	
+	public void setPercentualIncreaseOfRadius(double increase){
+		this.percentualIncreaseOfRadiusWhenEaten = increase;
+	}
+	
+	private double percentualIncreaseOfRadiusWhenEaten;
 
 }

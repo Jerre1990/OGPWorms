@@ -1,5 +1,7 @@
 package worms.model;
 
+import java.util.List;
+
 import be.kuleuven.cs.som.annotate.Model;
 
 public class Projectile extends MovableGameObject {
@@ -19,8 +21,10 @@ public class Projectile extends MovableGameObject {
 	@Override
 	protected boolean stopConditionDuringJump(Position inFlightPosition, boolean goingUp) {
 		boolean adjacency = super.stopConditionDuringJump(inFlightPosition, goingUp);
-		boolean overlap = this.getWorld().partialOverlapWithOtherWorm(inFlightPosition, this.getRadius(), this.getWeapon().getWorm());
-		return (adjacency || overlap);
+		List<Worm> worms = this.getWorld().overlapWithWorm(inFlightPosition, this.getRadius());
+		worms.remove(this.getWeapon().getWorm());
+		boolean otherWormIsHit = !worms.isEmpty();
+		return (adjacency || otherWormIsHit);
 	}
 	
 	@Override
@@ -32,6 +36,7 @@ public class Projectile extends MovableGameObject {
 	public void jump(double timeStep){
 		super.jump(timeStep);
 		this.hitWorms();
+		this.getWeapon().removeAsProjectile(this);
 	}
 	
 	@Override
@@ -40,7 +45,10 @@ public class Projectile extends MovableGameObject {
 	}
 	
 	private void hitWorms(){
-		
+		List<Worm> worms = this.getWorld().overlapWithWorm(this.getPosition(), this.getRadius());
+		worms.remove(this.getWeapon().getWorm());
+		for(Worm hitWorm : worms)
+			hitWorm.decreaseNumberOfHitPointsBy(this.getWeapon().getHitPointReduction());
 	}
 	
 	/**

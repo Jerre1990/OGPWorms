@@ -145,6 +145,25 @@ public class Worm extends MovableGameObject {
 	}
 	
 	private boolean alive;
+	
+	public boolean isActive(){
+		return this.active;
+	}
+	
+	private void setActive(boolean flag){
+		this.active = flag;
+	}
+	
+	private void activate(){
+		this.getWorld().geta
+		this.setActive(true);
+	}
+	
+	private void deactivate(){
+		this.setActive(false);
+	}
+	
+	private boolean active;
 
 	/**
 	 * Return the name of the worm.
@@ -492,6 +511,16 @@ public class Worm extends MovableGameObject {
 		setNumberOfActionPoints(this.getNumberOfActionPoints() - this.amountOfActionPointsForTurning(turnByAngle));
 	}
 	
+	private void eat(Food snack){
+		this.setRadius(this.getRadius() * (1 + snack.getPercentualIncreaseOfRadius()));
+	}
+	
+	private void eatAllFood(){
+		List<Food> snacks = this.getWorld().overlapWithFood(this.getPosition(), this.getRadius());
+		for (Food snack : snacks)
+			this.eat(snack);
+	}
+	
 	/**
 	 * Return the initial force to be exerted on the worm.
 	 * @return 	Initial force to be exerted on the worm.
@@ -515,6 +544,7 @@ public class Worm extends MovableGameObject {
 		if (this.canFall())
 			this.fall();
 		this.setNumberOfActionPoints(0);
+		this.eatAllFood();
 	}
 	
 	@Override
@@ -550,6 +580,7 @@ public class Worm extends MovableGameObject {
 				intDecrement = Integer.MAX_VALUE;
 			else intDecrement = (int) Math.round(decrement);
 			this.decreaseNumberOfHitPointsBy(intDecrement);
+			this.eatAllFood();
 		}
 		else this.kill();
 	}
@@ -617,6 +648,7 @@ public class Worm extends MovableGameObject {
 			this.setPosition(this.positionAfterMove());
 			if (this.canFall())
 				this.fall();
+			this.eatAllFood();
 		}
 	}
 	
