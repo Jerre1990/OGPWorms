@@ -257,6 +257,7 @@ public class World {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public void startNextTurn(){
 		List<Worm> allWorms = this.getAllWorms();
 		for(Worm worm : allWorms){
@@ -295,6 +296,8 @@ public class World {
 		else return null;
 	}
 	
+=======
+>>>>>>> FETCH_HEAD
 =======
 >>>>>>> FETCH_HEAD
 =======
