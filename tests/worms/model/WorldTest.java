@@ -3,9 +3,11 @@ package worms.model;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.*;
@@ -79,6 +81,8 @@ public class WorldTest {
 		worm1 = new Worm(new Position(75,84), 3, 4.5, "Ricky");
 		worm2 = new Worm(new Position(94,2), 1.4, 3.03, "Ash");
 		worm3 = new Worm(new Position(53,1.22), 1.7, 0.3, "Octo");
+		projectile1 = new Projectile(new Position(52,2), 2.03,5.36, 2.5);
+		weapon = new Weapon("Rifle", 1, 5, 7, 8.3, true);
 		world1.addAsGameObject(food1);
 		world1.addAsGameObject(worm1);
 		world1.addAsGameObject(projectile1);
@@ -93,7 +97,7 @@ public class WorldTest {
 	 * @post	The variables world2 and world3 reference the following new worlds respectively:
 	 *		 	world2 has a width of 25.58, a height of 30.56, is based on rectangular map of 46 by 62 and has a random number generator.
 	 *		 	world3 has a width of 18.62, a height of 13.457, is based on cubic map of 10 by 10 and has a random number generator.
-	 */
+	*/ 
 	@BeforeClass
 	public static void setUpImmutableFixture() throws Exception {
 		int mountainWidth = 8;
@@ -147,167 +151,33 @@ public class WorldTest {
 		assertTrue(Arrays.equals(map[i], myWorld.getPassableMap()[i]));
 		}
 	}
+	/**
+	@Test
+	public void isPassable_LegalCaseTrue(){
+		assertTrue(world1.isPassable(new Position(3,4), .05));
+	}
+
 	
 	@Test
-	public void setWidth_LegalCase() throws Exception {
-		world1.setPassableMap(map2);
-	}
-	
-	/**
-	@Test 
-	public void isValidWidth_LegalCaseTrue() {
-		assertTrue(world1.isValidWidth(5.5));
-	}
-	
-	@Test 
-	public void isValidWidth_LegalCaseFalse() {
-		assertFalse(world1.isValidWidth(-10));
-	}
-	
-	@Test 
-	public void isValidHeight_LegalCaseTrue() {
-		assertTrue(world1.isValidHeight(7.65));
-	}
-	
-	@Test 
-	public void isValidHeight_LegalCaseFalse() {
-		assertFalse(world1.isValidHeight(-20.3));
-	}
-	*/
-	
-	@Test 
-	public void hasProperGameObjects_LegalCaseTrue() {
-		assertTrue(world1.hasProperGameObjects());
-	}
-	
-	@Test 
-	public void hasProperGameObjects_LegalCaseFalseObjectInOtherWorld() {
-		food1.setWorld(world2);
-		assertFalse(world1.hasProperGameObjects());
+	public void checkIsLocated(){
+		Position position = new Position(3,4);
+		assertTrue(world1.isLocatedInWorld(position, 0.05));
 	}
 	
 	
-	
-	@Test 
-	public void canHaveAsGameObject_LegalCaseTrue() {
-		assertTrue(world1.canHaveAsGameObject(food3));
+	@Test
+	public void getPixelCoordinates(){
+		Position position = new Position(3,4);
+		assertTrue(world1.isLocatedInWorld(position, 0.05));
+	}
+	*/	
+	@Test
+	public void getAllObjectsFrom_LegalCaseWorms(){
+		List<GameObject> result = new ArrayList<GameObject>();
+		result.add(worm1);
+		//result.add(worm2);
+		assertArrayEquals(result.toArray(), world1.getAllObjectsFrom(Worm.class.getName(), world1.getObjects()).toArray());
 	}
 	
-	@Test 
-	public void canHaveAsGameObject_LegalCaseFalseNullReference() {
-		assertFalse(world1.canHaveAsGameObject(null));
-	}	
-	
-	@Test 
-	public void canHaveAsGameObject_LegalCaseFalseObjectInOtherWorld() {
-		food3.setWorld(world2);
-		assertFalse(world1.canHaveAsGameObject(food3));
-	}
-	
-	@Test 
-	public void canHaveAsGameObject_LegalCaseFalseTwoTimesInWorld() {
-		assertFalse(world1.canHaveAsGameObject(food1));
-	}
-	
-	@Test 
-	public void hasAsGameObject_LegalCaseTrue() {
-		assertTrue(world1.hasAsGameObject(food1));
-	}
-	
-	@Test 
-	public void hasAsGameObject_LegalCaseFalse() {
-		assertFalse(world1.hasAsGameObject(food3));
-	}
-	
-	@Test 
-	public void removeAsGameObject_LegalCase() throws Exception {
-		world1.removeAsGameObject(food1);
-		assertFalse(world1.hasAsGameObject(food1));
-		assertEquals(food1.getWorld(), world1);
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void removeAsGameObject_ObjectNotInWorld() throws Exception {
-		world1.removeAsGameObject(food3);
-	}
-	
-	
-	@Test 
-	public void addAsGameObject_LegalCaseTrue() throws Exception {
-		world1.addAsGameObject(food3);
-		assertTrue(world1.hasAsGameObject(food3));
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void addAsGameObject_NullReference() throws Exception {
-		world1.addAsGameObject(null);
-		assertFalse(world1.hasAsGameObject(null));
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void addAsGameObject_ObjectInOtherWorld() throws Exception {
-		food3.setWorld(world2);
-		world1.addAsGameObject(food3);
-		assertFalse(world1.hasAsGameObject(food3));
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void addAsGameObject_TwoObjectsInOtherWorld() throws Exception {
-		food3.setWorld(world1);
-		world1.addAsGameObject(food3);
-		assertEquals(world1.getNbGameObjects(), 5);
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void addAsGameObject_GameStartedAddWorm() throws Exception {
-		world1.startGame();
-		world1.addAsGameObject(worm3);
-		assertFalse(world1.hasAsGameObject(worm3));
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void addAsGameObject_GameStartedAddFood() throws Exception {
-		world1.startGame();
-		world1.addAsGameObject(food3);
-		assertFalse(world1.hasAsGameObject(food3));
-	}
-	
-	
-	@Test 
-	public void isLocatedInWorld_LegalCaseTrue() throws Exception {
-		assertTrue(world1.isLocatedInWorld(new Position((5),(6)), 0));
-	}
-	
-	@Test 
-	public void isLocatedInWorld_LegalCaseFalseNegativeCoordinate() {
-		assertFalse(world1.isLocatedInWorld(new Position((-5),(6)), 0));
-	}
-	
-	@Test 
-	public void isLocatedInWorld_LegalCaseFalseTooLarge() {
-		assertFalse(world1.isLocatedInWorld(new Position((856),(6)), 0));
-	}
-	
-	
-	@Test 
-	public void getPixelCoordinates_LegalCase() {
-		assertEquals(world1.getPixelCoordinates(new Position((5),(6))),"[38][39]" );
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void getPixelCoordinates_NotLocatedInWorld() throws Exception {
-		assertEquals(world1.getPixelCoordinates(new Position((-5),(6))),"[38][39]" );
-	}
-	/**
-	@Test 
-	public void isPassable_LegalCaseTrue() {
-		assertTrue(world1.isPassable(new Position((16),(6)), 0 ));
-	}
-	
-	@Test 
-	public void isPassable_LegalCaseFalse() {
-		assertTrue(world1.isPassable(new Position((0),(6)), 0 ));
-	}
-	*/
 }
 	
