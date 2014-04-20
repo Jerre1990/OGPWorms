@@ -378,38 +378,6 @@ public abstract class GameObject {
 	
 	private boolean removedFromWorld;
 	
-	public List<Food> partiallyOverlapsWithFood(){
-		String className = this.getClass().getName();
-		List<GameObject> result = new ArrayList<GameObject>();
-		List<Food> resultFood = new ArrayList<Food>();
-		 result = this.getWorld().getAllObjectsFrom(className, getWorld().getObjects());
-			for (GameObject object: result){
-				try { Food food = (Food) object;
-				if (this.partialOverlapWith(food) && food != this)
-					resultFood.add(food);
-				}	catch (ClassCastException exc) {
-					assert false;
-					}
-			}
-	
-			return resultFood;
-	}
-	
-	public List<Worm> partiallyOverlapsWithOtherWorm(){
-		String className = this.getClass().getName();
-		List<GameObject> result = new ArrayList<GameObject>();
-		List<Worm> resultWorm = new ArrayList<Worm>();
-			result = this.getWorld().getAllObjectsFrom(className, getWorld().getObjects());
-			for (GameObject object: result){
-				try { Worm worm = (Worm) object;
-				if (this.partialOverlapWith(worm) && worm != this)
-					resultWorm.add(worm);
-				}	catch (ClassCastException exc) {
-					assert false;
-					}
-			
-			}
-			return resultWorm;
-	}
+
 	
 }

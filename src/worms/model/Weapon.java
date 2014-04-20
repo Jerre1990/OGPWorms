@@ -106,8 +106,8 @@ public class Weapon extends Identifiable{
 
 	public void terminate(){
 		this.isTerminated =true;
-		worm.removeWeapon(this);
-		projectile.removeWeapon(this);
+		worm.getAllWeapons().remove(this);
+		projectile.setWeapon(null);
 	}
 	/**
 	 * Check whether the given worm is a valid worm for this weapon.

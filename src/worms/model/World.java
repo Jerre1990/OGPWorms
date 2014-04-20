@@ -506,6 +506,41 @@ public class World {
 	}
 	
 	private boolean isStarted;
+	
+	protected List<Food> overlapWithFood(Position p, double radius){
+		String className = Food.class.getName();
+		List<GameObject> result = new ArrayList<GameObject>();
+		List<Food> resultFood = new ArrayList<Food>();
+		 result = this.getAllObjectsFrom(className, this.getObjects());
+			for (GameObject object: result){
+				try { Food food = (Food) object;
+				if (food.partialOverlapWith(p, radius))
+					resultFood.add(food);
+				}	catch (ClassCastException exc) {
+					assert false;
+					}
+			}
+	
+			return resultFood;
+	}
+	
+	protected List<Worm> overlapWithWorm(Position p, double radius){
+		String className = Worm.class.getName();
+		List<GameObject> result = new ArrayList<GameObject>();
+		List<Worm> resultWorm = new ArrayList<Worm>();
+			result = this.getAllObjectsFrom(className, this.getObjects());
+			for (GameObject object: result){
+				try { Worm worm = (Worm) object;
+				if (worm.partialOverlapWith(p, radius))
+					resultWorm.add(worm);
+				}	catch (ClassCastException exc) {
+					assert false;
+					}
+			
+			}
+			return resultWorm;
+	}
+	
 }
 
 
