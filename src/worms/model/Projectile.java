@@ -29,19 +29,39 @@ public class Projectile extends MovableGameObject {
 		return (adjacency || overlap);
 	}
 	
+	/**
+	 * Check whether the given weapon is a valid weapon for this projectile.
+	 * @param 	weapon
+	 * 			The weapon to be checked.
+	 * @return	(weapon == null || weapon.canHaveAsProjectile(this))
+	 */
 	public boolean canHaveAsWeapon(Weapon weapon){
 		return (weapon == null || weapon.canHaveAsProjectile(this));
 	}
 	
-	
+	/**
+	 * Check whether this projectile has a proper weapon as its weapon.
+	 * @return	(canHaveAsWeapon(getWeapon()) && getWeapon().hasAsProjectile(this))
+	 */
 	public boolean hasProperWeapon(){
-		return ( canHaveAsWeapon(getWeapon()) && getWeapon().hasAsProjectile(this));
+		return (canHaveAsWeapon(getWeapon()) && getWeapon().hasAsProjectile(this));
 	}
 	
+	/**
+	 * Return the weapon attached to this projectile.
+	 */
 	public Weapon getWeapon(){
 		return this.weapon;
 	}
 	
+	/**
+	 * Set the given weapon as weapon of this projectile.
+	 * @param 	weapon
+	 * 			The weapon to be attached.
+	 * @post	new.getWeapon() == weapon
+	 * @throws	IllegalArgumentException
+	 * 			(! canHaveAsWeapon(weapon))
+	 */
 	public void setWeapon(Weapon weapon){
 		if(! canHaveAsWeapon(weapon)){
 			throw new IllegalArgumentException("Not a valid weapon");

@@ -105,43 +105,73 @@ public class Weapon extends Identifiable{
 		worm.removeWeapon(this);
 		projectile.removeWeapon(this);
 	}
-
+	/**
+	 * Check whether the given worm is a valid worm for this weapon.
+	 * @param 	worm
+	 * 			The worm to be checked.
+	 * @return	(worm != null && worm.canHaveAsWeapon(this))
+	 */
 	public boolean canHaveAsWorm(Worm worm){
 		return (worm != null && worm.canHaveAsWeapon(this));
 	}
-	
+	/**
+	 * Return the worm attached to this weapon.
+	 */
 	public Worm getWorm(){
 		return this.worm;
 	}
 	
-	public boolean hasAsWorm(Worm worm) throws IllegalArgumentException {
-		if (worm == this.worm){
-			return true;
-		}
-		else throw new IllegalArgumentException("wrong worm");
+	/**
+	 * Check whether the given worm is attached to this weapon.
+	 * @param	worm
+	 * 			The worm to be checked.
+	 * @return	(worm == this.worm)
+	 */
+	public boolean hasAsWorm(Worm worm){
+		return (worm == this.worm);
 	}
-	
+	/**
+	 * Check whether this team has a proper worm attached to it.
+	 * @return	(canHaveAsWorm(worm) || worm.getAllWeapons().contains(this))
+	 */
 	public boolean hasProperWorm(){
 		if (! canHaveAsWorm(worm))
 			return false;
 		if (! worm.getAllWeapons().contains(this))
 			return false;
 		else
-			return true;
-			
+			return true;	
 	}
 	
+	/**
+	 * Add the given worm to this weapon.
+	 * @param 	worm
+	 * 			The worm to be added.
+	 * @post	new.getWorm() = worm;
+	 * @post	(new worm).getAllWeapons().contains(this)
+	 * @throws 	IllegalArgumentException
+	 * 			(! canHaveAsWorm(worm))
+	 */
 	public void addAsWorm(Worm worm) throws IllegalArgumentException {
 		if (canHaveAsWorm(worm)){
 			this.worm = worm;
-			worm.addWeapon(this);
+			worm.setWeapon(this);
 		}
 		else throw new IllegalArgumentException("Not a good worm");
 	}
 	
+	/**
+	 * Remove the given worm from this weapon.
+	 * @param 	worm
+	 * 			The worm to be removed.
+	 * @post	new.getWorm() == null
+	 * @post	! (new worm).getAllWeapons().contains(this)
+	 * @throws 	IllegalArgumentException
+	 * 			(! this.worm == worm)
+	 */
 	public void removeAsWorm(Worm worm) throws IllegalArgumentException {
 		if (this.worm == worm){
-			worm.removeWeapon(this);
+			worm.getAllWeapons().remove(this);
 			this.worm = null;
 		
 		}
@@ -149,36 +179,68 @@ public class Weapon extends Identifiable{
 	}
 	
 	Worm worm;
-	
+	/**
+	 * Check whether the given projectile is a valid projectile for this world.
+	 * @param 	projectile
+	 * 			The projectile to be checked.
+	 * @return	(projectile != null && projectile.canHaveAsWeapon(this)&& worm == null)
+	 */
 	public boolean canHaveAsProjectile(Projectile projectile){
-		return (projectile != null && projectile.canHaveAsWeapon(this));
+		return (projectile != null && projectile.canHaveAsWeapon(this) && worm != null);
 	}
 	
+	/**
+	 * Return the projectile attached to this weapon.
+	 */
 	public Projectile getProjectile(){
 		return this.projectile;
 	}
 	
+	/**
+	 * Check whether the given projectile is attached to this weapon.
+	 * @param 	projectile
+	 * 			The projectile to be checked.
+	 * @return	(this.projectile == projectile)
+	 */
 	public boolean hasAsProjectile(Projectile projectile) throws IllegalArgumentException {
-		if (this.projectile == projectile)
-			return true;
-		else throw new IllegalArgumentException("Not a projectile");
+		return (this.projectile == projectile);
+
 	}
 	
+	/**
+	 * Add the given projectile to this weapon as its projectile.
+	 * @param 	projectile
+	 * 			The projectile to be added.
+	 * @post	new.getProjectile() == projectile
+	 * @post	(new projectile).getWeapon() == this
+	 * @throws 	IllegalArgumentException
+	 * 			(! canHaveAsProjectile(projectile))
+	 */
 	public void addAsProjectile(Projectile projectile) throws IllegalArgumentException {
 		if (canHaveAsProjectile(projectile)){
 			this.projectile = projectile;
 			projectile.setWeapon(this);
+			worm.getWorld().addAsGameObject(projectile); 
 		}
-		else throw new IllegalArgumentException("Not a good worm");
+		else throw new IllegalArgumentException("Not a good projectile");
 	}
 	
+	/**
+	 * Remove the given projectile from this weapon.
+	 * @param 	projectile
+	 * 			The projectile to be removed.
+	 * @post	new.getProjectile() == null
+	 * @post	(new projectile).getWeapon() == null
+	 * @throws 	IllegalArgumentException
+	 * 			(! this.projectile == projectile)
+	 */
 	public void removeAsProjectile(Projectile projectile) throws IllegalArgumentException {
 		if (this.projectile == projectile){
 			projectile.setWeapon(null);
 			this.projectile = null;
 		
 		}
-		else throw new IllegalArgumentException("wrong worm");
+		else throw new IllegalArgumentException("wrong projectile");
 	}
 	
 	Projectile projectile;

@@ -573,28 +573,33 @@ public class Worm extends MovableGameObject {
 	
 	private final List<Weapon> weapons = new ArrayList<Weapon>();
 	
+	/**
+	 * Return all weapons attached to this worm.
+	 */
 	public List<Weapon> getAllWeapons(){
 		return weapons;
 	}
 	
-	public void removeWeapon(Weapon weapon){
-		this.weapons.remove(weapon);
-		
-	}
-	
+
+	/**
+	 * Check whether the given weapon is a valid weapon for this worm.
+	 * @param 	weapon
+	 * 			The weapon to be checked.
+	 * @return	result == (weapon == null)
+	 */
 	public boolean canHaveAsWeapon(Weapon weapon){
 		return (weapon != null);
 	}
 	
-	public void addWeapon(Weapon weapon){
-		weapons.add(weapon);
-	}
-	
+	/**
+	 * Check whether this worm has proper weapons.
+	 * @return	result == (canHaveAsWeapon(weapon)|| weapon.getWorm() == this)
+	 */
 	public boolean hasProperWeapons(){
 		for (Weapon weapon: this.weapons){
 			if (! canHaveAsWeapon(weapon))
 				return false;
-			if (weapon.getWorm() !=this)
+			if (weapon.getWorm() != this)
 				return false;
 			else
 				return true;
@@ -602,19 +607,50 @@ public class Worm extends MovableGameObject {
 		
 		return true;
 	}
+	/**
+	 * Set as one of the weapons to which this worm is attached to the given weapon.
+	 * @param	weapon
+	 * 			The weapon to be attached.
+	 * @post	new.getAllWeapons().contains(weapon)
+	 * @throws	IllegalArgumentException
+	 * 			(! canHaveAsWeapon(weapon) || ! weapon.hasAsWorm(this))
+	 */
+	public void setWeapon(Weapon weapon) throws IllegalArgumentException {
+		if (! canHaveAsWeapon(weapon) || ! weapon.hasAsWorm(this))
+			throw new IllegalArgumentException("not a valid weapon");
+		else weapons.add(weapon);
+	}
 	
+	/**
+	 * Return the team to which this worm belongs.
+	 */
 	public Team getTeam(){
 		return this.team;
 	}
-	
+	/**
+	 * Check whether this worm can have the given team as its worm
+	 * @param 	team
+	 * 			The team to be added.
+	 * @return	(team == null || team.canHaveAsWorm(this))
+	 */
 	public boolean canHaveAsTeam(Team team){
 		return (team == null || team.canHaveAsWorm(this));
 	}
-	
+	/**
+	 * Check whether this worm has a proper team as its team.
+	 * @return	(canHaveAsTeam(getTeam()) && getTeam().hasAsWorm(this))
+	 */
 	public boolean hasProperTeam() {
 		return (canHaveAsTeam(getTeam()) && getTeam().hasAsWorm(this));
 	}
-	
+	/**
+	 * Set the given team to the new team of this worm.
+	 * @param 	team
+	 * 			The team to be set.
+	 * @post	new.getTeam() == team
+	 * @throws 	IllegalArgumentException
+	 * 			(! canHaveAsTeam(team) || ! team.hasAsWorm(this))
+	 */
 	public void setTeam(Team team) throws IllegalArgumentException {
 		if (! canHaveAsTeam(team) || ! team.hasAsWorm(this))
 			throw new IllegalArgumentException("not a valid team");

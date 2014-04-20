@@ -268,7 +268,6 @@ public class World {
 		if (object.getWorld() != this){
 			return false;
 		}
-		
 	}
 	return true;
 	
@@ -287,7 +286,7 @@ public class World {
 	 * @param	object
 	 * 			The object to be removed
 	 * @post	! new.hasAsGameObject(object)
-	 * @post	((new object).getWorld() == this)	 * 				
+	 * @post	((new object).getWorld() == this) 				
 	 * @throws	IllegalArgumentException
 	 * 			(! hasAsGameObject)
 	 */
@@ -308,7 +307,7 @@ public class World {
 	 */
 	private final List<GameObject> objects = new ArrayList<GameObject>();
 	
-	public Collection<GameObject> getObjects() {
+	public List<GameObject> getObjects() {
 		return objects;
 	}
 	
@@ -318,11 +317,12 @@ public class World {
 	 * 			The game object to be added
 	 * @post	new.hasAsGameObject(object)
 	 * @post	(new object).getWorld() == this
-	 * @throws 	IllegalArgumentException
-	 * 			! canHaveAsGameObject(object)
 	 * @throws	IllegalArgumentException
-	 * 			( (object != null)
-	 * 			&& (object.getWorld() != null) )
+	 * 			(! canHaveAsGameObject(object))
+	 * @throws 	IllegalArgumentException
+	 * 			(object.getWorld() != null)
+	 * @throws 	IllegalArgumentException
+	 * 			(isStarted == true && ( object instanceof Worm || object instanceof Food ))
 	 */
 	public void addAsGameObject(GameObject object) throws IllegalArgumentException {
 		if (! canHaveAsGameObject(object)) 
@@ -337,6 +337,26 @@ public class World {
 			object.setWorld(this);
 	}
 	
+	/**
+	 * 
+	 * @param 	object
+	 * 			The game object to be added.
+	 * @param	x
+	 * 			the x coordinate at which the object is to be added.
+	 * @param	y
+	 * 			the y coordinate at which the object is to be added. 
+	 * @post	new.hasAsGameObject(object)
+	 * @post	(new object).getWorld() == this
+	 * @post	(new object).getX() == x
+	 * 			(new object).getY() == y
+	 * @throws	IllegalArgumentException
+	 * 			(! canHaveAsGameObject(object))
+	 * @throws 	IllegalArgumentException
+	 * 			(object.getWorld() != null)
+	 * @throws 	IllegalArgumentException
+	 * 			(isStarted == true && ( object instanceof Worm || object instanceof Food ))
+	 * 			
+	 */
 	public void addAsGameObject(GameObject object, double x, double y) throws IllegalArgumentException {
 		if (! canHaveAsGameObject(object)) 
 			throw new IllegalArgumentException("This is not a proper object for this world");
@@ -360,8 +380,6 @@ public class World {
 	 * @param 	object
 	 * 			The game object to check.
 	 * @return	if (object == null)
-	 * 				then result == false
-	 * 			if (this.isTerminated())
 	 * 				then result == false
 	 * 			if (! object.getWorld() == null)
 	 * 				then result == false
@@ -396,9 +414,9 @@ public class World {
 	 * @throws 	IllegalArgumentException
 	 * 			method.getReturnType() == void.class
 	 * @throws 	InvocationTargetException
-	 */
-	public static List<Object> getAllObjectsFrom(List<GameObject> gameObjects, Method method) throws IllegalArgumentException, InvocationTargetException {
-		List<Object> result = new ArrayList<Object>();
+	 
+	public static List<GameObject> getAllObjectsFrom(List<GameObject> gameObjects, Method method) throws IllegalArgumentException, InvocationTargetException {
+		List<GameObject> result = new ArrayList<GameObject>();
 		if (gameObjects == null){
 			throw new IllegalArgumentException();
 		}
@@ -414,40 +432,70 @@ public class World {
 		else {
 			for (GameObject gameObject: gameObjects)
 				try {
-					result.add(method.invoke(gameObject));
+					result.add( method.invoke(gameObject));
 				}	catch (IllegalAccessException exc) {
 					assert false;
 					}
-		
-		}	
-		
-				
+			}	
 
 		return result;
 				
 	}
+	*/
+	public List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
+		List<GameObject> result = new ArrayList<GameObject>();
+			for (GameObject gameObject: gameObjects)
+				if( gameObject.getClass().getName() == className){
+					result.add(gameObject);
+				}
+			return  result;
+	}
 	
 	
 	private final List<Team> teams = new ArrayList<Team>();
-	
+	/**
+	 * Return the teams of this world.
+	 */
 	public List<Team> getTeams() {
 		return this.teams;
 	}
 	
+	/**
+	 * Remove the given team from this world.
+	 * 
+	 * @param 	team
+	 * 			The team to be removed.
+	 * @post	! new.getTeams().contains(team)	
+	 */
 	public void removeAsTeam(Team team) {
 		teams.remove(team);
 		}
 	
+	/**
+	 * Check whether the given team is a valid team for this world.
+	 * @param 	team
+	 * 			The team to be checked.
+	 * @return	result == (! teams.contains(team) && teams.size() <= 9 && team.isValidName(team.getName()))
+	 */
 	public boolean canHaveAsTeam(Team team) {
 		return (! teams.contains(team) && teams.size() <= 9 && team.isValidName(team.getName()));
 	}
 	
+	/**
+	 * Add the given team to this world.
+	 * @param 	team
+	 * 			The team to be added to this world.
+	 * @post	new.getTeams().contains(team)
+	 * @throws 	IllegalArgumentException
+	 * 			(! canHaveAsTeam(team))
+	 */
 	public void addAsTeam(Team team) throws IllegalArgumentException {
 		if (! canHaveAsTeam(team)){
 			throw new IllegalArgumentException("invalid team");
 		}
 		else teams.add(team);
 	}
+
 	
 	public void startGame(){
 		isStarted = true;

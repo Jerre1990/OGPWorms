@@ -6,6 +6,7 @@ import java.util.List;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 
 public class Team extends Identifiable{
 	
@@ -31,32 +32,6 @@ public class Team extends Identifiable{
 		return livingWorms;
 	}
 	
-	public Team determineWinningTeam(World world){
-		boolean[] teamsCheck = new boolean [world.getTeams().size()];
-		int i = 0;
-		for (Team team: world.getTeams()){
-			for (Worm worm: worms) {
-				if (worm.isAlive())
-					teamsCheck[i] = false;
-					i = i +1;
-					break;				
-			}
-		}
-		int counter = 0;
-		Team winner = null;
-		for (int u = 0; u <world.getTeams().size();u++){
-			if (teamsCheck[i] == false){
-				counter = counter + 1;
-				
-			}
-		}
-		int hasAWinner = 0;
-		if (counter ==1) {
-			hasAWinner = 1;
-		}
-		 return ()
-			
-	}
 	
 	List<Worm> worms = new ArrayList<Worm>();
 	
@@ -98,28 +73,52 @@ public class Team extends Identifiable{
 		return false;
 		else return true;
 	}
-	
+	/**
+	 * Check whether this team has the given worm as one of the worms attached to it.
+	 * @param 	worm
+	 * 			The worm to be checked
+	 * @return	(this.worms.contains(worm))
+	 */
+	@Raw @Basic
 	public boolean hasAsWorm(Worm worm){
 		return (this.worms.contains(worm));
 	}
-	
+	/**
+	 * Check whether this team has proper worms attached to it.
+	 * @return	result == 
+	 * 				for each worm in worms
+	 * 					if (canHaveAsWorm(worm) && worm.getTeam() = this )
+	 */
+	@Raw
 	public boolean hasProperWorms(){
 		for (Worm worm: this.worms) {
 			if (! canHaveAsWorm(worm) || worm.getTeam() != this )
-				return false;
-			
-				
+				return false;	
 		}
 		return true;
 	}
-	
+	/**
+	 * Add the given worm to this team.
+	 * @param 	worm
+	 * 			The worm to be added.
+	 * @post	worms.contains(worm)
+	 * @post	(new worm).getTeam() == this
+	 * @throws 	IllegalArgumentException
+	 * 			(! canHaveAsWorm(worm) || worm.getTeam() != null)
+	 */
 	public void addAsWorm(Worm worm) throws IllegalArgumentException {
 		if (! canHaveAsWorm(worm) || worm.getTeam() != null)
 			throw new IllegalArgumentException("Not a valid worm");
 		else 	this.worms.add(worm);
 				worm.setTeam(this);
 	}
-	
+	/**
+	 * Remove the given worm from this team.
+	 * @param 	worm
+	 * 			The worm to be removed
+	 * @post	! hasAsWorm(worm)
+	 * @post	worm.getTeam() == null
+	 */
 	public void removeAsWorm(Worm worm){
 		if (hasAsWorm(worm)){
 			this.worms.remove(worm);

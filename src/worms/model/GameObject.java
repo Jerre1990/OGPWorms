@@ -1,7 +1,9 @@
 package worms.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 import worms.util.Util;
 import be.kuleuven.cs.som.annotate.*;
@@ -293,7 +295,7 @@ public abstract class GameObject {
 	 * Return the current game world of this game object.
 	 * 	The current game world of a game object is the game world in which this game object currently resides.
 	 */
-	@Basic	
+	@Basic	@Raw
 	public World getWorld(){
 		return this.world;
 	}
@@ -305,12 +307,19 @@ public abstract class GameObject {
 	 * 			The game world to check.
 	 * @return	result == ((gameWorld != null) && gameWorld.canHaveAsGameObject(this))
 	 */
+	@Raw
 	protected boolean canHaveAsWorld(World gameWorld){
 		return ((gameWorld != null) && gameWorld.canHaveAsGameObject(this));
 	}
 	
+	/**
+	 * Check whether this game object has a proper world to which it is attached.
+	 * 
+	 * @return	result == (this.canHaveAsWorld(this.getWorld()) && getWorld().hasAsGameObject(this))
+	 */
+	@Raw
 	public boolean hasProperWorld(){
-		return (this.canHaveAsWorld(this.getWorld()) || (this.getWorld() == null));
+		return (this.canHaveAsWorld(this.getWorld()) && getWorld().hasAsGameObject(this));
 	}
 	
 	/**
@@ -324,10 +333,11 @@ public abstract class GameObject {
 	 * 		|	this.canHaveAsWorld(new.getWorld())
 	 * @throws 	IllegalArgumentException("Invalid game world!")
 	 * 			This game object cannot have the given game world as its game world.
-	 * 		|	! this.canHaveAsWorld(gameWorld)
+	 * 		|	(! canHaveAsWorld(gameWorld) || ! gameWorld.hasAsGameObject(this))
 	 */
+	@Raw
 	public void setWorld(World gameWorld) throws IllegalArgumentException {
-		if (!canHaveAsWorld(gameWorld))
+		if (! canHaveAsWorld(gameWorld) || ! gameWorld.hasAsGameObject(this))
 			throw new IllegalArgumentException("Invalid world!");
 		else this.world = gameWorld;
 	}
@@ -335,7 +345,7 @@ public abstract class GameObject {
 	/**
 	 * Variable registering the game world in which this game object currently resides.
 	 */
-	private World world=null;
+	private World world;
 	
 	/**
 	 * Remove this game object from its game world.
@@ -364,5 +374,38 @@ public abstract class GameObject {
 	
 	private boolean removedFromWorld;
 	
+	public List<Food>partialOverlapsWithFood(){
+		String className = this.getClass().getName();
+		List<GameObject> result = new ArrayList<GameObject>();
+		List<Food> resultFood = new ArrayList<Food>();
+		 result = this.getWorld().getAllObjectsFrom(className, getWorld().getObjects());
+			for (GameObject object: result){
+				try { Food food = (Food) object;
+				if (this.partialOverlapWith(food) && food != this)
+					resultFood.add(food);
+				}	catch (ClassCastException exc) {
+					assert false;
+					}
+			}
+	
+			return resultFood;
+	}
+	
+	public List<Worm> partialOverlapsWithOtherWorm(){
+		String className = this.getClass().getName();
+		List<GameObject> result = new ArrayList<GameObject>();
+		List<Worm> resultWorm = new ArrayList<Worm>();
+			result = this.getWorld().getAllObjectsFrom(className, getWorld().getObjects());
+			for (GameObject object: result){
+				try { Worm worm = (Worm) object;
+				if (this.partialOverlapWith(worm) && worm != this)
+					resultWorm.add(worm);
+				}	catch (ClassCastException exc) {
+					assert false;
+					}
+			
+			}
+			return resultWorm;
+	}
 	
 }
