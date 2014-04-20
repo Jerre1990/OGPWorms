@@ -154,8 +154,10 @@ public class Worm extends MovableGameObject {
 		this.active = flag;
 	}
 	
-	private void activate(){
-		this.getWorld().geta
+	public void activate(){
+		List<Worm> allWorms = this.getWorld().getAllWorms();
+		for(Worm eachWorm : allWorms)
+			eachWorm.deactivate();
 		this.setActive(true);
 	}
 	

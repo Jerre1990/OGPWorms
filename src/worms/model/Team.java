@@ -134,4 +134,13 @@ public class Team extends Identifiable{
 		return this.worms;
 	}
 	
+	public List<Worm> getAllLiveWorms(){
+		List<Worm> liveWorms = this.getAllWorms();
+		for(Worm worm : liveWorms){
+			if(!worm.isAlive())
+				liveWorms.remove(worm);
+		}
+		return liveWorms;
+	}
+	
 }

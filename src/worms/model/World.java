@@ -95,7 +95,7 @@ public class World {
 		return this.getPassableMap().length;
 	}
 	
-	public void setPassableMap(boolean[][] map) throws IllegalArgumentException{
+	protected void setPassableMap(boolean[][] map) throws IllegalArgumentException{
 		if (map.length == 0)
 			throw new IllegalArgumentException("Empty map!");
 		else if (map[0].length == 0)
@@ -120,7 +120,7 @@ public class World {
 	 * @param	radius
 	 * @return	result == 
 	 */
-	public boolean isLocatedInWorld(Position center, double radius){
+	protected boolean isLocatedInWorld(Position center, double radius){
 		double x = center.getX();
 		double y = center.getY();
 		int MaxPixelCoordinates[] = this.getUncheckedPixelCoordinates(new Position((x + radius),(y + radius)));
@@ -137,7 +137,7 @@ public class World {
 	 * @throws	IllegalArgumentException("Object is not located in this world!")
 	 * 			! this.isLocatedInWorld(position, 0)	
 	 */
-	public int[] getPixelCoordinates(Position position) throws IllegalArgumentException{
+	protected int[] getPixelCoordinates(Position position) throws IllegalArgumentException{
 		if (!this.isLocatedInWorld(position, 0))
 			throw new IllegalArgumentException("Object is not located in this world!");
 		return this.getUncheckedPixelCoordinates(position);
@@ -242,18 +242,65 @@ public class World {
 		boolean[] topHalfOfCircle = {true,true,false,false};
 		return this.isAdjacentToImpassableTerrain(center, radius, topHalfOfCircle);
 	}
-
-	/**
-	 * @return	
-	 */
-	public int getNbGameObjects() {
-		return objects.size();
+	
+	public Worm getActiveWorm(){
+		Worm activeWorm = null;
+		List<Worm> allWorms = this.getAllWorms();
+		for(Worm worm : allWorms){
+			if(worm.isActive())
+				activeWorm = worm;
+			break;
+		}
+		return activeWorm;
 	}
 	
-	private void setNbGameObjects() {
-		
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+	public void startNextTurn(){
+		List<Worm> allWorms = this.getAllWorms();
+		for(Worm worm : allWorms){
+			if(!worm.isAlive());
+			allWorms.remove(worm);
+		}
+		int nextIndex = allWorms.indexOf(this.getActiveWorm()) + 1;
+		if(nextIndex == allWorms.size())
+			nextIndex = 0;
+		allWorms.get(nextIndex).activate();
 	}
 	
+	public boolean isFinished(){
+		return (this.getWinners() == null);
+	}
+	
+	public List<Worm> getWinners(){
+		List<Worm> allWorms = this.getAllWorms();
+		List<Team> liveTeams = new ArrayList<Team>();
+		for(Worm worm : allWorms){
+			if(!worm.isAlive())
+				allWorms.remove(worm);
+			else
+				liveTeams.add(worm.getTeam());
+		}
+		if(allWorms.size() == 1)
+			return allWorms;
+		else if(allWorms.size() > 1){
+			Team team = allWorms.get(0).getTeam();
+			for(Team teamToCheck : liveTeams){
+				if(teamToCheck != team)
+					return new ArrayList<Worm>();
+			}
+			return allWorms;
+		}
+		else return null;
+	}
+	
+=======
+>>>>>>> FETCH_HEAD
+=======
+>>>>>>> FETCH_HEAD
+=======
+>>>>>>> FETCH_HEAD
 	/**
 	 * 
 	 * @return	result == 
@@ -264,7 +311,7 @@ public class World {
 	 */
 	
 	@Raw
-	public boolean hasProperGameObjects(){
+	protected boolean hasProperGameObjects(){
 	for (GameObject object: this.objects){
 		if (! canHaveAsGameObject(object)){
 			return false;
@@ -282,7 +329,7 @@ public class World {
 	 * 			The object to check.
 	 */
 	@Basic @Raw
-	public boolean hasAsGameObject(GameObject object){
+	protected boolean hasAsGameObject(GameObject object){
 		return this.objects.contains(object);
 	}
 	
@@ -294,7 +341,7 @@ public class World {
 	 * @throws	IllegalArgumentException
 	 * 			(! hasAsGameObject)
 	 */
-	public void removeAsGameObject(GameObject object) throws IllegalArgumentException {
+	protected void removeAsGameObject(GameObject object) throws IllegalArgumentException {
 		if (hasAsGameObject(object)) {
 			this.objects.remove(object);
 		}
@@ -315,6 +362,22 @@ public class World {
 		return objects;
 	}
 	
+	public List<Worm> getAllWorms(){
+		List<GameObject> result = new ArrayList<GameObject>();
+		List<Worm> resultWorms = new ArrayList<Worm>();
+		result = this.getAllObjectsFrom("Worm", this.getObjects());
+			for (GameObject object: result){
+				try{
+					Worm worm = (Worm) object;
+					resultWorms.add(worm);
+				}
+				catch (ClassCastException exc) {
+					assert false;
+				}
+			}
+			return resultWorms;
+	}
+	
 	/**
 	 * 
 	 * @param 	object
@@ -328,7 +391,7 @@ public class World {
 	 * @throws 	IllegalArgumentException
 	 * 			(isStarted == true && ( object instanceof Worm || object instanceof Food ))
 	 */
-	public void addAsGameObject(GameObject object) throws IllegalArgumentException {
+	protected void addAsGameObject(GameObject object) throws IllegalArgumentException {
 		if (! canHaveAsGameObject(object)) 
 			throw new IllegalArgumentException("This is not a proper object for this world");
 		if (object.getWorld() != null)
@@ -361,7 +424,7 @@ public class World {
 	 * 			(isStarted == true && ( object instanceof Worm || object instanceof Food ))
 	 * 			
 	 */
-	public void addAsGameObject(GameObject object, double x, double y) throws IllegalArgumentException {
+	protected void addAsGameObject(GameObject object, double x, double y) throws IllegalArgumentException {
 		if (! canHaveAsGameObject(object)) 
 			throw new IllegalArgumentException("This is not a proper object for this world");
 		if (object.getWorld() != null)
@@ -390,9 +453,8 @@ public class World {
 	 * 			else result == 
 	 * 				(! objects.equals(object))
 	 */
-	public boolean canHaveAsGameObject(GameObject object) {
+	protected boolean canHaveAsGameObject(GameObject object) {
 		return 	( (object != null)
-				&& (object.getWorld() == null)
 				&& (! objects.equals(object)));
 	}
 	
@@ -471,7 +533,7 @@ public class World {
 	 * 			The team to be removed.
 	 * @post	! new.getTeams().contains(team)	
 	 */
-	public void removeAsTeam(Team team) {
+	protected void removeAsTeam(Team team) {
 		teams.remove(team);
 		}
 	
@@ -481,7 +543,7 @@ public class World {
 	 * 			The team to be checked.
 	 * @return	result == (! teams.contains(team) && teams.size() <= 9 && team.isValidName(team.getName()))
 	 */
-	public boolean canHaveAsTeam(Team team) {
+	protected boolean canHaveAsTeam(Team team) {
 		return (! teams.contains(team) && teams.size() <= 9 && team.isValidName(team.getName()));
 	}
 	
@@ -493,7 +555,7 @@ public class World {
 	 * @throws 	IllegalArgumentException
 	 * 			(! canHaveAsTeam(team))
 	 */
-	public void addAsTeam(Team team) throws IllegalArgumentException {
+	protected void addAsTeam(Team team) throws IllegalArgumentException {
 		if (! canHaveAsTeam(team)){
 			throw new IllegalArgumentException("invalid team");
 		}
@@ -505,7 +567,7 @@ public class World {
 		isStarted = true;
 	}
 	
-	public boolean isStarted(){
+	protected boolean isStarted(){
 		return isStarted;
 	}
 	
