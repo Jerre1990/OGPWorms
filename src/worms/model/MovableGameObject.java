@@ -68,8 +68,8 @@ public abstract class MovableGameObject extends GameObject{
 	 * 			The given y-coordinate is not a valid coordinate for any movable game object.
 	 * 		|	! this.getPosition().isValidCoordinate(y)
 	 */
-	public MovableGameObject(double x, double y, double radius, double lowerBound, double direction){
-		super(x, y, radius, lowerBound);
+	public MovableGameObject(Position position, double radius, double lowerBound, double direction){
+		super(position, radius, lowerBound);
 		this.setDirection(direction);
 	}
 	
@@ -293,9 +293,11 @@ public abstract class MovableGameObject extends GameObject{
 	 */	
 	public void jump(double timeStep){
 		if (this.canJump(timeStep))
-			throw new UnsupportedOperationException("Cannot jump!");
+			throw new UnsupportedOperationException("Cannot "+ this.getCustomText() +"!");
 		this.setPosition(this.jumpStepOnXAxis(this.jumpTime(timeStep)), this.jumpStepOnYAxis(this.jumpTime(timeStep)));
 	}
+	
+	protected abstract String getCustomText();
 	
 	/**
 	 * Constant representing the approximated value of Earth's standard acceleration coefficient.

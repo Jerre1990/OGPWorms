@@ -4,26 +4,39 @@ import java.util.List;
 
 public class Weapon extends Identifiable{
 
-	public Weapon(String name, int propulsionYield) {
-/**
- * Moet bij de aanmaak van worms verdeeld worden in types en niet hier in constructor: nog aanpassen!
- */
+	public Weapon(String name, int ammo, int hitPoints, int actionPoints, double radius, boolean selected) {
 		super(name);
-		if (name.equals("Rifle")){
-			this.setAmmo(-1);
-			this.setHitPointReduction(20);
-			this.setCostInActionPoints(10);
-			this.setInitialForceOfProjectile(1.5);
-			this.setRadiusOfProjectile(this.getRadius(10, 7800));
-		}
-		else if (name.equals("Bazooka")){
-			this.setAmmo(-1);
-			this.setHitPointReduction(80);
-			this.setCostInActionPoints(50);
-			this.setInitialForceOfProjectile(2.5 + (propulsionYield * 0.07));
-			this.setRadiusOfProjectile(this.getRadius(300, 7800));
-		}
+		this.setAmmo(ammo);
+		this.setHitPointReduction(hitPoints);
+		this.setCostInActionPoints(actionPoints);
+		this.setRadiusOfProjectile(radius);
+		this.setSelected(selected);
 	}
+	
+	public boolean isSelected(){
+		return this.selected;
+	}
+	
+	private void setSelected(boolean flag){
+		this.selected = flag;
+	}
+	
+	public void select(){
+		this.deselectAllWeapons();
+		this.setSelected(true);
+	}
+	
+	public void deselect(){
+		this.setSelected(false);
+	}
+	
+	private void deselectAllWeapons(){
+		List<Weapon> weapons = this.getWorm().getAllWeapons();
+		for (Weapon weapon : weapons)
+			weapon.deselect();
+	}
+	
+	private boolean selected;
 	
 	public int getAmmo(){
 		return this.ammo;
@@ -59,43 +72,34 @@ public class Weapon extends Identifiable{
 	
 	private int costInActionPoints;
 	
-	public double getInitialForceOfProjectile(){
-		return this.initialForce;
+	public double getInitialForceOfProjectile(int propYield){
+		if (this.getName() == "Bazooka")
+			return (2.5 + (0.07 * propYield));
+		else return 1.5;
 	}
-	
-	protected void setInitialForceOfProjectile(double initialForce){
-		this.initialForce = initialForce;
-	}
-	
-	private double initialForce;
 	
 	public double getRadiusOfProjectile(){
 		return this.radiusOfProjectile;
 	}
 	
-	private double getRadius(double mass, double p){
-		return Math.cbrt((mass * 3.0) / (p * 4.0 * Math.PI));
-	}
-	
-	public void setRadiusOfProjectile(double radiusOfProjectile){
+	protected void setRadiusOfProjectile(double radiusOfProjectile){
 		this.radiusOfProjectile = radiusOfProjectile;
 	}
 	
 	private double radiusOfProjectile;
 	
 	private boolean canShoot(){
-		return (this.getAmmo() != 0);
+		return ((this.getAmmo() != 0) && (this.getWorm().getNumberOfActionPoints() != 0) && (this.getWorm().getWorld().isPassable(this.getWorm().getPosition(), this.getWorm().getRadius())));
 	}
 	
-	public void shoot(){
-		if (this.canShoot()){
-			this.setAmmo(this.getAmmo() - 1);
-			this.addAsProjectile(new Projectile(this.getWorm(), this.getRadiusOfProjectile(), this.getInitialForceOfProjectile()));
-		}
-	}
-	
-	public void adjustWeapon(){
-		this.getProjectile().adjustProjectile();
+	public void shoot(int propulsionYield) throws IllegalArgumentException{
+		if (!this.canShoot())
+			throw new IllegalArgumentException("Cannot shoot!");
+		this.setAmmo(this.getAmmo() - 1);
+		this.getWorm().decreaseNumberOfActionPointsBy(this.getCostInActionPoints());
+		double x = this.getWorm().getX() + (1.1 * this.getWorm().getRadius() * Math.cos(this.getWorm().getDirection()));
+		double y = this.getWorm().getY() + (1.1 * this.getWorm().getRadius() * Math.sin(this.getWorm().getDirection()));
+		this.addAsProjectile(new Projectile(new Position(x,y), this.getWorm().getDirection(), this.getRadiusOfProjectile(), this.getInitialForceOfProjectile(propulsionYield)));
 	}
 	
 	boolean isTerminated;

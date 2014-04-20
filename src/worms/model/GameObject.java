@@ -67,8 +67,8 @@ public abstract class GameObject {
 	 * 			The given y-coordinate is not a valid coordinate for any game object.
 	 * 		|	! this.getPosition().isValidCoordinate(y)
 	 */
-	public GameObject(double x, double y, double radius, double lowerBound) throws IllegalArgumentException {
-		this.setPosition(x, y);
+	public GameObject(Position position, double radius, double lowerBound) throws IllegalArgumentException {
+		this.setPosition(position);
 		this.setRadius(radius);
 		this.setLowerBoundOfRadius(lowerBound);
 	}
@@ -290,6 +290,10 @@ public abstract class GameObject {
 	protected boolean partialOverlapWith(GameObject other){
 		return (this.getPosition().distanceFromPosition(other.getPosition()) < (this.getRadius() + other.getRadius()));
 	}
+	
+	protected boolean partialOverlapWith(Position otherPosition, double otherRadius){
+		return (this.getPosition().distanceFromPosition(otherPosition) < (this.getRadius() + otherRadius));
+	}
 
 	/**
 	 * Return the current game world of this game object.
@@ -374,7 +378,7 @@ public abstract class GameObject {
 	
 	private boolean removedFromWorld;
 	
-	public List<Food>partialOverlapsWithFood(){
+	public List<Food> partiallyOverlapsWithFood(){
 		String className = this.getClass().getName();
 		List<GameObject> result = new ArrayList<GameObject>();
 		List<Food> resultFood = new ArrayList<Food>();
@@ -391,7 +395,7 @@ public abstract class GameObject {
 			return resultFood;
 	}
 	
-	public List<Worm> partialOverlapsWithOtherWorm(){
+	public List<Worm> partiallyOverlapsWithOtherWorm(){
 		String className = this.getClass().getName();
 		List<GameObject> result = new ArrayList<GameObject>();
 		List<Worm> resultWorm = new ArrayList<Worm>();

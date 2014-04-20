@@ -73,15 +73,12 @@ public class WorldTest {
 		}
 		world1 = new World(10.36, 15.877, map, random);
 		
-		food1 = new Food(8, 9);
-		food2 = new Food(6, 7);
-		food3 = new Food(3, 4);
-		worm1 = new Worm(75, 84, 3, 4.5, "Ricky");
-		worm2 = new Worm(94, 2, 1.4, 3.03, "Ash");
-		worm3 = new Worm(53, 1.22, 1.7, 0.3, "Octo");
-		weapon = new Weapon("Rifle");
-		weapon.addAsWorm(worm1);
-		projectile1 = new Projectile(weapon, 2, 3);
+		food1 = new Food(new Position(8,9));
+		food2 = new Food(new Position(6,7));
+		food3 = new Food(new Position(3,4));
+		worm1 = new Worm(new Position(75,84), 3, 4.5, "Ricky");
+		worm2 = new Worm(new Position(94,2), 1.4, 3.03, "Ash");
+		worm3 = new Worm(new Position(53,1.22), 1.7, 0.3, "Octo");
 		world1.addAsGameObject(food1);
 		world1.addAsGameObject(worm1);
 		world1.addAsGameObject(projectile1);

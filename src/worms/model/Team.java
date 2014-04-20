@@ -1,11 +1,9 @@
 package worms.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 
 public class Team extends Identifiable{
@@ -54,6 +52,7 @@ public class Team extends Identifiable{
 	public boolean isTerminated() {
 		return isTerminated;
 	}
+	
 	/**
 	 * Variable registering whether or not this team is terminated.
 	 */

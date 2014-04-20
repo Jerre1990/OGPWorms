@@ -90,12 +90,46 @@ public class Worm extends MovableGameObject {
 	 * 
 	 */
 	
-	public Worm (double x, double y, double radius, double direction, String name) throws IllegalArgumentException {
-		super(x ,y ,radius ,0.25, direction);
+	public Worm (Position position, double radius, double direction, String name) throws IllegalArgumentException {
+		super(position ,radius ,0.25, direction);
 		this.setName(name);
 		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
 		this.setNumberOfHitPoints(this.getMaxNumberOfHitPoints());
 		this.setAlive(true);
+		this.distributeWeapons();
+	}
+	
+	@Raw
+	private void distributeWeapons(){
+		Weapon rifle = new Weapon("Rifle", -1, 20, 10, getRadius(10, 7800), true);
+		rifle.addAsWorm(this);
+		Weapon bazooka = new Weapon("Bazooka", -1, 80, 50, getRadius(300, 7800), false);
+		bazooka.addAsWorm(this);
+	}
+	
+	private Weapon getSelectedWeapon(){
+		Weapon selectedWeapon = null;
+		List<Weapon> allWeapons = this.getAllWeapons();
+		for(Weapon weapon : allWeapons)
+			if(weapon.isSelected())
+				selectedWeapon = weapon;
+		return selectedWeapon;
+	}
+	
+	public String getSelectedWeaponsName(){
+		return this.getSelectedWeapon().getName();
+	}
+		
+	public void selectNextWeapon(){
+		List<Weapon> allWeapons = this.getAllWeapons();
+		int IndexOfCurrentWeapon = allWeapons.indexOf(this.getSelectedWeapon());
+		if (IndexOfCurrentWeapon + 1 == allWeapons.size())
+			allWeapons.get(0).select();
+		else allWeapons.get(IndexOfCurrentWeapon + 1).select();
+	}
+	
+	public void shoot(int propulsionYield){
+		this.getSelectedWeapon().shoot(propulsionYield);
 	}
 	
 	public boolean isAlive(){
@@ -171,6 +205,10 @@ public class Worm extends MovableGameObject {
 	@Model @Override
 	protected boolean canHaveAsRadius(double radius){
 		return (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0) && (getMaxNumberOfHitPoints(radius) >= 0));
+	}
+	
+	private static double getRadius(double mass, double p){
+		return Math.cbrt((mass * 3.0) / (p * 4.0 * Math.PI));
 	}
 
 	/**
@@ -287,6 +325,12 @@ public class Worm extends MovableGameObject {
 	 */
 	protected void restoreNumberOfActionPoints(){
 		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
+	}
+	
+	protected void decreaseNumberOfActionPointsBy(int decrement){
+		if (decrement < 0)
+			decrement = 0;
+		this.setNumberOfActionPoints(this.getNumberOfActionPoints() - decrement);
 	}
 
 	/**
@@ -471,6 +515,11 @@ public class Worm extends MovableGameObject {
 		if (this.canFall())
 			this.fall();
 		this.setNumberOfActionPoints(0);
+	}
+	
+	@Override
+	protected String getCustomText(){
+		return "jump";
 	}
 	
 	public boolean canFall(){

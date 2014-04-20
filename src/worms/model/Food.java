@@ -23,8 +23,8 @@ public class Food extends GameObject {
 	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
 	 * 		|	! this.getPosition().isValidCoordinate(y)
 	 */
-	public Food(double x, double y){
-		super(x, y, 0.2, 0.2);
+	public Food(Position position){
+		super(position, 0.2, 0.2);
 	}
 	
 	
