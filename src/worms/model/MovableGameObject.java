@@ -202,7 +202,11 @@ public abstract class MovableGameObject extends GameObject{
 	}
 	
 	@Model
-	protected abstract boolean stopConditionDuringJump(Position inFlightPosition, boolean goingUp);
+	protected boolean stopConditionDuringJump(Position inFlightPosition, boolean goingUp){
+		if (goingUp)
+			return this.getWorld().isAdjacentToImpassableCeiling(inFlightPosition, this.getRadius());
+		else return this.getWorld().isAdjacentToImpassableFloor(inFlightPosition, this.getRadius());
+	}
 		
 	/**
 	 * Return the time passed after a jump of this movable game object.

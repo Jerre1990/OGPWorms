@@ -458,13 +458,6 @@ public class Worm extends MovableGameObject {
 		return ((5 * this.getNumberOfActionPoints()) + (this.getMass() * EARTHS_STANDARD_ACCELERATION));
 	}
 	
-	@Override
-	protected boolean stopConditionDuringJump(Position inFlightPosition, boolean goingUp){
-		if (goingUp)
-			return this.getWorld().isAdjacentToImpassableCeiling(inFlightPosition, this.getRadius());
-		else return this.getWorld().isAdjacentToImpassableFloor(inFlightPosition, this.getRadius());
-	}
-	
 	@Model @ Override
 	protected boolean canJump(double timeStep){
 		double jumpTime = this.jumpTime(timeStep);
@@ -518,15 +511,12 @@ public class Worm extends MovableGameObject {
 		double limitForDivergedDirection = divergedDirection + 0.7875;
 		double radius = this.getRadius();
 		double distance = radius;
-		double distanceStep;
+		double distanceStep = Math.min(this.getWorld().getPixelWidth(), this.getWorld().getPixelHeight());
 		Position testPosition = null;
 		boolean candidateFound = false;
-		if (this.getWorld().getPixelWidth() <= this.getWorld().getPixelHeight())
-			distanceStep = this.getWorld().getPixelWidth();
-		else distanceStep = this.getWorld().getPixelHeight();
 		outerloop:
 		while (divergedDirection <= limitForDivergedDirection){
-			while (distance > 0){
+			while (distance >= 0.1){
 				testPosition = new Position((distance * Math.cos(divergedDirection)), (distance * Math.sin(divergedDirection)));
 				Object[] args = new Object[] {testPosition, radius};
 				if (Boolean.TRUE.equals(test.invoke(this.getWorld(), args))){

@@ -4,7 +4,7 @@ import be.kuleuven.cs.som.annotate.Model;
 
 public class Projectile extends MovableGameObject {
 
-	public Projectile(Weapon weapon, double radiusOfProjectile, double initialForce) {
+	public Projectile(Weapon weapon) {
 		super((1.1 * weapon.getWorm().getRadius() * Math.cos(weapon.getWorm().getDirection())), (1.1 * weapon.getWorm().getRadius() * Math.sin(weapon.getWorm().getDirection())), radiusOfProjectile, 0, weapon.getWorm().getDirection());
 		this.initialForce = initialForce;
 	}
@@ -24,7 +24,9 @@ public class Projectile extends MovableGameObject {
 
 	@Override
 	protected boolean stopConditionDuringJump(Position inFlightPosition, boolean goingUp) {
-		
+		boolean adjacency = super.stopConditionDuringJump(inFlightPosition, goingUp);
+		boolean overlap = this.getWorld().partialOverlapWithOtherWorm(inFlightPosition, this.getRadius(), this.getWeapon().getWorm());
+		return (adjacency || overlap);
 	}
 	
 	public boolean canHaveAsWeapon(Weapon weapon){
