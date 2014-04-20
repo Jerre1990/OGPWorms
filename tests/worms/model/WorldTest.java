@@ -2,6 +2,7 @@ package worms.model;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -151,12 +152,31 @@ public class WorldTest {
 		assertTrue(Arrays.equals(map[i], myWorld.getPassableMap()[i]));
 		}
 	}
-	/**
+
 	@Test
 	public void isPassable_LegalCaseTrue(){
 		assertTrue(world1.isPassable(new Position(3,4), .05));
 	}
-
+	
+	@Test
+	public void isPassable_LegalCaseFalse(){
+		assertFalse(world1.isPassable(new Position(0.1603737,0.1255), .05));
+	}
+	
+	@Test
+	public void isPassable_LegalCaseTruee(){
+		assertTrue(world1.isPassable(new Position(0.261,0.02),0.1));
+	}
+	
+	@Test
+	public void isPassable_LegalCaseFalsee(){
+		assertFalse(world1.isPassable(new Position(0.261,0.02),0.11));
+	}
+	
+	@Test
+	public void isAdjacentToImpassableTerrain_LegalCaseTrue(){
+		assertTrue(world1.isAdjacentToImpassableTerrain(new Position(0.261,0.02),0.1));
+	}
 	
 	@Test
 	public void checkIsLocated(){
@@ -164,19 +184,26 @@ public class WorldTest {
 		assertTrue(world1.isLocatedInWorld(position, 0.05));
 	}
 	
-	
-	@Test
-	public void getPixelCoordinates(){
-		Position position = new Position(3,4);
-		assertTrue(world1.isLocatedInWorld(position, 0.05));
-	}
-	*/	
 	@Test
 	public void getAllObjectsFrom_LegalCaseWorms(){
 		List<GameObject> result = new ArrayList<GameObject>();
 		result.add(worm1);
-		//result.add(worm2);
+		result.add(worm2);
 		assertArrayEquals(result.toArray(), world1.getAllObjectsFrom(Worm.class.getName(), world1.getObjects()).toArray());
+	}
+	
+	@Test
+	public void getAllObjectsFrom_LegalCaseFood(){
+		List<GameObject> result = new ArrayList<GameObject>();
+		result.add(food1);
+		assertArrayEquals(result.toArray(), world1.getAllObjectsFrom(Food.class.getName(), world1.getObjects()).toArray());
+	}
+	
+	@Test
+	public void getAllObjectsFrom_LegalCaseProjectile(){
+		List<GameObject> result = new ArrayList<GameObject>();
+		result.add(projectile1);
+		assertArrayEquals(result.toArray(), world1.getAllObjectsFrom(Projectile.class.getName(), world1.getObjects()).toArray());
 	}
 	
 }

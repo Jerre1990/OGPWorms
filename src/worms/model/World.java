@@ -218,13 +218,13 @@ public class World {
 	
 	public boolean isPassable(Position center, double radius){
 		boolean[] fullCircle = {true,true,true,true};
-		return this.isPassablePartOfPixeledHollowedCircle(center, radius, 0, fullCircle);
+		return this.isPassablePartOfPixeledRadiusOfCircle(center, radius, fullCircle);
 	}
 	
 	private boolean isAdjacentToImpassableTerrain(Position center, double radius, boolean[] quadrants){
 		boolean[] fullCircle = {true,true,true,true};
-		boolean isPassable = this.isPassablePartOfPixeledHollowedCircle(center, radius, 0, fullCircle);
-		boolean isAdjacent = ! this.isPassablePartOfPixeledHollowedCircle(center, (radius * 1.1), radius, quadrants);
+		boolean isPassable = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, fullCircle);
+		boolean isAdjacent = ! this.isPassablePartOfPixeledRadiusOfCircle(center, (radius * 1.1), quadrants);
 		return (isPassable && isAdjacent);
 	}
 	
@@ -243,12 +243,6 @@ public class World {
 		return this.isAdjacentToImpassableTerrain(center, radius, topHalfOfCircle);
 	}
 
-	/**
-	 * @return	
-	 */
-	public int getNbGameObjects() {
-		return objects.size();
-	}
 	
 	/**
 	 * 
