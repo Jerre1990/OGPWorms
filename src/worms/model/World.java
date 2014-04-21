@@ -34,14 +34,16 @@ public class World {
 			throw new IllegalArgumentException("Invalid height!");
 		this.width = width;
 		this.height = height;
-		setPassableMap(passableMap);
+		this.setPassableMap(passableMap);
+		this.setRandom(random);
+		this.setStarted(false);
 	}
 	
 	public Random getRandom(){
 		return this.random;
 	}
 	
-	protected void setRandom(Random r){
+	public void setRandom(Random r){
 		this.random = r;
 	}
 	
@@ -148,7 +150,7 @@ public class World {
 	
 	private boolean isImpassablePosition(Position position) throws IllegalArgumentException{
 		int[] pixelCoordinates = this.getPixelCoordinates(position);
-		return !this.getPassableMap()[pixelCoordinates[0]][pixelCoordinates[1]];
+		return !this.getPassableMap()[pixelCoordinates[1]][pixelCoordinates[0]];
 	}
 	
 	private double getPositiveYCoordinateOfCircle(Position center, double x, double radius){
@@ -270,8 +272,8 @@ public class World {
 		return new Position(newX, newY);
 	}
 	
-	private Position getRandomPositionAdjacentToImpassableFloor(double radius){
-		double stepSize = 10;
+	public Position getRandomPositionAdjacentToImpassableFloor(double radius){
+		double stepSize = 1;
 		double stepSizeX = this.getPixelWidth() * stepSize;
 		double stepSizeY = this.getPixelHeight() * stepSize;
 		double centerX = this.getWidth() / 2;
@@ -281,7 +283,7 @@ public class World {
 		Position testPosition = null;
 		boolean positionFound = false;
 		loops:
-		for(int i=0;i<20;++i){
+		for(int i=0;i<100;++i){
 			randomXCoordinate = this.getRandom().nextDouble() * this.getWidth();
 			randomYCoordinate = this.getRandom().nextDouble() * this.getHeight();
 			testPosition = new Position(randomXCoordinate, randomYCoordinate);
@@ -300,11 +302,12 @@ public class World {
 		else return null;
 	}
 	
-	public void addRandomWorm(){
+	public Worm addRandomWorm(){
 		double radius = 1;
+		Worm randomWorm = null;
 		Position randomPosition = this.getRandomPositionAdjacentToImpassableFloor(radius);
 		if(randomPosition != null){
-			Worm randomWorm = new Worm(randomPosition,radius, 0, ("worm "+ this.getRandom().nextInt(100)));
+			randomWorm = new Worm(randomPosition,radius, 0, "Joske");
 			this.addAsGameObject(randomWorm);
 			int numberOfTeams = this.getTeams().size();
 			boolean assignToTeam = (this.getRandom().nextDouble() > 0.5);
@@ -312,6 +315,7 @@ public class World {
 				this.getTeams().get(this.getRandom().nextInt(numberOfTeams)).addAsWorm(randomWorm);
 			}
 		}
+		return randomWorm;
 	}
 	
 	public void addRandomFood(){
@@ -378,6 +382,23 @@ public class World {
 			return winners.get(0).getName();
 		else return winners.get(0).getTeam().getName();
 	}
+	
+	public void startGame(){
+		setStarted(true);
+		List<Worm> allWorms = this.getAllWorms();
+		if(allWorms.size() > 0)
+			allWorms.get(0).activate();
+	}
+	
+	private boolean isStarted(){
+		return this.started;
+	}
+	
+	private void setStarted(boolean flag){
+		this.started = flag;
+	}
+	
+	private boolean started;
 	
 	/**
 	 * 
@@ -493,7 +514,7 @@ public class World {
 			throw new IllegalArgumentException("This is not a proper object for this world");
 		if (object.getWorld() != null)
 			throw new IllegalArgumentException("This object appears in another world");
-		if (isStarted == true && ( object instanceof Worm || object instanceof Food )){
+		if ((isStarted() == true) && ( object instanceof Worm || object instanceof Food )){
 			throw new IllegalArgumentException("Cannot add worms or worm food during the game");
 		}
 		else
@@ -526,8 +547,8 @@ public class World {
 			throw new IllegalArgumentException("This is not a proper object for this world");
 		if (object.getWorld() != null)
 			throw new IllegalArgumentException("This object appears in another world");
-		if (isStarted == true && ( object instanceof Worm || object instanceof Food )){
-			throw new IllegalArgumentException("Cannot add worms or worm food during the game");
+		if ((isStarted() == true) && ( object instanceof Worm || object instanceof Food )){
+		throw new IllegalArgumentException("Cannot add worms or worm food during the game");
 		}
 		else
 			this.objects.add(object);
