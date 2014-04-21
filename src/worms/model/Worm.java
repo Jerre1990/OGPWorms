@@ -630,28 +630,33 @@ public class Worm extends MovableGameObject {
 		return (int) Math.ceil(Math.abs(Math.cos(slopeAfterMove)) + Math.abs(4 * Math.sin(slopeAfterMove)));
 	}
 	
-	private Position positionAfterMove() throws Exception{
-		Position newPosition1 = this.checkCirclePieceForOptimalMove(this.getWorld().getClass().getMethod("isAdjacentToImpassableFloor", new Class[]{Position.class, Double.class}));
-		Position newPosition2 = this.checkCirclePieceForOptimalMove(this.getWorld().getClass().getMethod("isPassable", new Class[]{Position.class, Double.class}));
-		if (newPosition1 != null)
-			return newPosition1;
-		else if (newPosition2 != null)
-			return newPosition2;
-		else return null;
+	private Position positionAfterMove(){
+		try{
+			Position newPosition1 = this.checkCirclePieceForOptimalMove(this.getWorld().getClass().getMethod("isAdjacentToImpassableFloor", new Class[]{Position.class, Double.class}));
+			Position newPosition2 = this.checkCirclePieceForOptimalMove(this.getWorld().getClass().getMethod("isPassable", new Class[]{Position.class, Double.class}));
+			if (newPosition1 != null)
+				return newPosition1;
+			else if (newPosition2 != null)
+				return newPosition2;
+			else return null;
+		}
+		catch (Exception exc){
+			return null;
+		}
 	}
 
-	public boolean canMove() throws Exception{
+	public boolean canMove(){
 		Position newPosition = this.positionAfterMove();
 		return (newPosition != null && (this.getNumberOfActionPoints() >= this.amountOfActionPointsForMoving(newPosition)));
 	}
 	
-	public void move() throws Exception{
-		if (this.canMove()){
-			this.setPosition(this.positionAfterMove());
-			if (this.canFall())
-				this.fall();
-			this.eatAllFood();
-		}
+	public void move() throws UnsupportedOperationException{
+		if (!this.canMove())
+			throw new UnsupportedOperationException("Cannot move!");
+		this.setPosition(this.positionAfterMove());
+		if (this.canFall())
+			this.fall();
+		this.eatAllFood();
 	}
 	
 	private final List<Weapon> weapons = new ArrayList<Weapon>();

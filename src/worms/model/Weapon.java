@@ -102,13 +102,6 @@ public class Weapon extends Identifiable{
 		this.addAsProjectile(new Projectile(new Position(x,y), this.getWorm().getDirection(), this.getRadiusOfProjectile(), this.getInitialForceOfProjectile(propulsionYield)));
 	}
 	
-	boolean isTerminated;
-
-	public void terminate(){
-		this.isTerminated =true;
-		worm.getAllWeapons().remove(this);
-		projectile.setWeapon(null);
-	}
 	/**
 	 * Check whether the given worm is a valid worm for this weapon.
 	 * @param 	worm
@@ -152,7 +145,7 @@ public class Weapon extends Identifiable{
 	 * @param 	worm
 	 * 			The worm to be added.
 	 * @post	new.getWorm() = worm;
-	 * @post	(new worm).getAllWeapons().contains(this)
+	 * @post	new.getWorm().getAllWeapons().contains(this))
 	 * @throws 	IllegalArgumentException
 	 * 			(! canHaveAsWorm(worm))
 	 */

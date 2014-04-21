@@ -1,10 +1,5 @@
 package worms.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
 import worms.util.Util;
 import be.kuleuven.cs.som.annotate.*;
 

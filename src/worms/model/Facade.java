@@ -1,35 +1,33 @@
 package worms.model;
 
+import java.util.Collection;
+import java.util.Random;
+
 public class Facade implements IFacade {
 
 	@Override
-	public Worm createWorm(double x, double y, double direction, double radius, String name) throws ModelException {
-		try{
-			return new Worm(name,radius,direction,x,y);
-		}
-		catch (Throwable exc){
-			throw new ModelException(exc.getMessage());
-		}
+	public void addEmptyTeam(World world, String newName) {
+		world.addAsTeam(new Team(newName));
 	}
 
 	@Override
-	public boolean canMove(Worm worm, int nbSteps) throws ModelException {
-		try{
-			return worm.canMove(nbSteps);
-		}
-		catch (Throwable exc){
-			throw new ModelException(exc.getMessage());
-		}
+	public void addNewFood(World world) {
+		world.addRandomFood();
 	}
 
 	@Override
-	public void move(Worm worm, int nbSteps) throws ModelException {
-		try{
-			worm.activeMove(nbSteps);
-		}
-		catch (Throwable exc){
-			throw new ModelException(exc.getMessage());
-		}
+	public void addNewWorm(World world) {
+		world.addRandomWorm();
+	}
+
+	@Override
+	public boolean canFall(Worm worm) {
+		return worm.canFall();
+	}
+
+	@Override
+	public boolean canMove(Worm worm) {
+		return worm.canMove();
 	}
 
 	@Override
@@ -38,63 +36,29 @@ public class Facade implements IFacade {
 	}
 
 	@Override
-	public void turn(Worm worm, double angle) {
-		worm.activeTurn(angle);
+	public Food createFood(World world, double x, double y) {
+		Food newSnack = new Food(new Position(x,y));
+		world.addAsGameObject(newSnack);
+		return newSnack;
 	}
 
 	@Override
-	public void jump(Worm worm) throws ModelException {
-		try{
-			worm.jump();
-		}
-		catch (Throwable exc){
-			throw new ModelException(exc.getMessage());
-		}
+	public World createWorld(double width, double height,
+			boolean[][] passableMap, Random random) {
+		return new World(width, height, passableMap, random);
 	}
 
 	@Override
-	public double getJumpTime(Worm worm) {
-		return worm.jumpTime();
+	public Worm createWorm(World world, double x, double y, double direction,
+			double radius, String name) {
+		Worm newWorm = new Worm(new Position(x,y), radius, direction, name);
+		world.addAsGameObject(newWorm);
+		return newWorm;
 	}
 
 	@Override
-	public double[] getJumpStep(Worm worm, double t) {
-		return worm.jumpStep(t);
-	}
-
-	@Override
-	public double getX(Worm worm) {
-		return worm.getX();
-	}
-
-	@Override
-	public double getY(Worm worm) {
-		return worm.getY();
-	}
-
-	@Override
-	public double getOrientation(Worm worm) {
-		return worm.getDirection();
-	}
-
-	@Override
-	public double getRadius(Worm worm) {
-		return worm.getRadius();
-	}
-
-	@Override
-	public void setRadius(Worm worm, double newRadius) throws ModelException {
-		try{
-			worm.setRadius(newRadius);
-		}
-		catch (Throwable exc){
-			throw new ModelException(exc.getMessage());
-		}
-	}
-
-	@Override
-	public double getMinimalRadius(Worm worm) {
-		return worm.getLowerBoundOfRadius();
+	public void fall(Worm worm) {
+		worm.fall();
 	}
 
 	@Override
@@ -103,8 +67,63 @@ public class Facade implements IFacade {
 	}
 
 	@Override
+	public Projectile getActiveProjectile(World world) {
+		return world.getActiveProjectile();
+	}
+
+	@Override
+	public Worm getCurrentWorm(World world) {
+		return world.getActiveWorm();
+	}
+
+	@Override
+	public Collection<Food> getFood(World world) {
+		return world.getAllFood();
+	}
+
+	@Override
+	public int getHitPoints(Worm worm) {
+		return worm.getNumberOfHitPoints();
+	}
+
+	@Override
+	public double[] getJumpStep(Projectile projectile, double t) {
+		return projectile.jumpStep(t);
+	}
+
+	@Override
+	public double[] getJumpStep(Worm worm, double t) {
+		return worm.jumpStep(t);
+	}
+
+	@Override
+	public double getJumpTime(Projectile projectile, double timeStep) {
+		return projectile.jumpTime(timeStep);
+	}
+
+	@Override
+	public double getJumpTime(Worm worm, double timeStep) {
+		return worm.jumpTime(timeStep);
+	}
+
+	@Override
+	public double getMass(Worm worm) {
+		return worm.getMass();
+	}
+
+	@Override
 	public int getMaxActionPoints(Worm worm) {
 		return worm.getMaxNumberOfActionPoints();
+	}
+
+	@Override
+	public int getMaxHitPoints(Worm worm) {
+		return worm.getMaxNumberOfHitPoints();
+	}
+
+	@Override
+	public double getMinimalRadius(Worm worm) {
+		return worm.getLowerBoundOfRadius();
 	}
 
 	@Override
@@ -113,18 +132,153 @@ public class Facade implements IFacade {
 	}
 
 	@Override
-	public void rename(Worm worm, String newName) throws ModelException {
-		try{
-			worm.setName(newName);
-		}
-		catch (Throwable exc){
-			throw new ModelException(exc.getMessage());
-		}
+	public double getOrientation(Worm worm) {
+		return worm.getDirection();
 	}
 
 	@Override
-	public double getMass(Worm worm) {
-		return worm.getMass();
+	public double getRadius(Food food) {
+		return food.getRadius();
+	}
+
+	@Override
+	public double getRadius(Projectile projectile) {
+		return projectile.getRadius();
+	}
+
+	@Override
+	public double getRadius(Worm worm) {
+		return worm.getRadius();
+	}
+
+	@Override
+	public String getSelectedWeapon(Worm worm) {
+		return worm.getSelectedWeaponsName();
+	}
+
+	@Override
+	public String getTeamName(Worm worm) {
+		return worm.getTeam().getName();
+	}
+
+	@Override
+	public String getWinner(World world) {
+		return world.getWinner();
+	}
+
+	@Override
+	public Collection<Worm> getWorms(World world) {
+		return world.getAllWorms();
+	}
+
+	@Override
+	public double getX(Food food) {
+		return food.getX();
+	}
+
+	@Override
+	public double getX(Projectile projectile) {
+		return projectile.getX();
+	}
+
+	@Override
+	public double getX(Worm worm) {
+		return worm.getX();
+	}
+
+	@Override
+	public double getY(Food food) {
+		return food.getY();
+	}
+
+	@Override
+	public double getY(Projectile projectile) {
+		return projectile.getY();
+	}
+
+	@Override
+	public double getY(Worm worm) {
+		return worm.getY();
+	}
+
+	@Override
+	public boolean isActive(Food food) {
+		return (food.getWorld() != null);
+	}
+
+	@Override
+	public boolean isActive(Projectile projectile) {
+		return (projectile.getWorld() != null);
+	}
+
+	@Override
+	public boolean isAdjacent(World world, double x, double y, double radius) {
+		return world.isAdjacentToImpassableTerrain(new Position(x,y), radius);
+	}
+
+	@Override
+	public boolean isAlive(Worm worm) {
+		return worm.isAlive();
+	}
+
+	@Override
+	public boolean isGameFinished(World world) {
+		return world.isFinished();
+	}
+
+	@Override
+	public boolean isImpassable(World world, double x, double y, double radius) {
+		return !world.isPassable(new Position(x,y), radius);
+	}
+
+	@Override
+	public void jump(Projectile projectile, double timeStep) {
+		projectile.jump(timeStep);
+	}
+
+	@Override
+	public void jump(Worm worm, double timeStep) {
+		worm.jump(timeStep);
+	}
+
+	@Override
+	public void move(Worm worm) {
+		worm.move();
+	}
+
+	@Override
+	public void rename(Worm worm, String newName) {
+		worm.setName(newName);
+	}
+
+	@Override
+	public void selectNextWeapon(Worm worm) {
+		worm.selectNextWeapon();
+	}
+
+	@Override
+	public void setRadius(Worm worm, double newRadius) {
+		worm.setRadius(newRadius);
+	}
+
+	@Override
+	public void shoot(Worm worm, int yield) {
+		worm.shoot(yield);
+	}
+
+	@Override
+	public void startGame(World world) {
+		world.startGame();
+	}
+
+	@Override
+	public void startNextTurn(World world) {
+		world.startNextTurn();
+	}
+
+	@Override
+	public void turn(Worm worm, double angle) {
+		worm.turn(angle);
 	}
 
 }

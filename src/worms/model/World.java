@@ -1,18 +1,11 @@
 package worms.model;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
+import worms.util.Util;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -43,6 +36,16 @@ public class World {
 		this.height = height;
 		setPassableMap(passableMap);
 	}
+	
+	public Random getRandom(){
+		return this.random;
+	}
+	
+	protected void setRandom(Random r){
+		this.random = r;
+	}
+	
+	private Random random;
 
 	@Basic
 	public double getWidth(){
@@ -152,80 +155,92 @@ public class World {
 		return (Math.sqrt(Math.pow(radius, 2) - Math.pow((x - center.getX()), 2)) + center.getY());
 	}
 	
-	private boolean isPassablePartOfPixeledHollowedCircle(Position center, double radiusOfCircle, double radiusOfVoid, boolean[] quadrantsToCheck){
+	
+	/**
+	 * This method is apparently too intensive too use in this game, but works fine.
+	private boolean isPassablePartOfPixeledHollowedCircle(Position center, double radiusOfCircle, double radiusOfVoid, boolean[] quadrantsToCheck) throws IllegalArgumentException{
+		if (!this.isLocatedInWorld(center, radiusOfCircle))
+			throw new IllegalArgumentException("Not fully located in world!");
+		if (! (radiusOfVoid < radiusOfCircle))
+			radiusOfVoid = 0;
+		if (quadrantsToCheck.length != 4)
+			quadrantsToCheck = new boolean[] {true,true,true,true};
 		boolean isPassable = true;
-		try{
-			if (! (radiusOfVoid < radiusOfCircle))
-				radiusOfVoid = 0;
-			if (quadrantsToCheck.length != 4)
-				quadrantsToCheck = new boolean[] {true,true,true,true};
-			double centerX = center.getX();
-			double centerY = center.getY();
-			double centerXDoubled = 2 * centerX;
-			double centerYDoubled = 2 * centerY;
-			double x = centerX + radiusOfVoid;
-			double y = centerY + radiusOfVoid;
-			double xMax = centerX + radiusOfCircle;
-			double yMax = centerY + radiusOfCircle;
-			double pixelWidth = this.getPixelWidth();
-			double pixelHeight = this.getPixelHeight();
-			while (isPassable){
-				while (x < xMax){
-					while (y < yMax){
-						if ((this.isImpassablePosition(new Position(x,y)) && quadrantsToCheck[0]) || (this.isImpassablePosition(new Position(x,(centerYDoubled - y))) && quadrantsToCheck[3]) || (this.isImpassablePosition(new Position((centerXDoubled - x),y)) && quadrantsToCheck[1]) || (this.isImpassablePosition(new Position((centerXDoubled - x),(centerYDoubled - y))) && quadrantsToCheck[2]))
-							isPassable = false;
-						y += pixelHeight;
-					}
-					x += pixelWidth;
-					y = this.getPositiveYCoordinateOfCircle(center, x, radiusOfVoid);
-					yMax = this.getPositiveYCoordinateOfCircle(center, x, radiusOfCircle);
-				}	
-			}
-		}
-		catch (IllegalArgumentException exc){
-			isPassable = false;
+		double centerX = center.getX();
+		double centerY = center.getY();
+		double centerXDoubled = 2 * centerX;
+		double centerYDoubled = 2 * centerY;
+		double x = centerX + radiusOfVoid;
+		double y = centerY + radiusOfVoid;
+		double xMax = centerX + radiusOfCircle;
+		double yMax = centerY + radiusOfCircle;
+		double pixelWidth = this.getPixelWidth();
+		double pixelHeight = this.getPixelHeight();
+		while (isPassable){
+			while (x < xMax){
+				while (y < yMax){
+					if ((this.isImpassablePosition(new Position(x,y)) && quadrantsToCheck[0]) || (this.isImpassablePosition(new Position(x,(centerYDoubled - y))) && quadrantsToCheck[3]) || (this.isImpassablePosition(new Position((centerXDoubled - x),y)) && quadrantsToCheck[1]) || (this.isImpassablePosition(new Position((centerXDoubled - x),(centerYDoubled - y))) && quadrantsToCheck[2]))
+						isPassable = false;
+					y += pixelHeight;
+				}
+				x += pixelWidth;
+				y = this.getPositiveYCoordinateOfCircle(center, x, radiusOfVoid);
+				yMax = this.getPositiveYCoordinateOfCircle(center, x, radiusOfCircle);
+			}	
 		}
 		return isPassable;
 	}
+	*/
 	
-	private boolean isPassablePartOfPixeledRadiusOfCircle(Position center, double radiusOfCircle, boolean[] quadrantsToCheck){
+	private boolean isPassablePartOfPixeledRadiusOfCircle(Position center, double radiusOfCircle, boolean[] quadrantsToCheck) throws IllegalArgumentException{
+		if (!this.isLocatedInWorld(center, radiusOfCircle))
+			throw new IllegalArgumentException("Not fully located in world!");
+		if (quadrantsToCheck.length != 4)
+			quadrantsToCheck = new boolean[] {true,true,true,true};
 		boolean isPassable = true;
-		try{
-			if (quadrantsToCheck.length != 4)
-				quadrantsToCheck = new boolean[] {true,true,true,true};
-			double centerX = center.getX();
-			double centerY = center.getY();
-			double centerXDoubled = 2 * centerX;
-			double centerYDoubled = 2 * centerY;
-			double x = centerX;
-			double y = centerY + radiusOfCircle;
-			double xMax = centerX + radiusOfCircle;
-			double stepSize = Math.min(this.getPixelWidth(), this.getPixelHeight());
-			while (x < xMax){
-				if ((this.isImpassablePosition(new Position(x,y)) && quadrantsToCheck[0]) || (this.isImpassablePosition(new Position(x,(centerYDoubled - y))) && quadrantsToCheck[3]) || (this.isImpassablePosition(new Position((centerXDoubled - x),y)) && quadrantsToCheck[1]) || (this.isImpassablePosition(new Position((centerXDoubled - x),(centerYDoubled - y))) && quadrantsToCheck[2])){
-					isPassable = false;
-					break;
-				}
-				x += stepSize;
-				y = this.getPositiveYCoordinateOfCircle(center, x, radiusOfCircle);
-			}	
-		}
-		catch (IllegalArgumentException exc){
-			isPassable = false;
-		}
+		double centerX = center.getX();
+		double centerY = center.getY();
+		double centerXDoubled = 2 * centerX;
+		double centerYDoubled = 2 * centerY;
+		double x = centerX;
+		double y = centerY + radiusOfCircle;
+		double xMax = centerX + radiusOfCircle;
+		double stepSize = Math.min(this.getPixelWidth(), this.getPixelHeight());
+		while (x < xMax){
+			if ((this.isImpassablePosition(new Position(x,y)) && quadrantsToCheck[0]) || (this.isImpassablePosition(new Position(x,(centerYDoubled - y))) && quadrantsToCheck[3]) || (this.isImpassablePosition(new Position((centerXDoubled - x),y)) && quadrantsToCheck[1]) || (this.isImpassablePosition(new Position((centerXDoubled - x),(centerYDoubled - y))) && quadrantsToCheck[2])){
+				isPassable = false;
+				break;
+			}
+			x += stepSize;
+			y = this.getPositiveYCoordinateOfCircle(center, x, radiusOfCircle);
+		}	
 		return isPassable;
 	}
 	
 	public boolean isPassable(Position center, double radius){
 		boolean[] fullCircle = {true,true,true,true};
-		return this.isPassablePartOfPixeledHollowedCircle(center, radius,0, fullCircle);
+		boolean result;
+		try{
+			result = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, fullCircle);
+		}
+		catch (IllegalArgumentException exc){
+			result = false;
+		}
+		return result;
 	}
 	
 	private boolean isAdjacentToImpassableTerrain(Position center, double radius, boolean[] quadrants){
 		boolean[] fullCircle = {true,true,true,true};
-		boolean isPassable = this.isPassablePartOfPixeledHollowedCircle(center, radius,0, fullCircle);
-		boolean isAdjacent = ! this.isPassablePartOfPixeledHollowedCircle(center, (radius * 1.1),0, quadrants);
-		return (isPassable && isAdjacent);
+		boolean result;
+		try{
+			boolean isPassable = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, fullCircle);
+			boolean isAdjacent = ! this.isPassablePartOfPixeledRadiusOfCircle(center, (radius * 1.1), quadrants);
+			result = (isPassable && isAdjacent);
+		}
+		catch (IllegalArgumentException exc){
+			result = false;
+		}
+		return result;
 	}
 	
 	public boolean isAdjacentToImpassableTerrain(Position center, double radius){
@@ -242,9 +257,69 @@ public class World {
 		boolean[] topHalfOfCircle = {true,true,false,false};
 		return this.isAdjacentToImpassableTerrain(center, radius, topHalfOfCircle);
 	}
-<<<<<<< HEAD
-
-=======
+	
+	private Position getPositionCloserToCenter(Position original, double stepSize){
+		double newX;
+		double newY;
+		if(original.getX() > (this.getWidth() / 2))
+			newX = original.getX() - (this.getPixelWidth() * stepSize);
+		else newX = original.getX() + (this.getPixelWidth() * stepSize);
+		if(original.getY() > (this.getHeight() / 2))
+			newY = original.getY() - (this.getPixelHeight() * stepSize);
+		else newY = original.getY() + (this.getPixelHeight() * stepSize);
+		return new Position(newX, newY);
+	}
+	
+	private Position getRandomPositionAdjacentToImpassableFloor(double radius){
+		double stepSize = 10;
+		double stepSizeX = this.getPixelWidth() * stepSize;
+		double stepSizeY = this.getPixelHeight() * stepSize;
+		double centerX = this.getWidth() / 2;
+		double centerY = this.getHeight() / 2;
+		double randomXCoordinate;
+		double randomYCoordinate;
+		Position testPosition = null;
+		boolean positionFound = false;
+		loops:
+		for(int i=0;i<20;++i){
+			randomXCoordinate = this.getRandom().nextDouble() * this.getWidth();
+			randomYCoordinate = this.getRandom().nextDouble() * this.getHeight();
+			testPosition = new Position(randomXCoordinate, randomYCoordinate);
+			if(this.isLocatedInWorld(testPosition, radius)){
+				while(!(Util.fuzzyGreaterThanOrEqualTo(stepSizeX, Math.abs(testPosition.getX() - centerX)) && Util.fuzzyGreaterThanOrEqualTo(stepSizeY, Math.abs(testPosition.getY() - centerY)))){
+					if(this.isAdjacentToImpassableFloor(testPosition, radius)){
+						positionFound = true;
+						break loops;
+					}
+					testPosition = this.getPositionCloserToCenter(testPosition, stepSize);
+				}
+			}
+		}
+		if(positionFound)
+			return testPosition;
+		else return null;
+	}
+	
+	public void addRandomWorm(){
+		double radius = 1;
+		Position randomPosition = this.getRandomPositionAdjacentToImpassableFloor(radius);
+		if(randomPosition != null){
+			Worm randomWorm = new Worm(randomPosition,radius, 0, ("worm "+ this.getRandom().nextInt(100)));
+			this.addAsGameObject(randomWorm);
+			int numberOfTeams = this.getTeams().size();
+			boolean assignToTeam = (this.getRandom().nextDouble() > 0.5);
+			if((numberOfTeams > 0) && assignToTeam){
+				this.getTeams().get(this.getRandom().nextInt(numberOfTeams)).addAsWorm(randomWorm);
+			}
+		}
+	}
+	
+	public void addRandomFood(){
+		Position randomPosition = this.getRandomPositionAdjacentToImpassableFloor(0.2);
+		if(randomPosition != null){
+			this.addAsGameObject(new Food(randomPosition));
+		}
+	}
 	
 	public Worm getActiveWorm(){
 		Worm activeWorm = null;
@@ -270,10 +345,10 @@ public class World {
 	}
 	
 	public boolean isFinished(){
-		return (this.getWinners() == null);
+		return (this.getWinners() != null);
 	}
 	
-	public List<Worm> getWinners(){
+	private List<Worm> getWinners(){
 		List<Worm> allWorms = this.getAllWorms();
 		List<Team> liveTeams = new ArrayList<Team>();
 		for(Worm worm : allWorms){
@@ -294,7 +369,15 @@ public class World {
 		}
 		else return null;
 	}
->>>>>>> 5a0bc6f8567b496ae092a42c696ab9949e175812
+	
+	public String getWinner(){
+		List<Worm> winners = this.getWinners();
+		if(winners.size() == 0)
+			return "No winner!";
+		else if((winners.size() == 1) && (winners.get(0).getTeam() == null))
+			return winners.get(0).getName();
+		else return winners.get(0).getTeam().getName();
+	}
 	
 	/**
 	 * 
@@ -304,7 +387,6 @@ public class World {
 	 * 						then canHaveAsGameObject(object)
 	 * 						&& (object.getWorld() == this) )	
 	 */
-	
 	@Raw
 	protected boolean hasProperGameObjects(){
 	for (GameObject object: this.objects){
@@ -358,10 +440,8 @@ public class World {
 	}
 	
 	public List<Worm> getAllWorms(){
-		List<GameObject> result = new ArrayList<GameObject>();
 		List<Worm> resultWorms = new ArrayList<Worm>();
-		result = this.getAllObjectsFrom("Worm", this.getObjects());
-			for (GameObject object: result){
+			for (GameObject object: this.getAllObjectsFrom("Worm")){
 				try{
 					Worm worm = (Worm) object;
 					resultWorms.add(worm);
@@ -371,6 +451,28 @@ public class World {
 				}
 			}
 			return resultWorms;
+	}
+	
+	public Projectile getActiveProjectile(){
+		for(GameObject object : this.getObjects()){
+			if(object.getClass().getName() == "Projectile")
+				return (Projectile) object;
+		}
+		return null;
+	}
+	
+	public List<Food> getAllFood(){
+		List<Food> resultFood = new ArrayList<Food>();
+			for (GameObject object: this.getAllObjectsFrom("Food")){
+				try{
+					Food snack = (Food) object;
+					resultFood.add(snack);
+				}
+				catch (ClassCastException exc) {
+					assert false;
+				}
+			}
+			return resultFood;
 	}
 	
 	/**
@@ -419,7 +521,7 @@ public class World {
 	 * 			(isStarted == true && ( object instanceof Worm || object instanceof Food ))
 	 * 			
 	 */
-	protected void addAsGameObject(GameObject object, double x, double y) throws IllegalArgumentException {
+	protected void addAsGameObject(GameObject object, Position position) throws IllegalArgumentException {
 		if (! canHaveAsGameObject(object)) 
 			throw new IllegalArgumentException("This is not a proper object for this world");
 		if (object.getWorld() != null)
@@ -430,7 +532,7 @@ public class World {
 		else
 			this.objects.add(object);
 			object.setWorld(this);
-			object.setPosition(new Position(x,y));
+			object.setPosition(position);
 	}
 	
 
@@ -503,14 +605,19 @@ public class World {
 				
 	}
 	*/
-	public List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
+	private List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
 		List<GameObject> result = new ArrayList<GameObject>();
-			for (GameObject gameObject: gameObjects)
-				if( gameObject.getClass().getName() == className){
-					result.add(gameObject);
-				}
-			return  result;
+		for (GameObject gameObject: gameObjects)
+			if( gameObject.getClass().getName() == className){
+				result.add(gameObject);
+			}
+		return  result;
 	}
+	
+	private List<GameObject> getAllObjectsFrom(String className){
+		return this.getAllObjectsFrom(className, this.getObjects());
+	}
+	
 	
 	
 	private final List<Team> teams = new ArrayList<Team>();
@@ -556,17 +663,6 @@ public class World {
 		}
 		else teams.add(team);
 	}
-
-	
-	public void startGame(){
-		isStarted = true;
-	}
-	
-	protected boolean isStarted(){
-		return isStarted;
-	}
-	
-	private boolean isStarted;
 	
 	protected List<Food> overlapWithFood(Position p, double radius){
 		String className = Food.class.getName();
