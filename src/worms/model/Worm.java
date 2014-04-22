@@ -159,6 +159,8 @@ public class Worm extends MovableGameObject {
 		for(Worm eachWorm : allWorms)
 			eachWorm.deactivate();
 		this.setActive(true);
+		this.restoreNumberOfActionPoints();
+		this.increaseNumberOfHitPointsBy(10);
 	}
 	
 	private void deactivate(){
@@ -261,8 +263,8 @@ public class Worm extends MovableGameObject {
 			throw new IllegalArgumentException("Invalid radius!");
 		else{
 			super.setRadius(radius);
-			setNumberOfActionPoints(numberOfActionPoints);
-			setNumberOfHitPoints(numberOfHitPoints);
+			setNumberOfActionPoints(this.getNumberOfActionPoints());
+			setNumberOfHitPoints(this.getNumberOfHitPoints());
 		}
 	}
 
@@ -330,8 +332,11 @@ public class Worm extends MovableGameObject {
 	 * 		|	else if (numberOfActionPoints > this.getMaxNumberOfActionPoints()) new.getNumberOfActionPoints() == this.getMaxNumberOfActionPoints()
 	 */
 	private void setNumberOfActionPoints(int numberOfActionPoints){
-		if(numberOfActionPoints < 0)
+		if(numberOfActionPoints <= 0){
 			numberOfActionPoints = 0;
+			if(this.hasProperWorld())
+				this.getWorld().startNextTurn();
+		}
 		else if(numberOfActionPoints > this.getMaxNumberOfActionPoints())
 			numberOfActionPoints = this.getMaxNumberOfActionPoints();
 		this.numberOfActionPoints = numberOfActionPoints;
@@ -407,6 +412,8 @@ public class Worm extends MovableGameObject {
 		if(numberOfHitPoints <= 0){
 			numberOfHitPoints = 0;
 			this.kill();
+			if(this.hasProperWorld())
+				this.getWorld().startNextTurn();
 		}
 		else if(numberOfHitPoints > this.getMaxNumberOfHitPoints())
 			numberOfHitPoints = this.getMaxNumberOfHitPoints();
@@ -427,6 +434,12 @@ public class Worm extends MovableGameObject {
 		if (decrement < 0)
 			decrement = 0;
 		this.setNumberOfHitPoints(this.getNumberOfHitPoints() - decrement);
+	}
+	
+	protected void increaseNumberOfHitPointsBy(int increment){
+		if (increment < 0)
+			increment = 0;
+		this.setNumberOfHitPoints(this.getNumberOfHitPoints() + increment);
 	}
 	
 	/**
@@ -541,7 +554,9 @@ public class Worm extends MovableGameObject {
 	}
 	
 	@Override
-	public void jump(double timeStep){
+	public void jump(double timeStep) throws UnsupportedOperationException{
+		if(!this.canJump(timeStep))
+			throw new UnsupportedOperationException("Cannot jump!");
 		super.jump(timeStep);
 		if (this.canFall())
 			this.fall();
@@ -653,9 +668,11 @@ public class Worm extends MovableGameObject {
 	public void move() throws UnsupportedOperationException{
 		if (!this.canMove())
 			throw new UnsupportedOperationException("Cannot move!");
-		this.setPosition(this.positionAfterMove());
+		Position newPosition = this.positionAfterMove();
+		this.setPosition(newPosition);
 		if (this.canFall())
 			this.fall();
+		this.decreaseNumberOfActionPointsBy(this.amountOfActionPointsForMoving(newPosition));
 		this.eatAllFood();
 	}
 	

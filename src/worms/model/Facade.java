@@ -158,7 +158,10 @@ public class Facade implements IFacade {
 
 	@Override
 	public String getTeamName(Worm worm) {
-		return worm.getTeam().getName();
+		Team team = worm.getTeam();
+		if(team == null)
+			return "";
+		else return team.getName();
 	}
 
 	@Override
@@ -168,7 +171,7 @@ public class Facade implements IFacade {
 
 	@Override
 	public Collection<Worm> getWorms(World world) {
-		return world.getAllWorms();
+		return world.getAllLiveWorms();
 	}
 
 	@Override

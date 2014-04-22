@@ -185,6 +185,18 @@ public class WorldTest {
 	}
 	
 	@Test
+	public void test1(){
+		assertEquals(world1.addRandomWorm().isAlive(), true);
+	}
+	
+	@Test
+	public void test3(){
+		world1.addAsGameObject(new Food(new Position(5,7)));
+		System.out.println(world1.getAllObjectsFrom(Food.class.getName()).size());
+		assertEquals(world1.getAllObjectsFrom(Food.class.getName()).size(), 1);
+	}
+	
+	@Test
 	public void getAllObjectsFrom_LegalCaseWorms(){
 		List<GameObject> result = new ArrayList<GameObject>();
 		result.add(worm1);

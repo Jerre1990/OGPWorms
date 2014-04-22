@@ -39,6 +39,44 @@ public class World {
 		this.setStarted(false);
 	}
 	
+	@Basic
+	public double getWidth(){
+		return this.width;
+	}
+
+	@Basic
+	public double getHeight(){
+		return this.height;
+	}
+
+	/**
+	 * @param 	width
+	 * @return 	result == ((width >= lowerBoundOfWidth) && (width <= upperBoundOfWidth))
+	 */
+	private boolean isValidWidth(double width){
+		return ((width >= lowerBoundOfWidth) && (width <= upperBoundOfWidth));
+	}
+
+	/**
+	 * @param 	height
+	 * @return 	result == ((height >= lowerBoundOfHeight) && (height <= upperBoundOfHeight))
+	 */
+	private boolean isValidHeight(double height){
+		return ((height >= lowerBoundOfHeight) && (height <= upperBoundOfHeight));
+	}
+
+	private final static double lowerBoundOfWidth = 0;
+
+	private final static double lowerBoundOfHeight = 0;
+
+	private final static double upperBoundOfWidth = Double.MAX_VALUE;
+
+	private final static double upperBoundOfHeight = Double.MAX_VALUE;
+
+	private final double width;
+
+	private final double height;
+
 	public Random getRandom(){
 		return this.random;
 	}
@@ -49,44 +87,6 @@ public class World {
 	
 	private Random random;
 
-	@Basic
-	public double getWidth(){
-		return this.width;
-	}
-	
-	@Basic
-	public double getHeight(){
-		return this.height;
-	}
-	
-	/**
-	 * @param 	width
-	 * @return 	result == ((width >= lowerBoundOfWidth) && (width <= upperBoundOfWidth))
-	 */
-	private boolean isValidWidth(double width){
-		return ((width >= lowerBoundOfWidth) && (width <= upperBoundOfWidth));
-	}
-	
-	/**
-	 * @param 	height
-	 * @return 	result == ((height >= lowerBoundOfHeight) && (height <= upperBoundOfHeight))
-	 */
-	private boolean isValidHeight(double height){
-		return ((height >= lowerBoundOfHeight) && (height <= upperBoundOfHeight));
-	}
-	
-	private final static double lowerBoundOfWidth = 0;	
-	
-	private final static double lowerBoundOfHeight = 0;	
-	
-	private final static double upperBoundOfWidth = Double.MAX_VALUE;
-	
-	private final static double upperBoundOfHeight = Double.MAX_VALUE;	
-	
-	private final double width;
-	
-	private final double height;
-	
 	@Basic
 	public boolean[][] getPassableMap(){
 		return this.passableMap;
@@ -130,7 +130,7 @@ public class World {
 		double y = center.getY();
 		int MaxPixelCoordinates[] = this.getUncheckedPixelCoordinates(new Position((x + radius),(y + radius)));
 		int MinPixelCoordinates[] = this.getUncheckedPixelCoordinates(new Position((x - radius),(y - radius)));
-		return ((MinPixelCoordinates[0] >= 0) && (MinPixelCoordinates[1] >= 0) && (MaxPixelCoordinates[0] <= this.getWidthInPixels()) && (MaxPixelCoordinates[1] <= this.getHeightInPixels()));
+		return ((MinPixelCoordinates[0] >= 0) && (MinPixelCoordinates[1] >= 0) && (MaxPixelCoordinates[0] < this.getWidthInPixels()) && (MaxPixelCoordinates[1] < this.getHeightInPixels()));
 	}
 
 	private int[] getUncheckedPixelCoordinates(Position position){
@@ -337,11 +337,7 @@ public class World {
 	}
 	
 	public void startNextTurn(){
-		List<Worm> allWorms = this.getAllWorms();
-		for(Worm worm : allWorms){
-			if(!worm.isAlive());
-			allWorms.remove(worm);
-		}
+		List<Worm> allWorms = this.getAllLiveWorms();
 		int nextIndex = allWorms.indexOf(this.getActiveWorm()) + 1;
 		if(nextIndex == allWorms.size())
 			nextIndex = 0;
@@ -353,29 +349,28 @@ public class World {
 	}
 	
 	private List<Worm> getWinners(){
-		List<Worm> allWorms = this.getAllWorms();
+		List<Worm> allLiveWorms = this.getAllLiveWorms();
 		List<Team> liveTeams = new ArrayList<Team>();
-		for(Worm worm : allWorms){
-			if(!worm.isAlive())
-				allWorms.remove(worm);
-			else
-				liveTeams.add(worm.getTeam());
+		for(Worm worm : allLiveWorms){
+			liveTeams.add(worm.getTeam());
 		}
-		if(allWorms.size() == 1)
-			return allWorms;
-		else if(allWorms.size() > 1){
-			Team team = allWorms.get(0).getTeam();
+		if(allLiveWorms.size() == 1)
+			return allLiveWorms;
+		else if((allLiveWorms.size() > 1) && (allLiveWorms.get(0).getTeam() != null)){
+			Team team = allLiveWorms.get(0).getTeam();
 			for(Team teamToCheck : liveTeams){
 				if(teamToCheck != team)
 					return new ArrayList<Worm>();
 			}
-			return allWorms;
+			return allLiveWorms;
 		}
 		else return null;
 	}
 	
 	public String getWinner(){
 		List<Worm> winners = this.getWinners();
+		if(winners == null)
+			return null;
 		if(winners.size() == 0)
 			return "No winner!";
 		else if((winners.size() == 1) && (winners.get(0).getTeam() == null))
@@ -440,7 +435,8 @@ public class World {
 	 * 			(! hasAsGameObject)
 	 */
 	protected void removeAsGameObject(GameObject object) throws IllegalArgumentException {
-		if (hasAsGameObject(object)) {
+		if (hasAsGameObject(object)){
+			object.removeFromWorld();
 			this.objects.remove(object);
 		}
 		else throw new IllegalArgumentException("This object does not belong to this world");
@@ -457,12 +453,12 @@ public class World {
 	private final List<GameObject> objects = new ArrayList<GameObject>();
 	
 	public List<GameObject> getObjects() {
-		return objects;
+		return this.objects;
 	}
 	
-	public List<Worm> getAllWorms(){
+	protected List<Worm> getAllWorms(){
 		List<Worm> resultWorms = new ArrayList<Worm>();
-			for (GameObject object: this.getAllObjectsFrom("Worm")){
+			for (GameObject object: this.getAllObjectsFrom(Worm.class.getName())){
 				try{
 					Worm worm = (Worm) object;
 					resultWorms.add(worm);
@@ -472,6 +468,15 @@ public class World {
 				}
 			}
 			return resultWorms;
+	}
+	
+	public List<Worm> getAllLiveWorms(){
+		List<Worm> result = this.getAllWorms();
+		for(Worm worm : result){
+			if(!worm.isAlive())
+				result.remove(worm);
+		}
+		return result;
 	}
 	
 	public Projectile getActiveProjectile(){
@@ -517,47 +522,9 @@ public class World {
 		if ((isStarted() == true) && ( object instanceof Worm || object instanceof Food )){
 			throw new IllegalArgumentException("Cannot add worms or worm food during the game");
 		}
-		else
-			this.objects.add(object);
-			object.setWorld(this);
+		object.setWorld(this);
+		this.objects.add(object);
 	}
-	
-	/**
-	 * 
-	 * @param 	object
-	 * 			The game object to be added.
-	 * @param	x
-	 * 			the x coordinate at which the object is to be added.
-	 * @param	y
-	 * 			the y coordinate at which the object is to be added. 
-	 * @post	new.hasAsGameObject(object)
-	 * @post	(new object).getWorld() == this
-	 * @post	(new object).getX() == x
-	 * 			(new object).getY() == y
-	 * @throws	IllegalArgumentException
-	 * 			(! canHaveAsGameObject(object))
-	 * @throws 	IllegalArgumentException
-	 * 			(object.getWorld() != null)
-	 * @throws 	IllegalArgumentException
-	 * 			(isStarted == true && ( object instanceof Worm || object instanceof Food ))
-	 * 			
-	 */
-	protected void addAsGameObject(GameObject object, Position position) throws IllegalArgumentException {
-		if (! canHaveAsGameObject(object)) 
-			throw new IllegalArgumentException("This is not a proper object for this world");
-		if (object.getWorld() != null)
-			throw new IllegalArgumentException("This object appears in another world");
-		if ((isStarted() == true) && ( object instanceof Worm || object instanceof Food )){
-		throw new IllegalArgumentException("Cannot add worms or worm food during the game");
-		}
-		else
-			this.objects.add(object);
-			object.setWorld(this);
-			object.setPosition(position);
-	}
-	
-
-	
 	
 	/**
 	 * Check whether this world can have the given game object as one of the game objects attached to it.
@@ -573,7 +540,7 @@ public class World {
 	 */
 	protected boolean canHaveAsGameObject(GameObject object) {
 		return 	( (object != null)
-				&& (! objects.equals(object)));
+				&& (! objects.contains(object)));
 	}
 	
 	
@@ -626,7 +593,7 @@ public class World {
 				
 	}
 	*/
-	private List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
+	public List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
 		List<GameObject> result = new ArrayList<GameObject>();
 		for (GameObject gameObject: gameObjects)
 			if( gameObject.getClass().getName() == className){
@@ -635,7 +602,7 @@ public class World {
 		return  result;
 	}
 	
-	private List<GameObject> getAllObjectsFrom(String className){
+	public List<GameObject> getAllObjectsFrom(String className){
 		return this.getAllObjectsFrom(className, this.getObjects());
 	}
 	
