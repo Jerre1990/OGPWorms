@@ -219,12 +219,12 @@ public class Weapon extends Identifiable{
 	 * 				in	projectile = new Projectile(new Position(x,y), getWorm().getDirection(), getRadiusOfProjectile(), getInitialForceOfProjectile(propulsionYield))
 	 * 					x = getWorm().getX() + (1.1 * getWorm().getRadius() * Math.cos(getWorm().getDirection()))
 	 * 					y = getWorm().getY() + (1.1 * getWorm().getRadius() * Math.sin(getWorm().getDirection())
-	 * @throws 	IllegalArgumentException("Cannot shoot!")
+	 * @throws 	UnsupportedOperationException("Cannot shoot!")
 	 * 		|	! canShoot()
 	 */
-	public void shoot(int propulsionYield) throws IllegalArgumentException{
+	public void shoot(int propulsionYield) throws UnsupportedOperationException{
 		if (!this.canShoot())
-			throw new IllegalArgumentException("Cannot shoot!");
+			throw new UnsupportedOperationException("Cannot shoot!");
 		this.setAmmo(this.getAmmo() - 1);
 		this.getWorm().decreaseNumberOfActionPointsBy(this.getCostInActionPoints());
 		double relativeDistanceFromWorm = 0.1;

@@ -6,8 +6,13 @@ import java.util.Random;
 public class Facade implements IFacade {
 
 	@Override
-	public void addEmptyTeam(World world, String newName) {
+	public void addEmptyTeam(World world, String newName) throws ModelException{
+		try{
 		world.addAsTeam(new Team(newName));
+		}
+		catch(IllegalArgumentException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override
@@ -50,15 +55,26 @@ public class Facade implements IFacade {
 
 	@Override
 	public Worm createWorm(World world, double x, double y, double direction,
-			double radius, String name) {
-		Worm newWorm = new Worm(new Position(x,y), radius, direction, name);
+			double radius, String name) throws ModelException{
+		Worm newWorm;
+		try{
+		newWorm = new Worm(new Position(x,y), radius, direction, name);
 		world.addAsGameObject(newWorm);
+		}
+		catch(IllegalArgumentException exc){
+			throw new ModelException(exc.getMessage());
+		}
 		return newWorm;
 	}
 
 	@Override
-	public void fall(Worm worm) {
+	public void fall(Worm worm) throws ModelException{
+		try{
 		worm.fall();
+		}
+		catch(UnsupportedOperationException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override
@@ -235,23 +251,43 @@ public class Facade implements IFacade {
 	}
 
 	@Override
-	public void jump(Projectile projectile, double timeStep) {
+	public void jump(Projectile projectile, double timeStep) throws ModelException{
+		try{
 		projectile.jump(timeStep);
+		}
+		catch(UnsupportedOperationException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override
-	public void jump(Worm worm, double timeStep) {
+	public void jump(Worm worm, double timeStep) throws ModelException{
+		try{
 		worm.jump(timeStep);
+		}
+		catch(UnsupportedOperationException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override
-	public void move(Worm worm) {
+	public void move(Worm worm) throws ModelException{
+		try{
 		worm.move();
+		}
+		catch(UnsupportedOperationException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override
-	public void rename(Worm worm, String newName) {
+	public void rename(Worm worm, String newName) throws ModelException{
+		try{
 		worm.setName(newName);
+		}
+		catch(IllegalArgumentException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override
@@ -260,13 +296,23 @@ public class Facade implements IFacade {
 	}
 
 	@Override
-	public void setRadius(Worm worm, double newRadius) {
+	public void setRadius(Worm worm, double newRadius) throws ModelException{
+		try{
 		worm.setRadius(newRadius);
+		}
+		catch(IllegalArgumentException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override
-	public void shoot(Worm worm, int yield) {
+	public void shoot(Worm worm, int yield) throws ModelException{
+		try{
 		worm.shoot(yield);
+		}
+		catch(UnsupportedOperationException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override

@@ -104,7 +104,7 @@ public class Worm extends MovableGameObject {
 		return this.getSelectedWeapon().getName();
 	}
 		
-	public void shoot(int propulsionYield){
+	public void shoot(int propulsionYield) throws UnsupportedOperationException{
 		this.getSelectedWeapon().shoot(propulsionYield);
 	}
 	
@@ -577,7 +577,7 @@ public class Worm extends MovableGameObject {
 	 */
 	@Model
 	private int amountOfActionPointsForTurning(double turnByAngle){
-		double effectiveAngle = this.convertToRepresentativeAngle(turnByAngle);
+		double effectiveAngle = convertToRepresentativeAngle(turnByAngle);
 		int decrement;
 		if(effectiveAngle == 0)
 			decrement = 0;

@@ -58,7 +58,7 @@ public class Projectile extends MovableGameObject {
 	 * @return	(weapon == null || weapon.canHaveAsProjectile(this))
 	 */
 	public boolean canHaveAsWeapon(Weapon weapon){
-		return (weapon == null || weapon.canHaveAsProjectile(this));
+		return true;
 	}
 	
 	/**

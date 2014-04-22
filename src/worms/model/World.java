@@ -90,7 +90,7 @@ public class World {
 	public boolean isPassable(Position center, double radius){
 		boolean result;
 		try{
-			result = this.isPassablePartOfPixeledRadiusOfCircle2(center, radius, 0, 0);
+			result = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, 0, 0);
 		}
 		catch (IllegalArgumentException exc){
 			result = false;
@@ -204,12 +204,14 @@ public class World {
 		return !this.getPassableMap()[pixelCoordinates[1]][pixelCoordinates[0]];
 	}
 
+	/**
+	 * Other possible methods for testing basic passability of a circle piece.
+	 * 
+	
 	private double getPositiveYCoordinateOfCircle(Position center, double x, double radius){
 		return (Math.sqrt(Math.pow(radius, 2) - Math.pow((x - center.getX()), 2)) + center.getY());
 	}
 
-	/**
-	 * This method is apparently too intensive too use in this game, but works fine.
 	private boolean isPassablePartOfPixeledHollowedCircle(Position center, double radiusOfCircle, double radiusOfVoid, boolean[] quadrantsToCheck) throws IllegalArgumentException{
 		if (!this.isLocatedInWorld(center, radiusOfCircle))
 			throw new IllegalArgumentException("Not fully located in world!");
@@ -242,9 +244,8 @@ public class World {
 		}
 		return isPassable;
 	}
-	*/
 	
-/**	private boolean isPassablePartOfPixeledRadiusOfCircle(Position center, double radiusOfCircle, boolean[] quadrantsToCheck) throws IllegalArgumentException{
+	private boolean isPassablePartOfPixeledRadiusOfCircle(Position center, double radiusOfCircle, boolean[] quadrantsToCheck) throws IllegalArgumentException{
 		if (!this.isLocatedInWorld(center, radiusOfCircle))
 			throw new IllegalArgumentException("Not fully located in world!");
 		if (quadrantsToCheck.length != 4)
@@ -269,7 +270,7 @@ public class World {
 		return isPassable;
 	}*/
 	
-	public boolean isPassablePartOfPixeledRadiusOfCircle2(Position center, double radiusOfCircle, double lowerBound, double upperBound) throws IllegalArgumentException{
+	private boolean isPassablePartOfPixeledRadiusOfCircle(Position center, double radiusOfCircle, double lowerBound, double upperBound) throws IllegalArgumentException{
 		boolean isPassable = true;
 		if (!this.isLocatedInWorld(center, radiusOfCircle))
 			throw new IllegalArgumentException("Not fully located in world!");
@@ -303,8 +304,8 @@ public class World {
 	private boolean isAdjacentToImpassableTerrain(Position center, double radius, double startAngle, double stopAngle){
 		boolean result;
 		try{
-			boolean isPassable = this.isPassablePartOfPixeledRadiusOfCircle2(center, radius, 0, 0);
-			boolean isAdjacent = ! this.isPassablePartOfPixeledRadiusOfCircle2(center, (radius * 1.1), startAngle, stopAngle);
+			boolean isPassable = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, 0, 0);
+			boolean isAdjacent = ! this.isPassablePartOfPixeledRadiusOfCircle(center, (radius * 1.1), startAngle, stopAngle);
 			result = (isPassable && isAdjacent);
 		}
 		catch (IllegalArgumentException exc){
@@ -340,7 +341,7 @@ public class World {
 
 	public Projectile getActiveProjectile(){
 		for(GameObject object : this.getObjects()){
-			if(object.getClass().getName() == "Projectile")
+			if(object.getClass().getName() == Projectile.class.getName())
 				return (Projectile) object;
 		}
 		return null;
@@ -357,7 +358,7 @@ public class World {
 
 	public List<Food> getAllFood(){
 		List<Food> resultFood = new ArrayList<Food>();
-			for (GameObject object: this.getAllObjectsFrom("Food")){
+			for (GameObject object: this.getAllObjectsFrom(Food.class.getName())){
 				try{
 					Food snack = (Food) object;
 					resultFood.add(snack);
