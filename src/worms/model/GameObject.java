@@ -24,6 +24,8 @@ public abstract class GameObject {
 	 * @effect	canHaveAsRadius(new.getRadius())
 	 * @effect	isValidLowerBoundOfRadius(new.getLowerBoundOfRadius())
 	 * @effect	isValidPosition(new.getPosition())
+	 * @effect	new.getX() = position.getX()
+	 * @effect	new.getY() = position.getY()
 	 * @effect	getPosition().isValidCoordinate(new.getX())
 	 * @effect	getPosition().isValidCoordinate(new.getY())
 	 * @throws 	IllegalArgumentException("Invalid radius!")
@@ -81,10 +83,13 @@ public abstract class GameObject {
 	/**
 	 * @param 	newPosition
 	 * @post	new.getPosition = newPosition
+	 * @effect	new.getX() = newPosition.getX()
+	 * @effect	new.getY() = newPosition.getY()
 	 * @effect	isValidPosition(new.getPosition())
 	 * @throws 	IllegalArgumentException("Invalid position!")
 	 * 		|	! isValidPosition(newPosition)
 	 */
+	@Raw
 	protected void setPosition(Position newPosition) throws IllegalArgumentException {
 		if(!this.isValidPosition(newPosition))
 			throw new IllegalArgumentException("Invalid position!");
@@ -158,6 +163,7 @@ public abstract class GameObject {
 	 * @throws 	IllegalArgumentException("Invalid radius!")
 	 * 		|	! canHaveAsRadius(radius)
 	 */
+	@Raw
 	public void setRadius(double radius) throws IllegalArgumentException {
 		if (!this.canHaveAsRadius(radius))
 			throw new IllegalArgumentException("Invalid radius!");
@@ -186,7 +192,7 @@ public abstract class GameObject {
 	 * @param	radius
 	 * @return	result == (isValidNumber(radius) && (radius >= getLowerBoundOfRadius()) && (radius <= Double.MAX_VALUE))
 	 */
-	@Model
+	@Model @Raw
 	protected boolean canHaveAsRadius(double radius){
 		return (this.isValidNumber(radius) && Util.fuzzyGreaterThanOrEqualTo(radius, this.getLowerBoundOfRadius()) && (radius <= Double.MAX_VALUE));
 	}
