@@ -2,11 +2,9 @@ package worms.model;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import be.kuleuven.cs.som.annotate.*;
-import worms.util.*;
 
 /**
  * 
@@ -14,11 +12,14 @@ import worms.util.*;
  * 
  * @Invar	The name of each worm is a valid name.
  * 		|	isValidName(getName())
- * @Invar	Each worm can have its current number of action points as its current number of action points.
+ * @Invar	Each worm has a valid number of action points.
  * 		|	0 <= getNumberOfActionPoints() <= getMaxNumberOfActionPoints()
- * @Invar	Each worm can have its current number of hit points as its current number of hit points.
+ * @Invar	Each worm can has a valid number of hit points.
  * 		|	0 <= getNumberOfHitPoints() <= getMaxNumberOfHitPoints()
- * 
+ * @Invar	Each worm has a proper team
+ * 		|	hasProperTeam()
+ * @Invar	Each worm has proper weapons
+ * 		|	hasProperWeapons()
  * 
  * @version 2.0
  * @author Jonas Thys & Jeroen Reinenbergh
@@ -31,9 +32,9 @@ public class Worm extends MovableGameObject {
 	 * Initialize this new worm with given x-coordinate, given y-coordinate, given radius, given lower bound of this radius, given direction and given name.
 	 * 
 	 * @param	x
-	 * 			The x-coordinate of the worm expressed in metres.
+	 * 			The x-coordinate of the worm expressed in meters.
 	 * @param	y
-	 * 			The y-coordinate of the worm expressed in metres.
+	 * 			The y-coordinate of the worm expressed in meters.
 	 * @param	radius
 	 * 			The radius of the spherical body of the worm expressed in metres.
 	 * @param	direction
@@ -99,70 +100,125 @@ public class Worm extends MovableGameObject {
 		this.distributeWeapons();
 	}
 	
-	@Raw
-	private void distributeWeapons(){
-		Weapon rifle = new Weapon("Rifle", -1, 20, 10, getRadius(10, 7800), true);
-		rifle.addAsWorm(this);
-		Weapon bazooka = new Weapon("Bazooka", -1, 80, 50, getRadius(300, 7800), false);
-		bazooka.addAsWorm(this);
-	}
-	
-	private Weapon getSelectedWeapon(){
-		Weapon selectedWeapon = null;
-		List<Weapon> allWeapons = this.getAllWeapons();
-		for(Weapon weapon : allWeapons)
-			if(weapon.isSelected())
-				selectedWeapon = weapon;
-		return selectedWeapon;
-	}
-	
 	public String getSelectedWeaponsName(){
 		return this.getSelectedWeapon().getName();
 	}
 		
-	public void selectNextWeapon(){
-		List<Weapon> allWeapons = this.getAllWeapons();
-		int IndexOfCurrentWeapon = allWeapons.indexOf(this.getSelectedWeapon());
-		if (IndexOfCurrentWeapon + 1 == allWeapons.size())
-			allWeapons.get(0).select();
-		else allWeapons.get(IndexOfCurrentWeapon + 1).select();
-	}
-	
 	public void shoot(int propulsionYield){
 		this.getSelectedWeapon().shoot(propulsionYield);
 	}
 	
-	public boolean isAlive(){
-		return this.alive;
+	/**
+	 * Return all weapons attached to this worm.
+	 */
+	protected List<Weapon> getAllWeapons(){
+		return weapons;
 	}
-	
-	private void setAlive(boolean flag){
-		this.alive = flag;
+
+	/**
+	 * Check whether the given weapon is a valid weapon for this worm.
+	 * @param 	weapon
+	 * 			The weapon to be checked.
+	 * @return	result == (weapon == null)
+	 */
+	protected boolean canHaveAsWeapon(Weapon weapon){
+		return (weapon != null);
+	}
+
+	/**
+	 * Check whether this worm has proper weapons.
+	 * @return	result == (canHaveAsWeapon(weapon)|| weapon.getWorm() == this)
+	 */
+	protected boolean hasProperWeapons(){
+		for (Weapon weapon: this.weapons){
+			if (! canHaveAsWeapon(weapon))
+				return false;
+			if (weapon.getWorm() != this)
+				return false;
+			else
+				return true;
+		}
+		
+		return true;
+	}
+
+	protected void selectNextWeapon(){
+		List<Weapon> allWeapons = this.getAllWeapons();
+		int IndexOfNextWeapon = allWeapons.indexOf(this.getSelectedWeapon()) + 1;
+		if (IndexOfNextWeapon == allWeapons.size())
+			allWeapons.get(0).select();
+		else allWeapons.get(IndexOfNextWeapon).select();
+	}
+
+	/**
+	 * Set as one of the weapons to which this worm is attached to the given weapon.
+	 * @param	weapon
+	 * 			The weapon to be attached.
+	 * @post	new.getAllWeapons().contains(weapon)
+	 * @throws	IllegalArgumentException
+	 * 			(! canHaveAsWeapon(weapon) || ! weapon.hasAsWorm(this))
+	 */
+	protected void setWeapon(Weapon weapon) throws IllegalArgumentException {
+		if (! canHaveAsWeapon(weapon) || ! weapon.hasAsWorm(this))
+			throw new IllegalArgumentException("not a valid weapon");
+		else weapons.add(weapon);
+	}
+
+	@Raw
+	private void distributeWeapons(){
+		Weapon rifle = new Weapon("Rifle", -1, 20, 10, getRadius(10, 7800));
+		rifle.addAsWorm(this);
+		Weapon bazooka = new Weapon("Bazooka", -1, 80, 50, getRadius(300, 7800));
+		bazooka.addAsWorm(this);
+	}
+
+	private Weapon getSelectedWeapon(){
+		Weapon selectedWeapon = null;
+		List<Weapon> allWeapons = this.getAllWeapons();
+		for(Weapon weapon : allWeapons)
+			if(weapon.isSelected()){
+				selectedWeapon = weapon;
+				break;
+			}
+		return selectedWeapon;
+	}
+
+	private final List<Weapon> weapons = new ArrayList<Weapon>();
+
+	protected boolean isAlive(){
+		return this.alive;
 	}
 	
 	protected void kill(){
 		this.setAlive(false);
 	}
 	
+	private void setAlive(boolean flag){
+		this.alive = flag;
+	}
+
 	private boolean alive;
 	
-	public boolean isActive(){
+	protected boolean isActive(){
 		return this.active;
 	}
 	
-	private void setActive(boolean flag){
-		this.active = flag;
-	}
-	
-	public void activate(){
+	protected void activate(){
 		List<Worm> allWorms = this.getWorld().getAllWorms();
 		for(Worm eachWorm : allWorms)
 			eachWorm.deactivate();
 		this.setActive(true);
 		this.restoreNumberOfActionPoints();
 		this.increaseNumberOfHitPointsBy(10);
+		List<Weapon> allWeapons = this.getAllWeapons();
+		if(!allWeapons.isEmpty())
+			allWeapons.get(0).select();
 	}
 	
+	private void setActive(boolean flag){
+		this.active = flag;
+	}
+
 	private void deactivate(){
 		this.setActive(false);
 	}
@@ -176,20 +232,6 @@ public class Worm extends MovableGameObject {
 	@Basic
 	public String getName() {
 		return name;
-	}	
-	
-	/**
-	 * Check whether the given name is a valid name for any worm.
-	 * 
-	 * @param	name
-	 * 			The name to check.
-	 * @return	True if and only if the given name contains at least 2 charachters,
-	 * 			starts with an uppercase letter and only contains letters, quotes and spaces.
-	 * 		|	result == (name.matches("[A-Z]"+"[A-Za-z\"\' ]+"))
-	 */
-	@Model
-	private boolean isValidName(String name) {
-		return name.matches("[A-Z]"+"[A-Za-z\"\' ]+");
 	}	
 	
 	/**
@@ -212,31 +254,27 @@ public class Worm extends MovableGameObject {
 	}
 	
 	/**
+	 * Check whether the given name is a valid name for any worm.
+	 * 
+	 * @param	name
+	 * 			The name to check.
+	 * @return	True if and only if the given name contains at least 2 charachters,
+	 * 			starts with an uppercase letter and only contains letters, quotes and spaces.
+	 * 		|	result == (name.matches("[A-Z]"+"[A-Za-z\"\' ]+"))
+	 */
+	@Model
+	private boolean isValidName(String name) {
+		return name.matches("[A-Z]"+"[A-Za-z\"\' ]+");
+	}
+
+	/**
 	 * Variable registering the name of this worm.
 	 */
 	private String name;
 
 	/**
-	 * Check whether this worm can have the given radius as its radius.
-	 * 
-	 * @param	radius
-	 * 			The radius to check.
-	 * @return	True if and only if this movable game object can have the given radius as its radius
-	 * 			and if the newly calculated maximum number of action points and hit points of this worm are positive.
-	 * 		|	result == (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0) && (getMaxNumberOfHitPoints(radius) >= 0))
-	 */
-	@Model @Override
-	protected boolean canHaveAsRadius(double radius){
-		return (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0) && (getMaxNumberOfHitPoints(radius) >= 0));
-	}
-	
-	private static double getRadius(double mass, double p){
-		return Math.cbrt((mass * 3.0) / (p * 4.0 * Math.PI));
-	}
-
-	/**
 	 * Set the radius of this worm to the given radius
-
+	
 	 * @param	radius
 	 * 			The new radius of this worm.
 	 * @post	The new radius of this worm is equal to the given radius.
@@ -261,13 +299,106 @@ public class Worm extends MovableGameObject {
 	public void setRadius(double radius) throws IllegalArgumentException {
 		if (!canHaveAsRadius(radius))
 			throw new IllegalArgumentException("Invalid radius!");
-		else{
-			super.setRadius(radius);
-			setNumberOfActionPoints(this.getNumberOfActionPoints());
-			setNumberOfHitPoints(this.getNumberOfHitPoints());
-		}
+		super.setRadius(radius);
+		setNumberOfActionPoints(this.getNumberOfActionPoints());
+		setNumberOfHitPoints(this.getNumberOfHitPoints());
 	}
 
+	/**
+	 * Check whether this worm can have the given radius as its radius.
+	 * 
+	 * @param	radius
+	 * 			The radius to check.
+	 * @return	True if and only if this movable game object can have the given radius as its radius
+	 * 			and if the newly calculated maximum number of action points and hit points of this worm are positive.
+	 * 		|	result == (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0) && (getMaxNumberOfHitPoints(radius) >= 0))
+	 */
+	@Model @Override
+	protected boolean canHaveAsRadius(double radius){
+		return (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0) && (getMaxNumberOfHitPoints(radius) >= 0));
+	}
+	
+	private static double getRadius(double mass, double p){
+		return Math.cbrt((mass * 3.0) / (p * 4.0 * Math.PI));
+	}
+
+	/**
+	 * Return the maximum number of action points of the worm.
+	 * @return	Maximum number of action points of the worm based on calculations involving the mass of the worm.
+	 * 		|	result == getMaxNumberOfActionPoints(this.getMass())
+	 */
+	@Raw
+	public int getMaxNumberOfActionPoints(){
+		return getMaxNumberOfActionPoints(this.getMass());
+	}
+	
+	/**
+	 * Return the maximum number of hit points of the worm.
+	 * @return	Maximum number of hit points of the worm based on calculations involving the mass of the worm.
+	 * 		|	result == getMaxNumberOfHitPoints(this.getMass())
+	 */
+	@Raw
+	public int getMaxNumberOfHitPoints(){
+		return getMaxNumberOfHitPoints(this.getMass());
+	}
+
+	/**
+	 * Return the current number of action points of the worm.
+	 * 	The current number of action points expresses the number of action points this worm has left.
+	 */	
+	@Basic
+	public int getNumberOfActionPoints() {
+		return numberOfActionPoints;
+	}
+
+	/**
+	 * Return the current number of hit points of the worm.
+	 * 	The current number of hit points expresses the number of hit points this worm has left.
+	 */	
+	@Basic
+	public int getNumberOfHitPoints() {
+		return numberOfHitPoints;
+	}
+
+	protected void decreaseNumberOfActionPointsBy(int decrement){
+		if (decrement < 0)
+			decrement = 0;
+		this.setNumberOfActionPoints(this.getNumberOfActionPoints() - decrement);
+	}
+
+	/**
+	 * Decrease the current number of hit points of this worm by the given number.
+	 * 
+	 * @param 	decrement
+	 * 			The given number to decrement the current number of hit points with.
+	 * @post	The new number of hit points of this worm is equal to the old number of hit points, decremented with the given number.
+	 * 		|	new.getNumberOfHitPoints() == this.getNumberOfHitPoints() - decrement
+	 * @effect	The new number of hit points of this worm complies to its invariant (boundaries defined in the setter).
+	 * 		|	0 <= new.getNumberOfHitPoints() <= new.getMaxNumberOfHitPoints()
+	 */
+	protected void decreaseNumberOfHitPointsBy(int decrement){
+		if (decrement < 0)
+			decrement = 0;
+		this.setNumberOfHitPoints(this.getNumberOfHitPoints() - decrement);
+	}
+	
+	/**
+	 * Restore the current number of action points of this worm to its maximum.
+	 * @post	The new number of action points of this worm is equal to the maximum number of action points of this worm.
+	 * 		|	new.getNumberOfActionPoints() == this.getMaxNumberOfActionPoints()
+	 * @effect	The new number of action points of this worm complies to its invariant (boundaries defined in the setter).
+	 * 		|	0 <= new.getNumberOfActionPoints() <= new.getMaxNumberOfActionPoints()
+	 */
+	protected void restoreNumberOfActionPoints(){
+		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
+	}
+
+	protected void increaseNumberOfHitPointsBy(int increment){
+		if (increment < 0)
+			increment = 0;
+		this.setNumberOfHitPoints(this.getNumberOfHitPoints() + increment);
+	}
+	
 	/**
 	 * Return the given double precision number, rounded to the nearest integer.
 	 * @param	number
@@ -285,36 +416,6 @@ public class Worm extends MovableGameObject {
 		}
 		else intNumber = (int) longNumber;
 		return intNumber;
-	}
-	
-	/**
-	 * Return the maximum number of action points for a worm with given mass.
-	 * @param	mass
-	 * 			The given mass
-	 * @return	Maximum number of action points for a worm based on calculations involving the given mass.
-	 * 		|	result == roundedToNearestInteger(mass)
-	 */
-	private int getMaxNumberOfActionPoints(double mass){
-		return roundedToNearestInteger(mass);
-	}
-	
-	/**
-	 * Return the maximum number of action points of the worm.
-	 * @return	Maximum number of action points of the worm based on calculations involving the mass of the worm.
-	 * 		|	result == getMaxNumberOfActionPoints(this.getMass())
-	 */
-	@Raw
-	public int getMaxNumberOfActionPoints(){
-		return getMaxNumberOfActionPoints(this.getMass());
-	}
-	
-	/**
-	 * Return the current number of action points of the worm.
-	 * 	The current number of action points expresses the number of action points this worm has left.
-	 */	
-	@Basic
-	public int getNumberOfActionPoints() {
-		return numberOfActionPoints;
 	}
 
 	/**
@@ -334,64 +435,12 @@ public class Worm extends MovableGameObject {
 	private void setNumberOfActionPoints(int numberOfActionPoints){
 		if(numberOfActionPoints <= 0){
 			numberOfActionPoints = 0;
-			if(this.hasProperWorld())
+			if(this.getWorld() != null)
 				this.getWorld().startNextTurn();
 		}
 		else if(numberOfActionPoints > this.getMaxNumberOfActionPoints())
 			numberOfActionPoints = this.getMaxNumberOfActionPoints();
 		this.numberOfActionPoints = numberOfActionPoints;
-	}
-	
-	/**
-	 * Restore the current number of action points of this worm to its maximum.
-	 * @post	The new number of action points of this worm is equal to the maximum number of action points of this worm.
-	 * 		|	new.getNumberOfActionPoints() == this.getMaxNumberOfActionPoints()
-	 * @effect	The new number of action points of this worm complies to its invariant (boundaries defined in the setter).
-	 * 		|	0 <= new.getNumberOfActionPoints() <= new.getMaxNumberOfActionPoints()
-	 */
-	protected void restoreNumberOfActionPoints(){
-		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
-	}
-	
-	protected void decreaseNumberOfActionPointsBy(int decrement){
-		if (decrement < 0)
-			decrement = 0;
-		this.setNumberOfActionPoints(this.getNumberOfActionPoints() - decrement);
-	}
-
-	/**
-	 * Variable registering the current number of action points of this worm.
-	 */	
-	private int numberOfActionPoints;
-
-	/**
-	 * Return the maximum number of hit points for a worm with given mass.
-	 * @param	mass
-	 * 			The given mass
-	 * @return	Maximum number of hit points for a worm based on calculations involving the given mass.
-	 * 		|	result == roundedToNearestInteger(mass)
-	 */
-	private int getMaxNumberOfHitPoints(double mass){
-		return roundedToNearestInteger(mass);
-	}
-	
-	/**
-	 * Return the maximum number of hit points of the worm.
-	 * @return	Maximum number of hit points of the worm based on calculations involving the mass of the worm.
-	 * 		|	result == getMaxNumberOfHitPoints(this.getMass())
-	 */
-	@Raw
-	public int getMaxNumberOfHitPoints(){
-		return getMaxNumberOfHitPoints(this.getMass());
-	}
-
-	/**
-	 * Return the current number of hit points of the worm.
-	 * 	The current number of hit points expresses the number of hit points this worm has left.
-	 */	
-	@Basic
-	public int getNumberOfHitPoints() {
-		return numberOfHitPoints;
 	}
 
 	/**
@@ -412,84 +461,54 @@ public class Worm extends MovableGameObject {
 		if(numberOfHitPoints <= 0){
 			numberOfHitPoints = 0;
 			this.kill();
-			if(this.hasProperWorld())
+			if(this.getWorld() != null)
 				this.getWorld().startNextTurn();
 		}
 		else if(numberOfHitPoints > this.getMaxNumberOfHitPoints())
 			numberOfHitPoints = this.getMaxNumberOfHitPoints();
 		this.numberOfHitPoints = numberOfHitPoints;
 	}
-	
+
 	/**
-	 * Decrease the current number of hit points of this worm by the given number.
-	 * 
-	 * @param 	decrement
-	 * 			The given number to decrement the current number of hit points with.
-	 * @post	The new number of hit points of this worm is equal to the old number of hit points, decremented with the given number.
-	 * 		|	new.getNumberOfHitPoints() == this.getNumberOfHitPoints() - decrement
-	 * @effect	The new number of hit points of this worm complies to its invariant (boundaries defined in the setter).
-	 * 		|	0 <= new.getNumberOfHitPoints() <= new.getMaxNumberOfHitPoints()
+	 * Return the maximum number of action points for a worm with given mass.
+	 * @param	mass
+	 * 			The given mass
+	 * @return	Maximum number of action points for a worm based on calculations involving the given mass.
+	 * 		|	result == roundedToNearestInteger(mass)
 	 */
-	protected void decreaseNumberOfHitPointsBy(int decrement){
-		if (decrement < 0)
-			decrement = 0;
-		this.setNumberOfHitPoints(this.getNumberOfHitPoints() - decrement);
+	private int getMaxNumberOfActionPoints(double mass){
+		return roundedToNearestInteger(mass);
 	}
-	
-	protected void increaseNumberOfHitPointsBy(int increment){
-		if (increment < 0)
-			increment = 0;
-		this.setNumberOfHitPoints(this.getNumberOfHitPoints() + increment);
+
+	/**
+	 * Return the maximum number of hit points for a worm with given mass.
+	 * @param	mass
+	 * 			The given mass
+	 * @return	Maximum number of hit points for a worm based on calculations involving the given mass.
+	 * 		|	result == roundedToNearestInteger(mass)
+	 */
+	private int getMaxNumberOfHitPoints(double mass){
+		return roundedToNearestInteger(mass);
 	}
-	
+
+	/**
+	 * Variable registering the current number of action points of this worm.
+	 */	
+	private int numberOfActionPoints;
 	/**
 	 * Variable registering the current number of hit points of this worm.
 	 */	
 	private int numberOfHitPoints;
 		
-	/**
-	 * Return the amount of action points this worm has to pay to turn by the given angle.
-	 * 
-	 * @param 	turnByAngle
-	 * 			The angle by which this worm will be turned.
-	 * @return	If the converted representative angle to turn by is equal to zero, the resulting amount of action points to be paid is also equal to zero.
-	 * 		|	if (this.convertToRepresentativeAngle(turnByAngle) == 0) result == 0
-	 * @return	If the converted representative angle to turn by is not equal to zero, the resulting amount of action points to be paid is equal to the quotient of 60 and a factor that is calculated by dividing 2 times pi by the converted representative angle to turn by.
-	 * 		|	if (this.convertToRepresentativeAngle(turnByAngle) != 0) result == ceil(60 / ((2*pi)/effectiveAngle))
-	 * 		|	where
-	 * 		|		if (this.convertToRepresentativeAngle(turnByAngle) > (2 * pi)) effectiveAngle == (2 * Math.PI) - this.convertToRepresentativeAngle(turnByAngle)
-	 * 		|		else effectiveAngle == this.convertToRepresentativeAngle(turnByAngle)
-	 */
-	@Model
-	private int amountOfActionPointsForTurning(double turnByAngle){
-		double effectiveAngle = this.convertToRepresentativeAngle(turnByAngle);
-		int decrement;
-		if(effectiveAngle == 0)
-			decrement = 0;
-		else{
-			if(effectiveAngle > Math.PI)
-				effectiveAngle = (2 * Math.PI) - effectiveAngle;
-			double factor = (2 * Math.PI) / effectiveAngle;
-			decrement = (int) Math.ceil(60 / factor);
-		}
-		return decrement;
+	private void eat(Food snack){
+		this.setRadius(this.getRadius() * (1 + snack.getPercentualIncreaseOfRadius()));
+		this.getWorld().removeAsGameObject(snack);
 	}
 
-	/**
-	 * Convert the given angle to a representative angle that is equal to or greater than zero and smaller than two times pi radians.
-	
-	 * @param	angle
-	 * 			The angle to be converted.
-	 * @return	The converted angle is a geometrically identical angle that lies between zero and two times pi, excluding the latter.
-	 * 		|	if ((angle % (2 * pi)) < 0) result == (angle % (2 * pi)) + (2 * pi)
-	 * 		|	else result == angle % (2 * pi)
-	 */	
-	@Model
-	private double convertToRepresentativeAngle(double angle){
-		double representativeAngle = angle % (2 * Math.PI);
-		if (representativeAngle < 0)
-			representativeAngle += 2 * Math.PI;
-		return representativeAngle;
+	private void eatAllFood(){
+		List<Food> snacks = this.getWorld().overlapWithFood(this.getPosition(), this.getRadius());
+		for (Food snack : snacks)
+			this.eat(snack);
 	}
 
 	/**
@@ -523,17 +542,75 @@ public class Worm extends MovableGameObject {
 		assert this.canTurn(turnByAngle) :
 			"Precondition: The worm can turn by the given angle";
 		super.turn(turnByAngle);
-		setNumberOfActionPoints(this.getNumberOfActionPoints() - this.amountOfActionPointsForTurning(turnByAngle));
+		this.decreaseNumberOfActionPointsBy(this.amountOfActionPointsForTurning(turnByAngle));
 	}
+
+	/**
+	 * Convert the given angle to a representative angle that is equal to or greater than zero and smaller than two times pi radians.
 	
-	private void eat(Food snack){
-		this.setRadius(this.getRadius() * (1 + snack.getPercentualIncreaseOfRadius()));
+	 * @param	angle
+	 * 			The angle to be converted.
+	 * @return	The converted angle is a geometrically identical angle that lies between zero and two times pi, excluding the latter.
+	 * 		|	if ((angle % (2 * pi)) < 0) result == (angle % (2 * pi)) + (2 * pi)
+	 * 		|	else result == angle % (2 * pi)
+	 */	
+	@Model
+	protected static double convertToRepresentativeAngle(double angle){
+		double representativeAngle = angle % (2 * Math.PI);
+		if (representativeAngle < 0)
+			representativeAngle += 2 * Math.PI;
+		return representativeAngle;
 	}
-	
-	private void eatAllFood(){
-		List<Food> snacks = this.getWorld().overlapWithFood(this.getPosition(), this.getRadius());
-		for (Food snack : snacks)
-			this.eat(snack);
+
+	/**
+	 * Return the amount of action points this worm has to pay to turn by the given angle.
+	 * 
+	 * @param 	turnByAngle
+	 * 			The angle by which this worm will be turned.
+	 * @return	If the converted representative angle to turn by is equal to zero, the resulting amount of action points to be paid is also equal to zero.
+	 * 		|	if (this.convertToRepresentativeAngle(turnByAngle) == 0) result == 0
+	 * @return	If the converted representative angle to turn by is not equal to zero, the resulting amount of action points to be paid is equal to the quotient of 60 and a factor that is calculated by dividing 2 times pi by the converted representative angle to turn by.
+	 * 		|	if (this.convertToRepresentativeAngle(turnByAngle) != 0) result == ceil(60 / ((2*pi)/effectiveAngle))
+	 * 		|	where
+	 * 		|		if (this.convertToRepresentativeAngle(turnByAngle) > (2 * pi)) effectiveAngle == (2 * Math.PI) - this.convertToRepresentativeAngle(turnByAngle)
+	 * 		|		else effectiveAngle == this.convertToRepresentativeAngle(turnByAngle)
+	 */
+	@Model
+	private int amountOfActionPointsForTurning(double turnByAngle){
+		double effectiveAngle = this.convertToRepresentativeAngle(turnByAngle);
+		int decrement;
+		if(effectiveAngle == 0)
+			decrement = 0;
+		else{
+			if(effectiveAngle > Math.PI)
+				effectiveAngle = (2 * Math.PI) - effectiveAngle;
+			double factor = (2 * Math.PI) / effectiveAngle;
+			decrement = (int) Math.ceil(60 / factor);
+		}
+		return decrement;
+	}
+
+	@Override
+	public void jump(double timeStep) throws UnsupportedOperationException{
+		if(!this.canJump(timeStep))
+			throw new UnsupportedOperationException("Cannot jump!");
+		super.jump(timeStep);
+		if (this.canFall())
+			this.fall();
+		this.setNumberOfActionPoints(0);
+		this.eatAllFood();
+	}
+
+	@Model @ Override
+	protected boolean canJump(double timeStep){
+		double jumpTime = this.jumpTime(timeStep);
+		double[] jumpStep = this.jumpStep(jumpTime);
+		return (super.canJump(timeStep) && (this.getNumberOfActionPoints() > 0) && !(this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius()));
+	}
+
+	@Override
+	protected String getCustomText(){
+		return "jump";
 	}
 	
 	/**
@@ -545,30 +622,7 @@ public class Worm extends MovableGameObject {
 	protected double getInitialForce(){
 		return ((5 * this.getNumberOfActionPoints()) + (this.getMass() * EARTHS_STANDARD_ACCELERATION));
 	}
-	
-	@Model @ Override
-	protected boolean canJump(double timeStep){
-		double jumpTime = this.jumpTime(timeStep);
-		double[] jumpStep = this.jumpStep(jumpTime);
-		return (super.canJump(timeStep) && (this.getNumberOfActionPoints() > 0) && !(this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius()));
-	}
-	
-	@Override
-	public void jump(double timeStep) throws UnsupportedOperationException{
-		if(!this.canJump(timeStep))
-			throw new UnsupportedOperationException("Cannot jump!");
-		super.jump(timeStep);
-		if (this.canFall())
-			this.fall();
-		this.setNumberOfActionPoints(0);
-		this.eatAllFood();
-	}
-	
-	@Override
-	protected String getCustomText(){
-		return "jump";
-	}
-	
+
 	public boolean canFall(){
 		return !this.getWorld().isAdjacentToImpassableFloor(this.getPosition(), this.getRadius());
 	}
@@ -602,13 +656,29 @@ public class Worm extends MovableGameObject {
 		else this.kill();
 	}
 	
+	public boolean canMove(){
+		Position newPosition = this.positionAfterMove();
+		return (newPosition != null && (this.getNumberOfActionPoints() >= this.amountOfActionPointsForMoving(newPosition)));
+	}
+
+	public void move() throws UnsupportedOperationException{
+		if (!this.canMove())
+			throw new UnsupportedOperationException("Cannot move!");
+		Position newPosition = this.positionAfterMove();
+		this.setPosition(newPosition);
+		if (this.canFall())
+			this.fall();
+		this.decreaseNumberOfActionPointsBy(this.amountOfActionPointsForMoving(newPosition));
+		this.eatAllFood();
+	}
+
 	private Position checkCirclePieceForOptimalMove(Method test) throws Exception{
 		double direction = this.getDirection();
 		double divergedDirection = direction;
 		double limitForDivergedDirection = divergedDirection + 0.7875;
 		double radius = this.getRadius();
 		double distance = radius;
-		double distanceStep = Math.min(this.getWorld().getPixelWidth(), this.getWorld().getPixelHeight());
+		double distanceStep = 10 * Math.min(this.getWorld().getPixelWidth(), this.getWorld().getPixelHeight());
 		Position testPosition = null;
 		boolean candidateFound = false;
 		outerloop:
@@ -642,7 +712,10 @@ public class Worm extends MovableGameObject {
 
 	private int amountOfActionPointsForMoving(Position newPosition){
 		double slopeAfterMove = this.getSlope(newPosition);
-		return (int) Math.ceil(Math.abs(Math.cos(slopeAfterMove)) + Math.abs(4 * Math.sin(slopeAfterMove)));
+		long longResult = Math.round(Math.ceil(Math.abs(Math.cos(slopeAfterMove)) + Math.abs(4 * Math.sin(slopeAfterMove))));
+		if (longResult > Integer.MAX_VALUE)
+			longResult = Integer.MAX_VALUE;
+		return (int) longResult;
 	}
 	
 	private Position positionAfterMove(){
@@ -660,76 +733,10 @@ public class Worm extends MovableGameObject {
 		}
 	}
 
-	public boolean canMove(){
-		Position newPosition = this.positionAfterMove();
-		return (newPosition != null && (this.getNumberOfActionPoints() >= this.amountOfActionPointsForMoving(newPosition)));
-	}
-	
-	public void move() throws UnsupportedOperationException{
-		if (!this.canMove())
-			throw new UnsupportedOperationException("Cannot move!");
-		Position newPosition = this.positionAfterMove();
-		this.setPosition(newPosition);
-		if (this.canFall())
-			this.fall();
-		this.decreaseNumberOfActionPointsBy(this.amountOfActionPointsForMoving(newPosition));
-		this.eatAllFood();
-	}
-	
-	private final List<Weapon> weapons = new ArrayList<Weapon>();
-	
-	/**
-	 * Return all weapons attached to this worm.
-	 */
-	public List<Weapon> getAllWeapons(){
-		return weapons;
-	}
-	
-
-	/**
-	 * Check whether the given weapon is a valid weapon for this worm.
-	 * @param 	weapon
-	 * 			The weapon to be checked.
-	 * @return	result == (weapon == null)
-	 */
-	public boolean canHaveAsWeapon(Weapon weapon){
-		return (weapon != null);
-	}
-	
-	/**
-	 * Check whether this worm has proper weapons.
-	 * @return	result == (canHaveAsWeapon(weapon)|| weapon.getWorm() == this)
-	 */
-	public boolean hasProperWeapons(){
-		for (Weapon weapon: this.weapons){
-			if (! canHaveAsWeapon(weapon))
-				return false;
-			if (weapon.getWorm() != this)
-				return false;
-			else
-				return true;
-		}
-		
-		return true;
-	}
-	/**
-	 * Set as one of the weapons to which this worm is attached to the given weapon.
-	 * @param	weapon
-	 * 			The weapon to be attached.
-	 * @post	new.getAllWeapons().contains(weapon)
-	 * @throws	IllegalArgumentException
-	 * 			(! canHaveAsWeapon(weapon) || ! weapon.hasAsWorm(this))
-	 */
-	public void setWeapon(Weapon weapon) throws IllegalArgumentException {
-		if (! canHaveAsWeapon(weapon) || ! weapon.hasAsWorm(this))
-			throw new IllegalArgumentException("not a valid weapon");
-		else weapons.add(weapon);
-	}
-	
 	/**
 	 * Return the team to which this worm belongs.
 	 */
-	public Team getTeam(){
+	protected Team getTeam(){
 		return this.team;
 	}
 	/**
@@ -738,14 +745,14 @@ public class Worm extends MovableGameObject {
 	 * 			The team to be added.
 	 * @return	(team == null || team.canHaveAsWorm(this))
 	 */
-	public boolean canHaveAsTeam(Team team){
+	protected boolean canHaveAsTeam(Team team){
 		return (team == null || team.canHaveAsWorm(this));
 	}
 	/**
 	 * Check whether this worm has a proper team as its team.
 	 * @return	(canHaveAsTeam(getTeam()) && getTeam().hasAsWorm(this))
 	 */
-	public boolean hasProperTeam() {
+	protected boolean hasProperTeam() {
 		return (canHaveAsTeam(getTeam()) && getTeam().hasAsWorm(this));
 	}
 	/**
@@ -756,7 +763,7 @@ public class Worm extends MovableGameObject {
 	 * @throws 	IllegalArgumentException
 	 * 			(! canHaveAsTeam(team) || ! team.hasAsWorm(this))
 	 */
-	public void setTeam(Team team) throws IllegalArgumentException {
+	protected void setTeam(Team team) throws IllegalArgumentException {
 		if (! canHaveAsTeam(team) || ! team.hasAsWorm(this))
 			throw new IllegalArgumentException("not a valid team");
 		else this.team = team;

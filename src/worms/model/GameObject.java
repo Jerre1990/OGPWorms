@@ -7,6 +7,7 @@ import be.kuleuven.cs.som.annotate.*;
  * @Invar	canHaveAsRadius(getRadius())
  * @Invar	isValidLowerBoundOfRadius(getLowerBoundOfRadius())
  * @Invar	isValidPosition(getPosition())
+ * @Invar	hasProperWorld()
  * 
  * @version 2.0
  * @author Jonas Thys & Jeroen Reinenbergh
@@ -35,7 +36,8 @@ public abstract class GameObject {
 	 * @throws	IllegalArgumentException("Invalid position!")
 	 * 		|	! isValidPosition(position)
 	 */
-	public GameObject(Position position, double radius, double lowerBound) throws IllegalArgumentException {
+	@Model
+	protected GameObject(Position position, double radius, double lowerBound) throws IllegalArgumentException {
 		this.setPosition(position);
 		this.setRadius(radius);
 		if (!this.isValidLowerBoundOfRadius(lowerBound))
@@ -75,7 +77,6 @@ public abstract class GameObject {
 	 * @param 	position
 	 * @return	result == (position != null)
 	 */
-	@Model
 	protected boolean isValidPosition(Position position){
 		return (position != null);
 	}

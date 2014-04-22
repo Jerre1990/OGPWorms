@@ -40,12 +40,12 @@ public class World {
 	}
 	
 	@Basic
-	public double getWidth(){
+	protected double getWidth(){
 		return this.width;
 	}
 
 	@Basic
-	public double getHeight(){
+	protected double getHeight(){
 		return this.height;
 	}
 
@@ -77,49 +77,61 @@ public class World {
 
 	private final double height;
 
-	public Random getRandom(){
+	protected Random getRandom(){
 		return this.random;
 	}
 	
-	public void setRandom(Random r){
+	protected void setRandom(Random r){
 		this.random = r;
 	}
 	
 	private Random random;
 
-	@Basic
-	public boolean[][] getPassableMap(){
-		return this.passableMap;
+	public boolean isPassable(Position center, double radius){
+		boolean result;
+		try{
+			result = this.isPassablePartOfPixeledRadiusOfCircle2(center, radius, 0, 0);
+		}
+		catch (IllegalArgumentException exc){
+			result = false;
+		}
+		return result;
 	}
-	
-	public int getWidthInPixels(){
-		return this.getPassableMap()[0].length;
+
+	public boolean isAdjacentToImpassableTerrain(Position center, double radius){
+		return this.isAdjacentToImpassableTerrain(center, radius, 0, 0);
 	}
-	
-	public int getHeightInPixels(){
-		return this.getPassableMap().length;
+
+	protected Position getRandomPositionAdjacentToImpassableFloor(double radius){
+		double stepSize = 1;
+		double stepSizeX = this.getPixelWidth() * stepSize;
+		double stepSizeY = this.getPixelHeight() * stepSize;
+		double centerX = this.getWidth() / 2;
+		double centerY = this.getHeight() / 2;
+		double randomXCoordinate;
+		double randomYCoordinate;
+		Position testPosition = null;
+		boolean positionFound = false;
+		loops:
+		for(int i=0;i<100;++i){
+			randomXCoordinate = this.getRandom().nextDouble() * this.getWidth();
+			randomYCoordinate = this.getRandom().nextDouble() * this.getHeight();
+			testPosition = new Position(randomXCoordinate, randomYCoordinate);
+			if(this.isLocatedInWorld(testPosition, radius)){
+				while(!(Util.fuzzyGreaterThanOrEqualTo(stepSizeX, Math.abs(testPosition.getX() - centerX)) && Util.fuzzyGreaterThanOrEqualTo(stepSizeY, Math.abs(testPosition.getY() - centerY)))){
+					if(this.isAdjacentToImpassableFloor(testPosition, radius)){
+						positionFound = true;
+						break loops;
+					}
+					testPosition = this.getPositionCloserToCenter(testPosition, stepSize);
+				}
+			}
+		}
+		if(positionFound)
+			return testPosition;
+		else return null;
 	}
-	
-	protected void setPassableMap(boolean[][] map) throws IllegalArgumentException{
-		if (map.length == 0)
-			throw new IllegalArgumentException("Empty map!");
-		else if (map[0].length == 0)
-			throw new IllegalArgumentException("Empty map!");
-		this.passableMap = map;
-	}
-	
-	private boolean[][] passableMap;
-	
-	@Model
-	protected double getPixelWidth(){
-		return (this.getWidth()/this.getWidthInPixels());
-	}
-	
-	@Model
-	protected double getPixelHeight(){
-		return (this.getHeight()/this.getHeightInPixels());
-	}
-	
+
 	/**
 	 * @param 	center
 	 * @param	radius
@@ -133,10 +145,6 @@ public class World {
 		return ((MinPixelCoordinates[0] >= 0) && (MinPixelCoordinates[1] >= 0) && (MaxPixelCoordinates[0] < this.getWidthInPixels()) && (MaxPixelCoordinates[1] < this.getHeightInPixels()));
 	}
 
-	private int[] getUncheckedPixelCoordinates(Position position){
-		return position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight());
-	}
-	
 	/**
 	 * @return	result == position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight())
 	 * @throws	IllegalArgumentException("Object is not located in this world!")
@@ -147,17 +155,59 @@ public class World {
 			throw new IllegalArgumentException("Object is not located in this world!");
 		return this.getUncheckedPixelCoordinates(position);
 	}
+
+	protected boolean isAdjacentToImpassableFloor(Position center, double radius){
+		return this.isAdjacentToImpassableTerrain(center, radius, -((Math.PI / 4) + (Math.PI / 16)), -((Math.PI / 4) - (Math.PI / 16)));
+	}
+
+	protected boolean isAdjacentToImpassableCeiling(Position center, double radius){
+		return this.isAdjacentToImpassableTerrain(center, radius, ((Math.PI / 4) - (Math.PI / 16)), ((Math.PI / 4) + (Math.PI / 16)));
+	}
+
+	@Basic
+	protected boolean[][] getPassableMap(){
+		return this.passableMap;
+	}
 	
+	protected int getWidthInPixels(){
+		return this.getPassableMap()[0].length;
+	}
+	
+	protected int getHeightInPixels(){
+		return this.getPassableMap().length;
+	}
+	
+	@Model
+	protected double getPixelWidth(){
+		return (this.getWidth()/this.getWidthInPixels());
+	}
+
+	@Model
+	protected double getPixelHeight(){
+		return (this.getHeight()/this.getHeightInPixels());
+	}
+
+	protected void setPassableMap(boolean[][] map) throws IllegalArgumentException{
+		if (map.length == 0)
+			throw new IllegalArgumentException("Empty map!");
+		else if (map[0].length == 0)
+			throw new IllegalArgumentException("Empty map!");
+		this.passableMap = map;
+	}
+	
+	private int[] getUncheckedPixelCoordinates(Position position){
+		return position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight());
+	}
+
 	private boolean isImpassablePosition(Position position) throws IllegalArgumentException{
 		int[] pixelCoordinates = this.getPixelCoordinates(position);
 		return !this.getPassableMap()[pixelCoordinates[1]][pixelCoordinates[0]];
 	}
-	
+
 	private double getPositiveYCoordinateOfCircle(Position center, double x, double radius){
 		return (Math.sqrt(Math.pow(radius, 2) - Math.pow((x - center.getX()), 2)) + center.getY());
 	}
-	
-	
+
 	/**
 	 * This method is apparently too intensive too use in this game, but works fine.
 	private boolean isPassablePartOfPixeledHollowedCircle(Position center, double radiusOfCircle, double radiusOfVoid, boolean[] quadrantsToCheck) throws IllegalArgumentException{
@@ -194,7 +244,7 @@ public class World {
 	}
 	*/
 	
-	private boolean isPassablePartOfPixeledRadiusOfCircle(Position center, double radiusOfCircle, boolean[] quadrantsToCheck) throws IllegalArgumentException{
+/**	private boolean isPassablePartOfPixeledRadiusOfCircle(Position center, double radiusOfCircle, boolean[] quadrantsToCheck) throws IllegalArgumentException{
 		if (!this.isLocatedInWorld(center, radiusOfCircle))
 			throw new IllegalArgumentException("Not fully located in world!");
 		if (quadrantsToCheck.length != 4)
@@ -217,26 +267,44 @@ public class World {
 			y = this.getPositiveYCoordinateOfCircle(center, x, radiusOfCircle);
 		}	
 		return isPassable;
-	}
+	}*/
 	
-	public boolean isPassable(Position center, double radius){
-		boolean[] fullCircle = {true,true,true,true};
+	public boolean isPassablePartOfPixeledRadiusOfCircle2(Position center, double radiusOfCircle, double lowerBound, double upperBound) throws IllegalArgumentException{
+		boolean isPassable = true;
+		if (!this.isLocatedInWorld(center, radiusOfCircle))
+			throw new IllegalArgumentException("Not fully located in world!");
+		lowerBound = Worm.convertToRepresentativeAngle(lowerBound);
+		upperBound = Worm.convertToRepresentativeAngle(upperBound);
+		if(Util.fuzzyEquals(upperBound, 0))
+			upperBound = Math.PI * 2;
+		if ((lowerBound > upperBound))
+			return false;
+		double stepSize = Math.min(this.getPixelWidth(), this.getPixelHeight());
+		double angleStepSize = 5 * Math.asin(stepSize);
+		double centerX = center.getX();
+		double centerY = center.getY();
+		double x;
+		double y;
+		Position testPosition;
+		do{
+			x = (Math.cos(lowerBound) * radiusOfCircle) + centerX;
+			y = (Math.sin(lowerBound) * radiusOfCircle) + centerY;
+			testPosition = new Position(x,y);
+			if(this.isImpassablePosition(testPosition)){
+				isPassable = false;
+				break;
+			}
+			lowerBound += angleStepSize;
+		}
+		while(lowerBound <= upperBound);
+		return isPassable;
+	}
+
+	private boolean isAdjacentToImpassableTerrain(Position center, double radius, double startAngle, double stopAngle){
 		boolean result;
 		try{
-			result = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, fullCircle);
-		}
-		catch (IllegalArgumentException exc){
-			result = false;
-		}
-		return result;
-	}
-	
-	private boolean isAdjacentToImpassableTerrain(Position center, double radius, boolean[] quadrants){
-		boolean[] fullCircle = {true,true,true,true};
-		boolean result;
-		try{
-			boolean isPassable = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, fullCircle);
-			boolean isAdjacent = ! this.isPassablePartOfPixeledRadiusOfCircle(center, (radius * 1.1), quadrants);
+			boolean isPassable = this.isPassablePartOfPixeledRadiusOfCircle2(center, radius, 0, 0);
+			boolean isAdjacent = ! this.isPassablePartOfPixeledRadiusOfCircle2(center, (radius * 1.1), startAngle, stopAngle);
 			result = (isPassable && isAdjacent);
 		}
 		catch (IllegalArgumentException exc){
@@ -244,22 +312,7 @@ public class World {
 		}
 		return result;
 	}
-	
-	public boolean isAdjacentToImpassableTerrain(Position center, double radius){
-		boolean[] fullCircle = {true,true,true,true};
-		return this.isAdjacentToImpassableTerrain(center, radius, fullCircle);
-	}
-	
-	protected boolean isAdjacentToImpassableFloor(Position center, double radius){
-		boolean[] bottomHalfOfCircle = {false,false,true,true};
-		return this.isAdjacentToImpassableTerrain(center, radius, bottomHalfOfCircle);
-	}
-	
-	protected boolean isAdjacentToImpassableCeiling(Position center, double radius){
-		boolean[] topHalfOfCircle = {true,true,false,false};
-		return this.isAdjacentToImpassableTerrain(center, radius, topHalfOfCircle);
-	}
-	
+
 	private Position getPositionCloserToCenter(Position original, double stepSize){
 		double newX;
 		double newY;
@@ -272,36 +325,50 @@ public class World {
 		return new Position(newX, newY);
 	}
 	
-	public Position getRandomPositionAdjacentToImpassableFloor(double radius){
-		double stepSize = 1;
-		double stepSizeX = this.getPixelWidth() * stepSize;
-		double stepSizeY = this.getPixelHeight() * stepSize;
-		double centerX = this.getWidth() / 2;
-		double centerY = this.getHeight() / 2;
-		double randomXCoordinate;
-		double randomYCoordinate;
-		Position testPosition = null;
-		boolean positionFound = false;
-		loops:
-		for(int i=0;i<100;++i){
-			randomXCoordinate = this.getRandom().nextDouble() * this.getWidth();
-			randomYCoordinate = this.getRandom().nextDouble() * this.getHeight();
-			testPosition = new Position(randomXCoordinate, randomYCoordinate);
-			if(this.isLocatedInWorld(testPosition, radius)){
-				while(!(Util.fuzzyGreaterThanOrEqualTo(stepSizeX, Math.abs(testPosition.getX() - centerX)) && Util.fuzzyGreaterThanOrEqualTo(stepSizeY, Math.abs(testPosition.getY() - centerY)))){
-					if(this.isAdjacentToImpassableFloor(testPosition, radius)){
-						positionFound = true;
-						break loops;
-					}
-					testPosition = this.getPositionCloserToCenter(testPosition, stepSize);
+	private boolean[][] passableMap;
+
+	public Worm getActiveWorm(){
+		Worm activeWorm = null;
+		List<Worm> allWorms = this.getAllWorms();
+		for(Worm worm : allWorms){
+			if(worm.isActive())
+				activeWorm = worm;
+			break;
+		}
+		return activeWorm;
+	}
+
+	public Projectile getActiveProjectile(){
+		for(GameObject object : this.getObjects()){
+			if(object.getClass().getName() == "Projectile")
+				return (Projectile) object;
+		}
+		return null;
+	}
+
+	public List<Worm> getAllLiveWorms(){
+		List<Worm> result = this.getAllWorms();
+		for(Worm worm : result){
+			if(!worm.isAlive())
+				result.remove(worm);
+		}
+		return result;
+	}
+
+	public List<Food> getAllFood(){
+		List<Food> resultFood = new ArrayList<Food>();
+			for (GameObject object: this.getAllObjectsFrom("Food")){
+				try{
+					Food snack = (Food) object;
+					resultFood.add(snack);
+				}
+				catch (ClassCastException exc) {
+					assert false;
 				}
 			}
-		}
-		if(positionFound)
-			return testPosition;
-		else return null;
+			return resultFood;
 	}
-	
+
 	public Worm addRandomWorm(){
 		double radius = 1;
 		Worm randomWorm = null;
@@ -317,84 +384,128 @@ public class World {
 		}
 		return randomWorm;
 	}
-	
+
 	public void addRandomFood(){
 		Position randomPosition = this.getRandomPositionAdjacentToImpassableFloor(0.2);
 		if(randomPosition != null){
 			this.addAsGameObject(new Food(randomPosition));
 		}
 	}
-	
-	public Worm getActiveWorm(){
-		Worm activeWorm = null;
-		List<Worm> allWorms = this.getAllWorms();
-		for(Worm worm : allWorms){
-			if(worm.isActive())
-				activeWorm = worm;
-			break;
-		}
-		return activeWorm;
-	}
-	
-	public void startNextTurn(){
-		List<Worm> allWorms = this.getAllLiveWorms();
-		int nextIndex = allWorms.indexOf(this.getActiveWorm()) + 1;
-		if(nextIndex == allWorms.size())
-			nextIndex = 0;
-		allWorms.get(nextIndex).activate();
-	}
-	
-	public boolean isFinished(){
-		return (this.getWinners() != null);
-	}
-	
-	private List<Worm> getWinners(){
-		List<Worm> allLiveWorms = this.getAllLiveWorms();
-		List<Team> liveTeams = new ArrayList<Team>();
-		for(Worm worm : allLiveWorms){
-			liveTeams.add(worm.getTeam());
-		}
-		if(allLiveWorms.size() == 1)
-			return allLiveWorms;
-		else if((allLiveWorms.size() > 1) && (allLiveWorms.get(0).getTeam() != null)){
-			Team team = allLiveWorms.get(0).getTeam();
-			for(Team teamToCheck : liveTeams){
-				if(teamToCheck != team)
-					return new ArrayList<Worm>();
+
+	protected List<Food> overlapWithFood(Position p, double radius){
+		String className = Food.class.getName();
+		List<GameObject> result = new ArrayList<GameObject>();
+		List<Food> resultFood = new ArrayList<Food>();
+		 result = this.getAllObjectsFrom(className, this.getObjects());
+			for (GameObject object: result){
+				try { Food food = (Food) object;
+				if (food.partialOverlapWith(p, radius))
+					resultFood.add(food);
+				}	catch (ClassCastException exc) {
+					assert false;
+					}
 			}
-			return allLiveWorms;
+	
+			return resultFood;
+	}
+
+	protected List<Worm> overlapWithWorm(Position p, double radius){
+		String className = Worm.class.getName();
+		List<GameObject> result = new ArrayList<GameObject>();
+		List<Worm> resultWorm = new ArrayList<Worm>();
+			result = this.getAllObjectsFrom(className, this.getObjects());
+			for (GameObject object: result){
+				try { Worm worm = (Worm) object;
+				if (worm.partialOverlapWith(p, radius))
+					resultWorm.add(worm);
+				}	catch (ClassCastException exc) {
+					assert false;
+					}
+			
+			}
+			return resultWorm;
+	}
+
+	protected List<Worm> getAllWorms(){
+		List<Worm> resultWorms = new ArrayList<Worm>();
+			for (GameObject object: this.getAllObjectsFrom(Worm.class.getName())){
+				try{
+					Worm worm = (Worm) object;
+					resultWorms.add(worm);
+				}
+				catch (ClassCastException exc) {
+					assert false;
+				}
+			}
+			return resultWorms;
+	}
+
+	protected List<GameObject> getObjects() {
+		return this.objects;
+	}
+
+	/**
+	 * 
+	 * @param 	gameObjects
+	 * 			The collection of game objects to examine.
+	 * @param 	method
+	 * 			The method to invoke against all game objects.
+	 * @return 	for each object in (Object union {null})
+	 * 				result.contains(object) == 
+	 * 				for some gameObject in gameObjects:
+	 * 					method.invoke(object).equals(object)
+	 * @throws 	IllegalArgumentException
+	 * 			gameObjects == null
+	 * @throws 	IllegalArgumentException
+	 * 			! Arrays.AsList(GameObject.class.getMethods()).contains(method)
+	 * @throws 	IllegalArgumentException
+	 * 			(method.isVarArgs()) ? 
+					(method.getParameterTypes().length != 1) :
+					(method.getParameterTypes().length != 0) 
+	 * @throws 	IllegalArgumentException
+	 * 			method.getReturnType() == void.class
+	 * @throws 	InvocationTargetException
+	
+	public static List<GameObject> getAllObjectsFrom(List<GameObject> gameObjects, Method method) throws IllegalArgumentException, InvocationTargetException {
+		List<GameObject> result = new ArrayList<GameObject>();
+		if (gameObjects == null){
+			throw new IllegalArgumentException();
 		}
-		else return null;
+		if (! Arrays.asList(GameObject.class.getMethods()).contains(method)){
+			throw new IllegalArgumentException();
+		}
+		if ( (method.isVarArgs()) ? 
+				(method.getParameterTypes().length != 1) :
+				(method.getParameterTypes().length != 0) )
+			throw new IllegalArgumentException();
+		if (method.getReturnType() == void.class) 
+			throw new IllegalArgumentException() ;
+		else {
+			for (GameObject gameObject: gameObjects)
+				try {
+					result.add( method.invoke(gameObject));
+				}	catch (IllegalAccessException exc) {
+					assert false;
+					}
+			}	
+	
+		return result;
+				
 	}
-	
-	public String getWinner(){
-		List<Worm> winners = this.getWinners();
-		if(winners == null)
-			return null;
-		if(winners.size() == 0)
-			return "No winner!";
-		else if((winners.size() == 1) && (winners.get(0).getTeam() == null))
-			return winners.get(0).getName();
-		else return winners.get(0).getTeam().getName();
+	*/
+	protected List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
+		List<GameObject> result = new ArrayList<GameObject>();
+		for (GameObject gameObject: gameObjects)
+			if( gameObject.getClass().getName() == className){
+				result.add(gameObject);
+			}
+		return  result;
 	}
-	
-	public void startGame(){
-		setStarted(true);
-		List<Worm> allWorms = this.getAllWorms();
-		if(allWorms.size() > 0)
-			allWorms.get(0).activate();
+
+	protected List<GameObject> getAllObjectsFrom(String className){
+		return this.getAllObjectsFrom(className, this.getObjects());
 	}
-	
-	private boolean isStarted(){
-		return this.started;
-	}
-	
-	private void setStarted(boolean flag){
-		this.started = flag;
-	}
-	
-	private boolean started;
-	
+
 	/**
 	 * 
 	 * @return	result == 
@@ -416,7 +527,7 @@ public class World {
 	return true;
 	
 	}
-	
+
 	/**
 	 * @param	object
 	 * 			The object to check.
@@ -425,82 +536,24 @@ public class World {
 	protected boolean hasAsGameObject(GameObject object){
 		return this.objects.contains(object);
 	}
-	
+
 	/**
-	 * @param	object
-	 * 			The object to be removed
-	 * @post	! new.hasAsGameObject(object)
-	 * @post	((new object).getWorld() == this) 				
-	 * @throws	IllegalArgumentException
-	 * 			(! hasAsGameObject)
+	 * Check whether this world can have the given game object as one of the game objects attached to it.
+	 * 
+	 * @param 	object
+	 * 			The game object to check.
+	 * @return	if (object == null)
+	 * 				then result == false
+	 * 			if (! object.getWorld() == null)
+	 * 				then result == false
+	 * 			else result == 
+	 * 				(! objects.equals(object))
 	 */
-	protected void removeAsGameObject(GameObject object) throws IllegalArgumentException {
-		if (hasAsGameObject(object)){
-			object.removeFromWorld();
-			this.objects.remove(object);
-		}
-		else throw new IllegalArgumentException("This object does not belong to this world");
-		
+	protected boolean canHaveAsGameObject(GameObject object) {
+		return 	( (object != null)
+				&& (! objects.contains(object)));
 	}
-	
-	
-	/**
-	 * @invar	objects != null
-	 * @invar	for each gameobject in objects:
-	 * 			( (object == null)
-	 * 			|| canHaveAsGameObject(object) )
-	 */
-	private final List<GameObject> objects = new ArrayList<GameObject>();
-	
-	public List<GameObject> getObjects() {
-		return this.objects;
-	}
-	
-	protected List<Worm> getAllWorms(){
-		List<Worm> resultWorms = new ArrayList<Worm>();
-			for (GameObject object: this.getAllObjectsFrom(Worm.class.getName())){
-				try{
-					Worm worm = (Worm) object;
-					resultWorms.add(worm);
-				}
-				catch (ClassCastException exc) {
-					assert false;
-				}
-			}
-			return resultWorms;
-	}
-	
-	public List<Worm> getAllLiveWorms(){
-		List<Worm> result = this.getAllWorms();
-		for(Worm worm : result){
-			if(!worm.isAlive())
-				result.remove(worm);
-		}
-		return result;
-	}
-	
-	public Projectile getActiveProjectile(){
-		for(GameObject object : this.getObjects()){
-			if(object.getClass().getName() == "Projectile")
-				return (Projectile) object;
-		}
-		return null;
-	}
-	
-	public List<Food> getAllFood(){
-		List<Food> resultFood = new ArrayList<Food>();
-			for (GameObject object: this.getAllObjectsFrom("Food")){
-				try{
-					Food snack = (Food) object;
-					resultFood.add(snack);
-				}
-				catch (ClassCastException exc) {
-					assert false;
-				}
-			}
-			return resultFood;
-	}
-	
+
 	/**
 	 * 
 	 * @param 	object
@@ -525,97 +578,49 @@ public class World {
 		object.setWorld(this);
 		this.objects.add(object);
 	}
-	
-	/**
-	 * Check whether this world can have the given game object as one of the game objects attached to it.
-	 * 
-	 * @param 	object
-	 * 			The game object to check.
-	 * @return	if (object == null)
-	 * 				then result == false
-	 * 			if (! object.getWorld() == null)
-	 * 				then result == false
-	 * 			else result == 
-	 * 				(! objects.equals(object))
-	 */
-	protected boolean canHaveAsGameObject(GameObject object) {
-		return 	( (object != null)
-				&& (! objects.contains(object)));
-	}
-	
-	
-	/**
-	 * 
-	 * @param 	gameObjects
-	 * 			The collection of game objects to examine.
-	 * @param 	method
-	 * 			The method to invoke against all game objects.
-	 * @return 	for each object in (Object union {null})
-	 * 				result.contains(object) == 
-	 * 				for some gameObject in gameObjects:
-	 * 					method.invoke(object).equals(object)
-	 * @throws 	IllegalArgumentException
-	 * 			gameObjects == null
-	 * @throws 	IllegalArgumentException
-	 * 			! Arrays.AsList(GameObject.class.getMethods()).contains(method)
-	 * @throws 	IllegalArgumentException
-	 * 			(method.isVarArgs()) ? 
-					(method.getParameterTypes().length != 1) :
-					(method.getParameterTypes().length != 0) 
-	 * @throws 	IllegalArgumentException
-	 * 			method.getReturnType() == void.class
-	 * @throws 	InvocationTargetException
-	 
-	public static List<GameObject> getAllObjectsFrom(List<GameObject> gameObjects, Method method) throws IllegalArgumentException, InvocationTargetException {
-		List<GameObject> result = new ArrayList<GameObject>();
-		if (gameObjects == null){
-			throw new IllegalArgumentException();
-		}
-		if (! Arrays.asList(GameObject.class.getMethods()).contains(method)){
-			throw new IllegalArgumentException();
-		}
-		if ( (method.isVarArgs()) ? 
-				(method.getParameterTypes().length != 1) :
-				(method.getParameterTypes().length != 0) )
-			throw new IllegalArgumentException();
-		if (method.getReturnType() == void.class) 
-			throw new IllegalArgumentException() ;
-		else {
-			for (GameObject gameObject: gameObjects)
-				try {
-					result.add( method.invoke(gameObject));
-				}	catch (IllegalAccessException exc) {
-					assert false;
-					}
-			}	
 
-		return result;
-				
+	/**
+	 * @param	object
+	 * 			The object to be removed
+	 * @post	! new.hasAsGameObject(object)
+	 * @post	((new object).getWorld() == this) 				
+	 * @throws	IllegalArgumentException
+	 * 			(! hasAsGameObject)
+	 */
+	protected void removeAsGameObject(GameObject object) throws IllegalArgumentException {
+		if (hasAsGameObject(object)){
+			object.removeFromWorld();
+			this.objects.remove(object);
+		}
+		else throw new IllegalArgumentException("This object does not belong to this world");
+		
 	}
-	*/
-	public List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
-		List<GameObject> result = new ArrayList<GameObject>();
-		for (GameObject gameObject: gameObjects)
-			if( gameObject.getClass().getName() == className){
-				result.add(gameObject);
-			}
-		return  result;
-	}
-	
-	public List<GameObject> getAllObjectsFrom(String className){
-		return this.getAllObjectsFrom(className, this.getObjects());
-	}
-	
-	
-	
-	private final List<Team> teams = new ArrayList<Team>();
+
+	/**
+	 * @invar	objects != null
+	 * @invar	for each gameobject in objects:
+	 * 			( (object == null)
+	 * 			|| canHaveAsGameObject(object) )
+	 */
+	private final List<GameObject> objects = new ArrayList<GameObject>();
+
 	/**
 	 * Return the teams of this world.
 	 */
-	public List<Team> getTeams() {
+	protected List<Team> getTeams() {
 		return this.teams;
 	}
-	
+
+	/**
+	 * Check whether the given team is a valid team for this world.
+	 * @param 	team
+	 * 			The team to be checked.
+	 * @return	result == (! teams.contains(team) && teams.size() <= 9 && team.isValidName(team.getName()))
+	 */
+	protected boolean canHaveAsTeam(Team team) {
+		return (! teams.contains(team) && teams.size() <= 9 && team.isValidName(team.getName()));
+	}
+
 	/**
 	 * Remove the given team from this world.
 	 * 
@@ -626,17 +631,7 @@ public class World {
 	protected void removeAsTeam(Team team) {
 		teams.remove(team);
 		}
-	
-	/**
-	 * Check whether the given team is a valid team for this world.
-	 * @param 	team
-	 * 			The team to be checked.
-	 * @return	result == (! teams.contains(team) && teams.size() <= 9 && team.isValidName(team.getName()))
-	 */
-	protected boolean canHaveAsTeam(Team team) {
-		return (! teams.contains(team) && teams.size() <= 9 && team.isValidName(team.getName()));
-	}
-	
+
 	/**
 	 * Add the given team to this world.
 	 * @param 	team
@@ -651,40 +646,67 @@ public class World {
 		}
 		else teams.add(team);
 	}
-	
-	protected List<Food> overlapWithFood(Position p, double radius){
-		String className = Food.class.getName();
-		List<GameObject> result = new ArrayList<GameObject>();
-		List<Food> resultFood = new ArrayList<Food>();
-		 result = this.getAllObjectsFrom(className, this.getObjects());
-			for (GameObject object: result){
-				try { Food food = (Food) object;
-				if (food.partialOverlapWith(p, radius))
-					resultFood.add(food);
-				}	catch (ClassCastException exc) {
-					assert false;
-					}
-			}
-	
-			return resultFood;
+
+	private final List<Team> teams = new ArrayList<Team>();
+
+	public void startGame(){
+		setStarted(true);
+		List<Worm> allWorms = this.getAllWorms();
+		if(allWorms.size() > 0)
+			allWorms.get(0).activate();
+	}
+
+	public void startNextTurn(){
+		List<Worm> allWorms = this.getAllLiveWorms();
+		int nextIndex = allWorms.indexOf(this.getActiveWorm()) + 1;
+		if(nextIndex == allWorms.size())
+			nextIndex = 0;
+		allWorms.get(nextIndex).activate();
 	}
 	
-	protected List<Worm> overlapWithWorm(Position p, double radius){
-		String className = Worm.class.getName();
-		List<GameObject> result = new ArrayList<GameObject>();
-		List<Worm> resultWorm = new ArrayList<Worm>();
-			result = this.getAllObjectsFrom(className, this.getObjects());
-			for (GameObject object: result){
-				try { Worm worm = (Worm) object;
-				if (worm.partialOverlapWith(p, radius))
-					resultWorm.add(worm);
-				}	catch (ClassCastException exc) {
-					assert false;
-					}
-			
-			}
-			return resultWorm;
+	public boolean isFinished(){
+		return (this.getWinners() != null);
 	}
+	
+	public String getWinner(){
+		List<Worm> winners = this.getWinners();
+		if(winners == null)
+			return null;
+		if(winners.size() == 0)
+			return "No winner!";
+		else if((winners.size() == 1) && (winners.get(0).getTeam() == null))
+			return winners.get(0).getName();
+		else return winners.get(0).getTeam().getName();
+	}
+
+	private boolean isStarted(){
+		return this.started;
+	}
+
+	private void setStarted(boolean flag){
+		this.started = flag;
+	}
+
+	private List<Worm> getWinners(){
+		List<Worm> allLiveWorms = this.getAllLiveWorms();
+		List<Team> liveTeams = new ArrayList<Team>();
+		for(Worm worm : allLiveWorms){
+			liveTeams.add(worm.getTeam());
+		}
+		if(allLiveWorms.size() == 1)
+			return allLiveWorms;
+		else if((allLiveWorms.size() > 1) && (allLiveWorms.get(0).getTeam() != null)){
+			Team team = allLiveWorms.get(0).getTeam();
+			for(Team teamToCheck : liveTeams){
+				if(teamToCheck != team)
+					return new ArrayList<Worm>();
+			}
+			return allLiveWorms;
+		}
+		else return null;
+	}
+	
+	private boolean started;
 	
 }
 
