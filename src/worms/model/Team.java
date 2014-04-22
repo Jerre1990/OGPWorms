@@ -4,32 +4,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
+
+/**
+ * @Invar	isValidName(getName())
+ * 
+ * @version 2.0
+ * @author Jonas Thys & Jeroen Reinenbergh
+ */
+
 
 public class Team extends Identifiable{
 	
+	/**
+	 * @param	name
+	 * @post 	new.getName() = name
+	 * @effect	isValidName(new.getName())
+	 * @throws 	IllegalArgumentException("Invalid name!")
+	 * 		|	! isValidName(name)
+	 */
 	public Team(String name) {
 		super(name);
 	}
 
-	@Override
+	/**
+	 * @param	name
+	 * @return	result == name.matches("[A-Z]"+"[A-Za-z]+")
+	 */
+	@Override @Model @Raw
 	protected boolean isValidName(String name) {
 		return name.matches("[A-Z]"+"[A-Za-z]+");
 	}
-
-	public void addWorm(Worm worm){
-		
-	}
-	
-	public List<Worm> queryLiveWorms(){
-		List<Worm> livingWorms = new ArrayList<Worm>();
-		for (Worm worm: worms){
-			if (worm.isAlive())
-				livingWorms.add(worm);
-		}
-		return livingWorms;
-	}
-	
 	
 	List<Worm> worms = new ArrayList<Worm>();
 	

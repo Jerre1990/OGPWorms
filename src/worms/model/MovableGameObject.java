@@ -3,8 +3,8 @@ package worms.model;
 import be.kuleuven.cs.som.annotate.*;
 
 /**
- * @Invar	canHaveAsRadius(this.getRadius())
- * @Invar	isValidDirection(this.getDirection())
+ * @Invar	canHaveAsRadius(getRadius())
+ * @Invar	isValidDirection(getDirection())
  * 
  * @version 2.0
  * @author Jonas Thys & Jeroen Reinenbergh

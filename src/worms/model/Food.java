@@ -1,27 +1,31 @@
 package worms.model;
 
+/**
+ * @version 2.0
+ * @author Jonas Thys & Jeroen Reinenbergh
+ */
+
 public class Food extends GameObject {
 	
 	/**
-	 * @param 	x
-	 * @param 	y
-	 * @post	new.getX() = x
-	 * @post	new.getY() = y
+	 * @param 	position
+	 * @post	new.getPosition() = position
 	 * @post	new.getRadius() = 0.2
 	 * @post	new.getLowerBoundOfRadius() = 0.2
-	 * @effect	new.getPosition() != null
-	 * @effect	this.canHaveAsRadius(0.2)
-	 * @effect	this.isValidLowerBoundOfRadius(0.2)
-	 * @effect	this.getPosition.isValidCoordinate(new.getX())
-	 * @effect	this.getPosition.isValidCoordinate(new.getY())
+	 * @post	new.getPercentualIncreaseOfRadius() = 0.1
+	 * @effect	canHaveAsRadius(0.2)
+	 * @effect	isValidLowerBoundOfRadius(0.2)
+	 * @effect	isValidPosition(new.getPosition())
+	 * @effect	new.getX() = position.getX()
+	 * @effect	new.getY() = position.getY()
+	 * @effect	getPosition().isValidCoordinate(new.getX())
+	 * @effect	getPosition().isValidCoordinate(new.getY())
 	 * @throws 	IllegalArgumentException("Invalid radius!")
-	 * 		|	! this.canHaveAsRadius(radius)
+	 * 		|	! canHaveAsRadius(radius)
 	 * @throws	IllegalArgumentException("Invalid lower bound of radius!")
-	 * 		|	! this.isValidLowerBoundOfRadius(lowerBound)
-	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
-	 * 		|	! this.getPosition().isvalidCoordinate(x)
-	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
-	 * 		|	! this.getPosition().isValidCoordinate(y)
+	 * 		|	! isValidLowerBoundOfRadius(lowerBound)
+	 * @throws	IllegalArgumentException("Invalid position!")
+	 * 		|	! isValidPosition(position)
 	 */
 	public Food(Position position){
 		super(position, 0.2, 0.2);

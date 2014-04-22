@@ -2,34 +2,108 @@ package worms.model;
 
 import java.util.List;
 
-public class Weapon extends Identifiable{
+import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 
-	public Weapon(String name, int ammo, int hitPoints, int actionPoints, double radius, boolean selected) {
+/**
+ * @Invar	isValidName(getName())
+ * @Invar	selected.size() <= 1
+ * 			in	selected = getWorm().getAllWeapons()
+ * 				for(Weapon weapon : selected)
+ * 					if(weapon.isSelected == false)
+ * 						selected.remove(weapon)
+ * @Invar	getAmmo() >= -1
+ * @Invar	getHitPointReduction() >= 0
+ * @Invar	getCostInActionPoints() >= 0
+ * @version 2.0
+ * @author Jonas Thys & Jeroen Reinenbergh
+ */
+
+public class Weapon extends Identifiable{
+	
+	/**
+	 * @param	name
+	 * @param	ammo
+	 * @param	hitPoints
+	 * @param	actionPoints
+	 * @param	radius
+	 * @post 	new.getName() = name
+	 * @post	if(ammo < 0)
+	 * 				new.getAmmo() = -1
+	 * 			else
+	 * 				new.getAmmo() = ammo
+	 * @post	if(hitPoints < 0)
+	 * 				new.getHitPointReduction() = 0
+	 * 			else
+	 * 				new.getHitPointReduction() = hitPoints
+	 * @post	if(actionPoints < 0)
+	 * 				new.getCostInActionPoints() = 0
+	 * 			else
+	 * 				new.getCostInActionPoints() = actionPoints
+	 * @post	new.getRadiusOfProjectile() = radius
+	 * @post	new.isSelected() = false
+	 * @effect	isValidName(new.getName())
+	 * @effect	new.getAmmo() >= -1
+	 * @effect	new.getHitPointReduction() >= 0
+	 * @effect	new.getCostInActionPoints() >= 0
+	 */
+	public Weapon(String name, int ammo, int hitPoints, int actionPoints, double radius) {
 		super(name);
 		this.setAmmo(ammo);
 		this.setHitPointReduction(hitPoints);
 		this.setCostInActionPoints(actionPoints);
 		this.setRadiusOfProjectile(radius);
-		this.setSelected(selected);
+		this.deselect();
 	}
 	
+	/**
+	 * @param	name
+	 * @return	result == true
+	 */
+	@Override @Model @Raw
+	protected boolean isValidName(String name){
+		return true;
+	}
+	
+	@Basic
 	public boolean isSelected(){
 		return this.selected;
 	}
 	
-	private void setSelected(boolean flag){
-		this.selected = flag;
-	}
-	
+	/**
+	 * @post	new.isSelected() = true
+	 * @effect	for(Weapon weapon : getWorm().getAllWeapons)
+	 * 				if(weapon != this)
+	 * 					weapon.isSelected() = false
+	 */
 	public void select(){
 		this.deselectAllWeapons();
 		this.setSelected(true);
 	}
 	
-	public void deselect(){
+	/**
+	 * @post	new.isSelected() = false
+	 */
+	@Raw @Model
+	private void deselect(){
 		this.setSelected(false);
 	}
 	
+	/**
+	 * @param 	flag
+	 * @post	new.isSelected() = flag
+	 */
+	@Raw @Model
+	private void setSelected(boolean flag){
+		this.selected = flag;
+	}
+
+	/**
+	 * @post	for(Weapon weapon : getWorm().getAllWeapons)
+	 * 				weapon.isSelected() = false
+	 */
+	@Model
 	private void deselectAllWeapons(){
 		List<Weapon> weapons = this.getWorm().getAllWeapons();
 		for (Weapon weapon : weapons)
@@ -38,20 +112,40 @@ public class Weapon extends Identifiable{
 	
 	private boolean selected;
 	
+	@Basic
 	public int getAmmo(){
 		return this.ammo;
 	}
 	
+	/**
+	 * @param 	newAmmo
+	 * @post	if(newAmmo < 0)
+	 * 				new.getAmmo() = -1
+	 * 			else
+	 * 				new.getAmmo() = newAmmo
+	 */
+	@Raw @Model
 	protected void setAmmo(int newAmmo){
+		if(newAmmo < -1)
+			newAmmo = -1;
 		this.ammo = newAmmo;
 	}
 	
 	private int ammo;
 	
+	@Basic
 	public int getHitPointReduction(){
 		return this.hitPointReduction;
 	}
 	
+	/**
+	 * @param 	hitPointsReducedUponHit
+	 * @post	if(hitPointsReducedUponHit < 0)
+	 * 				new.getHitPointReduction() = 0
+	 * 			else
+	 * 				new.getHitPointReduction() = hitPointsReducedUponHit
+	 */
+	@Raw @Model
 	protected void setHitPointReduction(int hitPointsReducedUponHit){
 		if (hitPointsReducedUponHit < 0)
 			hitPointsReducedUponHit = 0;
@@ -60,10 +154,19 @@ public class Weapon extends Identifiable{
 	
 	private int hitPointReduction;
 	
+	@Basic
 	public int getCostInActionPoints(){
 		return this.costInActionPoints;
 	}
 	
+	/**
+	 * @param 	cost
+	 * @post	if(cost < 0)
+	 * 				new.getCostInActionPoints() = 0
+	 * 			else
+	 * 				new.getCostInActionPoints() = cost
+	 */
+	@Raw @Model
 	protected void setCostInActionPoints(int cost){
 		if (cost < 0)
 			cost = 0;
@@ -72,36 +175,72 @@ public class Weapon extends Identifiable{
 	
 	private int costInActionPoints;
 	
-	public double getInitialForceOfProjectile(int propYield){
-		if (this.getName() == "Bazooka")
+	/**
+	 * @param 	propYield
+	 * @return	if (getName().equals("Bazooka"))
+	 * 				result == 2.5 + (0.07 * propYield)
+	 * 			else
+	 * 				result == 1.5
+	 */
+	@Model
+	protected double getInitialForceOfProjectile(int propYield){
+		if (this.getName().equals("Bazooka"))
 			return (2.5 + (0.07 * propYield));
 		else return 1.5;
 	}
 	
-	public double getRadiusOfProjectile(){
+	@Basic @Model
+	protected double getRadiusOfProjectile(){
 		return this.radiusOfProjectile;
 	}
 	
+	/**
+	 * @param 	radiusOfProjectile
+	 * @post	new.getRadiusOfProjectile() = radiusOfProjectile
+	 */
+	@Raw @Model
 	protected void setRadiusOfProjectile(double radiusOfProjectile){
 		this.radiusOfProjectile = radiusOfProjectile;
 	}
 	
 	private double radiusOfProjectile;
 	
-	private boolean canShoot(){
-		return ((this.getAmmo() != 0) && (this.getWorm().getNumberOfActionPoints() != 0) && (this.getWorm().getWorld().isPassable(this.getWorm().getPosition(), this.getWorm().getRadius())));
-	}
-	
+	/**
+	 * @param 	propulsionYield
+	 * @effect	if(this.getAmmo() < 0)
+	 * 				new.getAmmo() = -1
+	 * 			else
+	 * 				new.getAmmo() = this.getAmmo() - 1
+	 * @effect	if(this.getWorm().getNumberOfActionPoints() <= getCostInActionPoints())
+	 * 				new.getWorm().getNumberOfActionPoints() = 0
+	 * 			else
+	 * 				new.getWorm().getNumberOfActionPoints() = this.getWorm().getNumberOfActionPoints() - getCostInActionPoints()
+	 * @effect	getWorm().getWorld().getObjects().contains(projectile)
+	 * 				in	projectile = new Projectile(new Position(x,y), getWorm().getDirection(), getRadiusOfProjectile(), getInitialForceOfProjectile(propulsionYield))
+	 * 					x = getWorm().getX() + (1.1 * getWorm().getRadius() * Math.cos(getWorm().getDirection()))
+	 * 					y = getWorm().getY() + (1.1 * getWorm().getRadius() * Math.sin(getWorm().getDirection())
+	 * @throws 	IllegalArgumentException("Cannot shoot!")
+	 * 		|	! canShoot()
+	 */
 	public void shoot(int propulsionYield) throws IllegalArgumentException{
 		if (!this.canShoot())
 			throw new IllegalArgumentException("Cannot shoot!");
 		this.setAmmo(this.getAmmo() - 1);
 		this.getWorm().decreaseNumberOfActionPointsBy(this.getCostInActionPoints());
-		double x = this.getWorm().getX() + (1.1 * this.getWorm().getRadius() * Math.cos(this.getWorm().getDirection()));
-		double y = this.getWorm().getY() + (1.1 * this.getWorm().getRadius() * Math.sin(this.getWorm().getDirection()));
+		double relativeDistanceFromWorm = 0.1;
+		double x = this.getWorm().getX() + ((1 + relativeDistanceFromWorm) * this.getWorm().getRadius() * Math.cos(this.getWorm().getDirection()));
+		double y = this.getWorm().getY() + ((1 + relativeDistanceFromWorm) * this.getWorm().getRadius() * Math.sin(this.getWorm().getDirection()));
 		this.addAsProjectile(new Projectile(new Position(x,y), this.getWorm().getDirection(), this.getRadiusOfProjectile(), this.getInitialForceOfProjectile(propulsionYield)));
 	}
 	
+	/**
+	 * @return	result == ((getAmmo() != 0) && (getWorm().getNumberOfActionPoints() >= 0) && (getWorm().getWorld().isPassable(getWorm().getPosition(), getWorm().getRadius())))
+	 */
+	@Model
+	private boolean canShoot(){
+		return ((this.getAmmo() != 0) && (this.getWorm().getNumberOfActionPoints() >= 0) && (this.getWorm().getWorld().isPassable(this.getWorm().getPosition(), this.getWorm().getRadius())));
+	}
+
 	/**
 	 * Check whether the given worm is a valid worm for this weapon.
 	 * @param 	worm
