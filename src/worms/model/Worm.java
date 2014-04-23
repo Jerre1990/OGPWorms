@@ -613,7 +613,7 @@ public class Worm extends MovableGameObject {
 	 * Eat a piece of food.
 	 * @param 	snack
 	 * 			The piece of food to be eaten.
-	 * @post	new.getRadius() = * (1 + snack.getPercentualIncreaseOfRadius())
+	 * @post	new.getRadius() = this.getRadius()* (1 + snack.getPercentualIncreaseOfRadius())
 	 * @effect	(! new.getWorld().getObjects().contains(snack))
 	 */
 	private void eat(Food snack){
@@ -621,10 +621,12 @@ public class Worm extends MovableGameObject {
 		this.getWorld().removeAsGameObject(snack);
 	}
 
+	//TODO eatAllFood
+	
 	/**
 	 * Eat all food.
 	 * @effect	for each food in this.getWorld().overlapWithFood(this.getPosition(), this.getRadius())
-	 * 				new.getRadius() = * (1 + food.getPercentualIncreaseOfRadius())
+	 * 				new.getRadius() = this.getRadius()** (1 + food.getPercentualIncreaseOfRadius())
 	 * 				(! new.getWorld().getObjects().contains(food))
 	 */
 	private void eatAllFood(){
@@ -776,7 +778,16 @@ public class Worm extends MovableGameObject {
 	
 	/**
 	 * Let a worm fall.
-	 * @throws UnsupportedOperationException
+	 * 
+	 * @throws 	UnsupportedOperationException("Cannot fall!")
+	 * 			(!this.canFall())
+	 * @post	
+	 * for each i in this.getWorld().getPassableMap()[this.getX()][i]
+	 * 				if ((this.getWorld().isPassable(new Position(x,i),radius) && (!this.canFall()))
+	 * 					new.getNumberOfHitPoints() == this.getNumberOfHitpoints - (int) Math.round(3 * this.getPosition().distanceFromPosition(new Position(this.getX(),i))
+	 *				for each food in this.getWorld().overlapWithFood((new Position(x,i),radius), this.getRadius())
+	 *					 == this.getRadius() * (1 + food.getPercentualIncreaseOfRadius())
+	 * 					
 	 */
 	public void fall() throws UnsupportedOperationException{
 		if(!this.canFall())
