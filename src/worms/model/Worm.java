@@ -450,6 +450,15 @@ public class Worm extends MovableGameObject {
 		return numberOfHitPoints;
 	}
 
+	/**
+	 * Decrease the number of action points by the given decrementing factor.
+	 * @param 	decrement
+	 * 			The amount by which to decrease the amount of action points.
+	 * @post	if (decrement < 0)
+	 * 				return new.getNumberOfActionPoints() == this.getNumberOfActionPoints()
+	 * 			else 
+	 * 				return new.getNumberOfActionPoints() == this.getNumberOfActionPoints() - decrement
+	 */
 	protected void decreaseNumberOfActionPointsBy(int decrement){
 		if (decrement < 0)
 			decrement = 0;
@@ -483,6 +492,15 @@ public class Worm extends MovableGameObject {
 		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
 	}
 
+	/**
+	 * Increase the number of hit points by the given increment.
+	 * @param 	increment
+	 * 			The amount by which the amount of hit points has to be increased.
+	 * @post	if (increment < 0)
+	 * 				return new.getNumberOfActionPoints() == this.getNumberOfActionPoints()
+	 * 			else
+	 * 				return new.getNumberOfActionPoints() == this.getNumberOfActionPoints() + increment
+	 */
 	protected void increaseNumberOfHitPointsBy(int increment){
 		if (increment < 0)
 			increment = 0;
