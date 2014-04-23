@@ -2,6 +2,7 @@ package worms.model;
 
 import static org.junit.Assert.*;
 
+import java.awt.IllegalComponentStateException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public class WorldTest {
 		worm2 = new Worm(new Position(94,2), 1.4, 3.03, "Ash");
 		worm3 = new Worm(new Position(53,1.22), 1.7, 0.3, "Octo");
 		projectile1 = new Projectile(new Position(52,2), 2.03,5.36, 2.5);
-		weapon = new Weapon("Rifle", 1, 5, 7, 8.3, true);
+		weapon = new Weapon("Rifle", 1, 5, 7, 8.3);
 		world1.addAsGameObject(food1);
 		world1.addAsGameObject(worm1);
 		world1.addAsGameObject(projectile1);
@@ -164,47 +165,76 @@ public class WorldTest {
 	}
 	
 	@Test
-	public void isPassable_LegalCaseTruee(){
-		assertTrue(world1.isPassable(new Position(0.261,0.02),0.1));
-	}
-	
-	@Test
-	public void isPassable_LegalCaseFalsee(){
-		assertFalse(world1.isPassable(new Position(0.261,0.02),0.11));
-	}
-	
-	@Test
 	public void isAdjacentToImpassableTerrain_LegalCaseTrue(){
-		assertTrue(world1.isAdjacentToImpassableTerrain(new Position(0.261,0.02),0.1));
+		assertTrue(world1.isAdjacentToImpassableTerrain(new Position(3,4), .155));
 	}
 	
 	@Test
-	public void checkIsLocated(){
-		Position position = new Position(3,4);
-		assertTrue(world1.isLocatedInWorld(position, 0.05));
+	public void isAdjacentToImpassableTerrain_LegalCaseFalse(){
+		assertFalse(world1.isAdjacentToImpassableTerrain(new Position(3,4), 1));
 	}
 	
 	@Test
-	public void getAllObjectsFrom_LegalCaseWorms(){
-		List<GameObject> result = new ArrayList<GameObject>();
+	public void getActiveWorm_LegalCase(){
+		worm1.activate();
+		assertEquals(worm1, world1.getActiveWorm());
+		
+	}
+	
+	@Test
+	public void getActiveProjectile_LegalCase(){
+		assertEquals(projectile1, world1.getActiveProjectile());
+	}
+	
+	@Test
+	public void getAllLiveWorms_LegalCase(){
+		List<Worm> result = new ArrayList<Worm>();
 		result.add(worm1);
 		result.add(worm2);
-		assertArrayEquals(result.toArray(), world1.getAllObjectsFrom(Worm.class.getName(), world1.getObjects()).toArray());
+		assertEquals(result, world1.getAllLiveWorms());
 	}
 	
-	@Test
-	public void getAllObjectsFrom_LegalCaseFood(){
-		List<GameObject> result = new ArrayList<GameObject>();
+
+	@Test	
+	public void getAllFood_LegalCase(){
+		List<Food> result = new ArrayList<Food>();
 		result.add(food1);
-		assertArrayEquals(result.toArray(), world1.getAllObjectsFrom(Food.class.getName(), world1.getObjects()).toArray());
+		assertEquals(result, world1.getAllFood());
 	}
 	
 	@Test
-	public void getAllObjectsFrom_LegalCaseProjectile(){
-		List<GameObject> result = new ArrayList<GameObject>();
-		result.add(projectile1);
-		assertArrayEquals(result.toArray(), world1.getAllObjectsFrom(Projectile.class.getName(), world1.getObjects()).toArray());
+	public void startGame_LegalCase(){
+		world1.startGame();
+		assertEquals(worm1,world1.getActiveWorm());
 	}
+	
+	@Test	 (expected = IllegalComponentStateException.class)
+	public void startGame_NoWorms(){
+		world1.removeAsGameObject(worm1);
+		world1.removeAsGameObject(worm2);
+		world1.startGame();
+	}
+	
+	@Test
+	public void startNextTurn_LegalCase(){
+		world1.startGame();
+		world1.startNextTurn();
+		assertEquals(worm2, world1.getActiveWorm());
+	}
+	
+	@Test
+	public void isFinished_LegalCaseTrue(){
+		Projectile projectile = new Projectile(new Position(94,2),2,1,3);
+		projectile.jump(1);
+		
+		assertTrue(world1.isFinished());
+	}
+	
+	@Test
+	public void isFinished_LegalCaseFalse(){
+		assertFalse(world1.isFinished());
+	}
+	
 	
 }
 	

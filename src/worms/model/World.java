@@ -1,5 +1,6 @@
 package worms.model;
 
+import java.awt.IllegalComponentStateException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +15,17 @@ public class World {
 	
 	/**
 	 * @param 	width
+	 * 			The width for this new world.
 	 * @param 	height
+	 * 			The height for this new world.
 	 * @param 	passableMap
+	 * 			The passableMap for this new world.
 	 * @param 	random
+	 * 			The random value for this new world.
 	 * @post	new.getWidth = width
 	 * @post	new.getHeight = height
 	 * @post	new.getPassableMap = passableMap
+	 * @post	new.getRandom() = random
 	 * @effect	this.isValidHeight(new.getHeight())
 	 * @effect	this.isValidWidth(new.getWidth())
 	 * @throws 	IllegalArgumentException("Invalid width!")
@@ -80,13 +86,29 @@ public class World {
 	protected Random getRandom(){
 		return this.random;
 	}
-	
+	/**
+	 * Set the random value for this world to the given random value.
+	 * @param 	r
+	 * 			The new random value for this world.
+	 * @post	new.getRandom() = r
+	 */
 	protected void setRandom(Random r){
 		this.random = r;
 	}
 	
+	/**
+	 * Variable registering the random value for this world. 
+	 */
 	private Random random;
-
+	
+	/**
+	 * 
+	 * @param 	center
+	 * 			The center of the game object to check.
+	 * @param 	radius
+	 * 			The radius of the game object to check.
+	 * @return	result == this.isPassablePartOfPixeledRadiusOfCircle(center, radius, 0, 0)
+	 */
 	public boolean isPassable(Position center, double radius){
 		boolean result;
 		try{
@@ -97,11 +119,23 @@ public class World {
 		}
 		return result;
 	}
-
+	/**
+	 * Chech whether a game object with given center and radius is adjacent to impassable terrain.
+	 * @param 	center
+	 * 			The center of the game object to check.
+	 * @param 	radius
+	 * 			The radius of the game object to check.
+	 * @return	result == isAdjacentToImpassableTerrain(center, radius, 0, 0)
+	 */
 	public boolean isAdjacentToImpassableTerrain(Position center, double radius){
 		return this.isAdjacentToImpassableTerrain(center, radius, 0, 0);
 	}
-
+	/**
+	 * Return a random position in this world.
+	 * @param 	radius
+	 * 			The radius of the game object to assign a random position to.
+	 * @return
+	 */
 	protected Position getRandomPositionAdjacentToImpassableFloor(double radius){
 		double stepSize = 1;
 		double stepSizeX = this.getPixelWidth() * stepSize;
@@ -133,8 +167,11 @@ public class World {
 	}
 
 	/**
+	 * Check whether a game object with given center and radius is located in this world.
 	 * @param 	center
+	 * 			The center of the circle to check.
 	 * @param	radius
+	 * 			
 	 * @return	result == 
 	 */
 	protected boolean isLocatedInWorld(Position center, double radius){
@@ -146,7 +183,11 @@ public class World {
 	}
 
 	/**
-	 * @return	result == position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight())
+	 * Return the pixelcoordinates of the given position.
+	 * @param	position
+	 * 			The position of which the pixelcoordinates will be returned.
+	 * @return	if (this.isLocatedInWorld(position, 0))
+	 * 			result == position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight())
 	 * @throws	IllegalArgumentException("Object is not located in this world!")
 	 * 			! this.isLocatedInWorld(position, 0)	
 	 */
@@ -155,11 +196,26 @@ public class World {
 			throw new IllegalArgumentException("Object is not located in this world!");
 		return this.getUncheckedPixelCoordinates(position);
 	}
-
+	/**
+	 * Check whether a game object with given center and given radius is adjacent to an impassable floor.
+	 * @param 	center
+	 * 			The center of the game object.
+	 * @param 	radius
+	 * 			The radius of the game object.
+	 * @return	
+	 */
 	protected boolean isAdjacentToImpassableFloor(Position center, double radius){
 		return this.isAdjacentToImpassableTerrain(center, radius, -((Math.PI / 4) + (Math.PI / 16)), -((Math.PI / 4) - (Math.PI / 16)));
 	}
 
+	/**
+	 * Check whether a game object with given center and given radius is adjacent to an impassable ceiling.
+	 * @param 	center
+	 * 			The center of the game object.
+	 * @param 	radius
+	 * 			The radius of the game object.
+	 * @return	
+	 */
 	protected boolean isAdjacentToImpassableCeiling(Position center, double radius){
 		return this.isAdjacentToImpassableTerrain(center, radius, ((Math.PI / 4) - (Math.PI / 16)), ((Math.PI / 4) + (Math.PI / 16)));
 	}
@@ -169,24 +225,46 @@ public class World {
 		return this.passableMap;
 	}
 	
+	/**
+	 * Return the width of this world in pixels.
+	 * @return	result == this.getPassableMap()[0].length
+	 */
 	protected int getWidthInPixels(){
 		return this.getPassableMap()[0].length;
 	}
 	
+	/**
+	 * Return the height of this world in pixels.
+	 * @return	result == this.getPassableMap().length
+	 */
 	protected int getHeightInPixels(){
 		return this.getPassableMap().length;
 	}
-	
+	/**
+	 * Return the width of a pixel.
+	 * @return (this.getWidth()/this.getWidthInPixels())
+	 */
 	@Model
 	protected double getPixelWidth(){
 		return (this.getWidth()/this.getWidthInPixels());
 	}
 
+	/**
+	 * Return the height of a pixel
+	 * @return (this.getHeight()/this.getHeightInPixels())
+	 */
 	@Model
 	protected double getPixelHeight(){
 		return (this.getHeight()/this.getHeightInPixels());
 	}
-
+	
+	/**
+	 * Set the passable map of this world to the given passable map.
+	 * @param 	map
+	 * 			The passable map to be set.
+	 * @throws 	IllegalArgumentExceptionIllegalArgumentException("Empty map!")
+	 * 			(map.length == 0 || map[0].length == 0)	
+	 */
 	protected void setPassableMap(boolean[][] map) throws IllegalArgumentException{
 		if (map.length == 0)
 			throw new IllegalArgumentException("Empty map!");
@@ -195,11 +273,23 @@ public class World {
 		this.passableMap = map;
 	}
 	
+	/**
+	 * Return the pixelcoordinates of the given position.
+	 * @param 	position
+	 * 			The position of which the pixelcoordinates will be returned.
+	 * @return	result == position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight())
+	 */
 	private int[] getUncheckedPixelCoordinates(Position position){
 		return position.getPixelCoordinates(this.getPixelWidth(), this.getPixelHeight());
 	}
 
-	private boolean isImpassablePosition(Position position) throws IllegalArgumentException{
+	/**
+	 * Check whether the given position is impassable.
+	 * @param 	position
+	 * 			The position to be checked.
+	 * @return	result == !this.getPassableMap()[pixelCoordinates[1]][pixelCoordinates[0]]
+	 */
+	private boolean isImpassablePosition(Position position) {
 		int[] pixelCoordinates = this.getPixelCoordinates(position);
 		return !this.getPassableMap()[pixelCoordinates[1]][pixelCoordinates[0]];
 	}
@@ -329,14 +419,12 @@ public class World {
 	private boolean[][] passableMap;
 
 	public Worm getActiveWorm(){
-		Worm activeWorm = null;
 		List<Worm> allWorms = this.getAllWorms();
 		for(Worm worm : allWorms){
 			if(worm.isActive())
-				activeWorm = worm;
-			break;
+				return worm;
 		}
-		return activeWorm;
+		return null;
 	}
 
 	public Projectile getActiveProjectile(){
@@ -494,7 +582,7 @@ public class World {
 				
 	}
 	*/
-	protected List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
+	protected static List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
 		List<GameObject> result = new ArrayList<GameObject>();
 		for (GameObject gameObject: gameObjects)
 			if( gameObject.getClass().getName() == className){
@@ -655,6 +743,7 @@ public class World {
 		List<Worm> allWorms = this.getAllWorms();
 		if(allWorms.size() > 0)
 			allWorms.get(0).activate();
+		else throw new IllegalComponentStateException("No worms in this world");
 	}
 
 	public void startNextTurn(){
