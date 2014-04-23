@@ -93,6 +93,7 @@ public class Worm extends MovableGameObject {
 	
 	public Worm (Position position, double radius, double direction, String name) throws IllegalArgumentException {
 		super(position ,radius ,0.25, direction);
+		this.setRadius(radius);
 		this.setName(name);
 		this.setNumberOfActionPoints(this.getMaxNumberOfActionPoints());
 		this.setNumberOfHitPoints(this.getMaxNumberOfHitPoints());

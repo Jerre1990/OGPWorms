@@ -37,7 +37,7 @@ public abstract class MovableGameObject extends GameObject{
 	 * @throws	IllegalArgumentException("Invalid position!")
 	 * 		|	! isValidPosition(position)
 	 */
-	public MovableGameObject(Position position, double radius, double lowerBound, double direction){
+	public MovableGameObject(Position position, double radius, double lowerBound, double direction) throws IllegalArgumentException{
 		super(position, radius, lowerBound);
 		this.setDirection(direction);
 	}
@@ -133,12 +133,12 @@ public abstract class MovableGameObject extends GameObject{
 	/**
 	 * @param	timeStep
 	 * @return	result == jumpTime
-	 * 		|		in	jumpTime = 0;
+	 * 		|		in	jumpTime = timeStep;
 	 *		|			oldY = getY();
-	 *		|			newY = jumpStepOnYAxis(timeStep);
+	 *		|			newY = jumpStepOnYAxis(jumpTime);
 	 *		|			goingUp = (newY > getY());
-	 *		|			newPosition = new Position(jumpStepOnXAxis(timeStep), newY);
-	 *		|			while getWorld().isPassable(newPosition, getRadius()) && !stopConditionDuringJump(newPosition, goingUp)){
+	 *		|			newPosition = new Position(jumpStepOnXAxis(jumpTime), newY);
+	 *		|			while (getWorld().isPassable(newPosition, getRadius()) && !this.stopConditionDuringJump(newPosition, goingUp)){
 	 *		|				jumpTime += timeStep;
 	 *		|				oldY = newY;
 	 *		|				newY = jumpStepOnYAxis(jumpTime);
@@ -147,14 +147,12 @@ public abstract class MovableGameObject extends GameObject{
 	 *		|			}
 	 */
 	public double jumpTime(double timeStep){
-		double jumpTime = 0;
+		double jumpTime = timeStep;
 		double oldY = this.getY();
-		double newY = oldY;
-		boolean goingUp = (this.jumpStepOnYAxis(timeStep) > oldY);
-		Position newPosition = this.getPosition();
-		while (this.getWorld().isPassable(newPosition,this.getRadius())){
-			if (this.stopConditionDuringJump(newPosition, goingUp))
-				break;
+		double newY = this.jumpStepOnYAxis(jumpTime);
+		boolean goingUp = (newY > oldY);
+		Position newPosition = new Position(this.jumpStepOnXAxis(jumpTime), newY);
+		while (this.getWorld().isPassable(newPosition,this.getRadius()) && !this.stopConditionDuringJump(newPosition, goingUp)){
 			jumpTime += timeStep;
 			oldY = newY;
 			newY = this.jumpStepOnYAxis(jumpTime);
@@ -183,7 +181,7 @@ public abstract class MovableGameObject extends GameObject{
 	
 	@Model
 	protected boolean canJump(double timeStep){
-		return (this.jumpTime(timeStep) != 0);
+		return ((this.jumpTime(timeStep) != 0) && this.getWorld().isPassable(this.getPosition(), this.getRadius()));
 	}
 	
 	protected abstract String getCustomText();

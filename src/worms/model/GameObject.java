@@ -91,9 +91,12 @@ public abstract class GameObject {
 	 * 		|	! isValidPosition(newPosition)
 	 */
 	@Raw
-	protected void setPosition(Position newPosition) throws IllegalArgumentException {
+	protected void setPosition(Position newPosition) throws IllegalArgumentException, UnsupportedOperationException {
 		if(!this.isValidPosition(newPosition))
 			throw new IllegalArgumentException("Invalid position!");
+		if(this.getWorld() != null)
+			if(this.getWorld().isLocatedInWorld(newPosition, this.getRadius()))
+				throw new UnsupportedOperationException("This object is no longer located in its world");
 		position = newPosition;
 	}
 

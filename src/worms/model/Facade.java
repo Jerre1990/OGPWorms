@@ -1,5 +1,6 @@
 package worms.model;
 
+import java.awt.IllegalComponentStateException;
 import java.util.Collection;
 import java.util.Random;
 
@@ -316,8 +317,13 @@ public class Facade implements IFacade {
 	}
 
 	@Override
-	public void startGame(World world) {
-		world.startGame();
+	public void startGame(World world) throws ModelException{
+		try{
+			world.startGame();
+		}
+		catch(IllegalComponentStateException exc){
+			throw new ModelException(exc.getMessage());
+		}
 	}
 
 	@Override

@@ -395,7 +395,7 @@ public class World {
 		boolean result;
 		try{
 			boolean isPassable = this.isPassablePartOfPixeledRadiusOfCircle(center, radius, 0, 0);
-			boolean isAdjacent = ! this.isPassablePartOfPixeledRadiusOfCircle(center, (radius * 1.1), startAngle, stopAngle);
+			boolean isAdjacent = !this.isPassablePartOfPixeledRadiusOfCircle(center, (radius * 1.1), startAngle, stopAngle);
 			result = (isPassable && isAdjacent);
 		}
 		catch (IllegalArgumentException exc){
