@@ -105,12 +105,24 @@ public class Worm extends MovableGameObject {
 		this.setAlive(true);
 		this.distributeWeapons();
 	}
-	
+	/**
+	 * Return the selected weapon of this worm.
+	 * @return	this.getSelectedWeapon().getName()
+	 */
 	public String getSelectedWeaponsName(){
 		return this.getSelectedWeapon().getName();
 	}
-		
-	public void shoot(int propulsionYield) throws UnsupportedOperationException{
+	
+	/**
+	 * 
+	 * @param 	propulsionYield
+	 * 			The propulsion yield of the shot.
+	 * @effect	new.getWeapon().getAmmo = this.getWeapon.getAmmo - 1
+	 * @effect	new.getWorm().getNumberOfActionPoints() = this.getWorm().decreaseNumberOfActionPointsBy(this.getCostInActionPoints())
+	 * @effect	(new Projectile(new Position(this.getWorm().getX() + ((1 + relativeDistanceFromWorm) * this.getWorm().getRadius() * Math.cos(this.getWorm().getDirection())),this.getWorm().getY() + ((1 + relativeDistanceFromWorm) * this.getWorm().getRadius() * Math.sin(this.getWorm().getDirection()))), this.getWorm().getDirection(), this.getRadiusOfProjectile(), this.getInitialForceOfProjectile(propulsionYield))
+	 * 
+	 */
+	public void shoot(int propulsionYield){
 		this.getSelectedWeapon().shoot(propulsionYield);
 	}
 	
@@ -125,7 +137,8 @@ public class Worm extends MovableGameObject {
 	 * Check whether the given weapon is a valid weapon for this worm.
 	 * @param 	weapon
 	 * 			The weapon to be checked.
-	 * @return	result == (weapon == null)
+	 * @return	True if and only if the weapon is not equal to null.
+	 * 			result == (weapon != null)
 	 */
 	protected boolean canHaveAsWeapon(Weapon weapon){
 		return (weapon != null);
@@ -147,7 +160,11 @@ public class Worm extends MovableGameObject {
 		
 		return true;
 	}
-
+	
+	/**
+	 * Selects the next weapon of this worm.
+	 *@post new.getAllWeapons().indexOf(new.getSelectedWeapon()) == this.getAllWeapons().indexOf(this.getSelectedWeapon()) + 1
+	 */
 	protected void selectNextWeapon(){
 		List<Weapon> allWeapons = this.getAllWeapons();
 		int IndexOfNextWeapon = allWeapons.indexOf(this.getSelectedWeapon()) + 1;
@@ -157,7 +174,7 @@ public class Worm extends MovableGameObject {
 	}
 
 	/**
-	 * Set as one of the weapons to which this worm is attached to the given weapon.
+	 * Set the given weapon as one of the weapons to which this worm is attached to.
 	 * @param	weapon
 	 * 			The weapon to be attached.
 	 * @post	new.getAllWeapons().contains(weapon)
@@ -169,7 +186,12 @@ public class Worm extends MovableGameObject {
 			throw new IllegalArgumentException("not a valid weapon");
 		else weapons.add(weapon);
 	}
-
+	
+	/**
+	 * Add a new rifle and bazooka to this worm.
+	 * @post	new.getAllWeapons().contains(rifle)
+	 * @post	new.getAllWeapons().contains(bazooka)
+	 */
 	@Raw
 	private void distributeWeapons(){
 		Weapon rifle = new Weapon("Rifle", -1, 20, 10, getRadius(10, 7800));
@@ -177,7 +199,13 @@ public class Worm extends MovableGameObject {
 		Weapon bazooka = new Weapon("Bazooka", -1, 80, 50, getRadius(300, 7800));
 		bazooka.addAsWorm(this);
 	}
-
+	
+	/**
+	 * Returns the currently selected weapon of the worm.
+	 * @return	for each weapon in getAllWeapons()
+	 * 				if(weapon.isSelected())
+	 * 					return weapon
+	 */
 	private Weapon getSelectedWeapon(){
 		Weapon selectedWeapon = null;
 		List<Weapon> allWeapons = this.getAllWeapons();
@@ -189,26 +217,61 @@ public class Worm extends MovableGameObject {
 		return selectedWeapon;
 	}
 
+	/**
+	 * A variable registering the weapons of this worm.
+	 */
 	private final List<Weapon> weapons = new ArrayList<Weapon>();
 
+	/**
+	 * Checks whether the given worm is alive or not.
+	 * @return	this.alive
+	 */
 	protected boolean isAlive(){
 		return this.alive;
 	}
 	
+	/**
+	 * Kill this worm.
+	 * @post	(! new.isAlive())
+	 */
 	protected void kill(){
 		this.setAlive(false);
 	}
 	
+	/**
+	 * Decide upon the given flag whether this worm stays alive or not.
+	 * @param 	flag
+	 * 			The flag be set.
+	 * @post	new.isAlive() == flag
+	 */
 	private void setAlive(boolean flag){
 		this.alive = flag;
 	}
 
+	/**
+	 * Variable registering whether this worm is alive or not.
+	 */
 	private boolean alive;
 	
+	/**
+	 * Check whether this worm is active.
+	 * @return	this.active
+	 */
 	protected boolean isActive(){
 		return this.active;
 	}
 	
+	/**
+	 * Activate this worm
+	 * @post	new.isActive()
+	 * @post	new.getNumberOfActionPoints() = new.getMaxNumberOfActionPoints()
+	 * @post	this.getNumberOfHitPoints + 10 = new.getNumberOfHitPoints()
+	 * @post	if(! allWeapons.isEmpty())
+					allWeapons.get(0).select()
+	 * @effect	for each worm in new.getWorld()
+	 * 				if (worm != new)
+	 * 					worm.isActive() == false
+	 */
 	protected void activate(){
 		List<Worm> allWorms = this.getWorld().getAllWorms();
 		for(Worm eachWorm : allWorms)
@@ -221,14 +284,27 @@ public class Worm extends MovableGameObject {
 			allWeapons.get(0).select();
 	}
 	
+	/**
+	 * Decide upon the given flag whether this worm will be active or not.
+	 * @param 	flag
+	 * 			The flag to be set.
+	 * @post	new.isActive() == flag
+	 */
 	private void setActive(boolean flag){
 		this.active = flag;
 	}
 
+	/**
+	 * Deactivate this worm.
+	 * @post	new.isActive() == false
+	 */
 	private void deactivate(){
 		this.setActive(false);
 	}
 	
+	/**
+	 * Variable registering wheter this worm is active or not.
+	 */
 	private boolean active;
 
 	/**
@@ -324,6 +400,14 @@ public class Worm extends MovableGameObject {
 		return (super.canHaveAsRadius(radius) && (getMaxNumberOfActionPoints(radius) >= 0) && (getMaxNumberOfHitPoints(radius) >= 0));
 	}
 	
+	/**
+	 * Calculate the radius of this worm with the given mass and given density.
+	 * @param 	mass
+	 * 			The mass of projectiles of weapons for this worm.
+	 * @param 	p
+	 * 			The density of projectiles of weapons for this worm.
+	 * @return	Math.cbrt((mass * 3.0) / (p * 4.0 * Math.PI))
+	 */
 	private static double getRadius(double mass, double p){
 		return Math.cbrt((mass * 3.0) / (p * 4.0 * Math.PI));
 	}
@@ -501,16 +585,30 @@ public class Worm extends MovableGameObject {
 	 * Variable registering the current number of action points of this worm.
 	 */	
 	private int numberOfActionPoints;
+	
 	/**
 	 * Variable registering the current number of hit points of this worm.
 	 */	
 	private int numberOfHitPoints;
-		
+	
+	/**
+	 * Eat a piece of food.
+	 * @param 	snack
+	 * 			The piece of food to be eaten.
+	 * @post	new.getRadius() = * (1 + snack.getPercentualIncreaseOfRadius())
+	 * @effect	(! new.getWorld().getObjects().contains(snack))
+	 */
 	private void eat(Food snack){
 		this.setRadius(this.getRadius() * (1 + snack.getPercentualIncreaseOfRadius()));
 		this.getWorld().removeAsGameObject(snack);
 	}
 
+	/**
+	 * Eat all food.
+	 * @effect	for each food in this.getWorld().overlapWithFood(this.getPosition(), this.getRadius())
+	 * 				new.getRadius() = * (1 + food.getPercentualIncreaseOfRadius())
+	 * 				(! new.getWorld().getObjects().contains(food))
+	 */
 	private void eatAllFood(){
 		List<Food> snacks = this.getWorld().overlapWithFood(this.getPosition(), this.getRadius());
 		for (Food snack : snacks)
@@ -595,7 +693,21 @@ public class Worm extends MovableGameObject {
 		}
 		return decrement;
 	}
-
+	
+	//TODO: Fall formeel
+	
+	/**
+	 *
+	 * Jump the worm with a given timeStep.
+	 * @param	timeStep
+	 * @post	new.getPosition = new Position(jumpStepOnXAxis(jumpTime(timeStep)), jumpStepOnYAxis(jumpTime(timeStep)))
+	 * @post	if (this.canFall())
+	 * 				this.fall()
+	 * @effect	new.getX() == jumpStepOnXAxis(jumpTime(timeStep))
+	 * @effect	new.getY() == jumpStepOnYAxis(jumpTime(timeStep))
+	 * @throws 	UnsupportedOperationException("Cannot jump!")
+	 * 		|	! canJump(timeStep)
+	 */	
 	@Override
 	public void jump(double timeStep) throws UnsupportedOperationException{
 		if(!this.canJump(timeStep))
@@ -607,13 +719,18 @@ public class Worm extends MovableGameObject {
 		this.eatAllFood();
 	}
 
+	/**
+	 * Checks whether this worm can jump with the given timeStep.
+	 *  return (super.canJump(timeStep) && (this.getNumberOfActionPoints() > 0) && !(this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius()));
+	 */
 	@Model @ Override
 	protected boolean canJump(double timeStep){
 		double jumpTime = this.jumpTime(timeStep);
 		double[] jumpStep = this.jumpStep(jumpTime);
 		return (super.canJump(timeStep) && (this.getNumberOfActionPoints() > 0) && !(this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius()));
 	}
-
+	
+	
 	@Override
 	protected String getCustomText(){
 		return "jump";
@@ -628,11 +745,21 @@ public class Worm extends MovableGameObject {
 	protected double getInitialForce(){
 		return ((5 * this.getNumberOfActionPoints()) + (this.getMass() * EARTHS_STANDARD_ACCELERATION));
 	}
-
+	
+	/**
+	 * Checks whether this worm can fall.
+	 * @return	! this.getWorld().isAdjacentToImpassableFloor(this.getPosition(), this.getRadius())
+	 */
 	public boolean canFall(){
 		return !this.getWorld().isAdjacentToImpassableFloor(this.getPosition(), this.getRadius());
 	}
 	
+	//TODO: fall formeel
+	
+	/**
+	 * Let a worm fall.
+	 * @throws UnsupportedOperationException
+	 */
 	public void fall() throws UnsupportedOperationException{
 		if(!this.canFall())
 			throw new UnsupportedOperationException("Cannot fall!");
@@ -662,11 +789,21 @@ public class Worm extends MovableGameObject {
 		else this.kill();
 	}
 	
+	/**
+	 * Checks whether this worm can move.
+	 * @return	this.positionAfterMove() != null && (this.getNumberOfActionPoints() >= this.amountOfActionPointsForMoving(this.positionAfterMove()))
+	 */
 	public boolean canMove(){
 		Position newPosition = this.positionAfterMove();
 		return (newPosition != null && (this.getNumberOfActionPoints() >= this.amountOfActionPointsForMoving(newPosition)));
 	}
 
+	//TODO: Move formeel
+	
+	/**
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	public void move() throws UnsupportedOperationException{
 		if (!this.canMove())
 			throw new UnsupportedOperationException("Cannot move!");
@@ -678,6 +815,14 @@ public class Worm extends MovableGameObject {
 		this.eatAllFood();
 	}
 
+	//TODO: checkCirclePieceForOptimalMove formeel
+	
+	/**
+	 * 
+	 * @param 	onlyPassable
+	 * @return	
+	 */
+	
 	private Position checkCirclePieceForOptimalMove(boolean onlyPassable){
 		double direction = this.getDirection();
 		double divergedDirection = direction;
@@ -709,11 +854,26 @@ public class Worm extends MovableGameObject {
 			return testPosition;
 		else return null;
 	}
-	
+
+	/**
+	 * Return the slope of the given position.
+	 * @param 	other
+	 * 			The position of which the slope will be returned.
+	 * @return	((other.getY() - this.getY())/(other.getX() - this.getX()))
+	 */
 	private double getSlope(Position other){
 		return ((other.getY() - this.getY())/(other.getX() - this.getX()));
 	}
 
+	/**
+	 * Return the amount of action points for moving.
+	 * @param 	newPosition
+	 * 			The position of this worm.
+	 * @return	if (Math.round(Math.ceil(Math.abs(Math.cos(this.getSlope(newPosition))) + Math.abs(4 * Math.sin(this.getSlope(newPosition))))) > Integer.MAX_VALUE)
+					return Integer.MAX_VALUE;
+				else 
+					return Math.round(Math.ceil(Math.abs(Math.cos(this.getSlope(newPosition))) + Math.abs(4 * Math.sin(this.getSlope(newPosition)))))
+	 */
 	private int amountOfActionPointsForMoving(Position newPosition){
 		double slopeAfterMove = this.getSlope(newPosition);
 		long longResult = Math.round(Math.ceil(Math.abs(Math.cos(slopeAfterMove)) + Math.abs(4 * Math.sin(slopeAfterMove))));
@@ -721,7 +881,15 @@ public class Worm extends MovableGameObject {
 			longResult = Integer.MAX_VALUE;
 		return (int) longResult;
 	}
-	
+
+	/**
+	 * Returns the position of this worm after a move.
+	 * @return	if (this.checkCirclePieceForOptimalMove(false) != null)
+	 * 				return this.checkCirclePieceForOptimalMove(false)
+	 * 			else if	(this.checkCirclePieceForOptimalMove(true) != null)
+	 * 					return this.checkCirclePieceForOptimalMove(true)
+	 * 				else return null
+	 */
 	private Position positionAfterMove(){
 		Position newPosition1 = this.checkCirclePieceForOptimalMove(false);
 		Position newPosition2 = this.checkCirclePieceForOptimalMove(true);
@@ -768,5 +936,8 @@ public class Worm extends MovableGameObject {
 		else this.team = team;
 	}
 	
+	/**
+	 * Variable registering  the team of this worm.
+	 */
 	Team team;
 }

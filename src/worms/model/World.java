@@ -558,7 +558,18 @@ public class World {
 			this.addAsGameObject(new Food(randomPosition));
 		}
 	}
-
+	
+	/**
+	 * Return a list of worms of this world of which the game object with given position and given radius has an overlap with.
+	 * @param 	p
+	 * 			The position of the game object.
+	 * @param 	radius
+	 * 			The radius of the game object.
+	 * @return	for each food in this.getObjects()
+	 * 				if (food.partialOverlapWith(p, radius))
+	 * 					resultFood.add(food)
+	 * 			return resultFood
+	 */
 	protected List<Food> overlapWithFood(Position p, double radius){
 		String className = Food.class.getName();
 		List<GameObject> result = new ArrayList<GameObject>();
@@ -575,7 +586,17 @@ public class World {
 	
 			return resultFood;
 	}
-
+	/**
+	 * Return a list of worms of this world. of which the the game object with given position and given radius has an overlap.
+	 * @param 	p
+	 * 			The position of the game object.
+	 * @param 	radius
+	 * 			The radius of the game object.
+	 * @return	for each worm in this.getObjects()
+	 * 				if (food.partialOverlapWith(p, radius))
+	 * 					resultWorm.add(food)
+	 * 			return resultWorm
+	 */
 	protected List<Worm> overlapWithWorm(Position p, double radius){
 		String className = Worm.class.getName();
 		List<GameObject> result = new ArrayList<GameObject>();
@@ -592,7 +613,14 @@ public class World {
 			}
 			return resultWorm;
 	}
-
+	
+	/**
+	 * Return the list of all worms of this world.
+	 * 
+	 * @return	for each worm in this.getObjects()
+	 * 				resultWorms.add(worm);
+	 * 			return resultWorms
+	 */
 	protected List<Worm> getAllWorms(){
 		List<Worm> resultWorms = new ArrayList<Worm>();
 			for (GameObject object: this.getAllObjectsFrom(Worm.class.getName())){
@@ -606,7 +634,12 @@ public class World {
 			}
 			return resultWorms;
 	}
-
+	
+	/**
+	 * Return the list of all game objects of this world.
+	 * 
+	 * @return	this.objects
+	 */
 	protected List<GameObject> getObjects() {
 		return this.objects;
 	}
@@ -660,6 +693,17 @@ public class World {
 				
 	}
 	*/
+	/**
+	 * Returns a list of game objects of a specific class.
+	 * @param 	className
+	 * 			The name of the class of which the game objects will be returned.
+	 * @param 	gameObjects
+	 * 			The list of game objects to extract the game objects of the specified class.
+	 * @return	for each  game object in gameObjects
+	 * 				if( gameObject.getClass().getName() == className)
+						result.add(gameObject)
+					return result
+	 */
 	protected static List<GameObject> getAllObjectsFrom(String className, List<GameObject> gameObjects){
 		List<GameObject> result = new ArrayList<GameObject>();
 		for (GameObject gameObject: gameObjects)
@@ -668,7 +712,13 @@ public class World {
 			}
 		return  result;
 	}
-
+	
+	/**
+	 * Returns a list of game objects of a specific class.
+	 * @param 	className
+	 * 			The name of the class of which the game objects will be returned.
+	 * @return	return this.getAllObjectsFrom(className, this.getObjects())
+	 */
 	protected List<GameObject> getAllObjectsFrom(String className){
 		return this.getAllObjectsFrom(className, this.getObjects());
 	}
@@ -813,7 +863,9 @@ public class World {
 		}
 		else teams.add(team);
 	}
-
+	/**
+	 * Variable registering the teams of this world.
+	 */
 	private final List<Team> teams = new ArrayList<Team>();
 
 	public void startGame(){
