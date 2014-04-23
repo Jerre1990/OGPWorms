@@ -673,7 +673,7 @@ public class Worm extends MovableGameObject {
 		this.eatAllFood();
 	}
 
-	private Position checkCirclePieceForOptimalMove(Method test) throws Exception{
+	private Position checkCirclePieceForOptimalMove(boolean onlyPassable){
 		double direction = this.getDirection();
 		double divergedDirection = direction;
 		double limitForDivergedDirection = divergedDirection + 0.7875;
@@ -686,14 +686,12 @@ public class Worm extends MovableGameObject {
 		while (divergedDirection <= limitForDivergedDirection){
 			while (distance >= 0.1){
 				testPosition = new Position((distance * Math.cos(divergedDirection)), (distance * Math.sin(divergedDirection)));
-				Object[] args = new Object[] {testPosition, radius};
-				if (Boolean.TRUE.equals(test.invoke(this.getWorld(), args))){
+				if (onlyPassable && this.getWorld().isPassable(testPosition, radius)){
 					candidateFound = true;
 					break outerloop;
 				}
 				testPosition = new Position((distance * Math.cos((2 * direction) - divergedDirection)), (distance * Math.sin((2 * direction) - divergedDirection)));
-				args = new Object[] {testPosition, radius};
-				if (Boolean.TRUE.equals(test.invoke(this.getWorld(), args))){
+				if (!onlyPassable && this.getWorld().isAdjacentToImpassableFloor(testPosition, radius)){
 					candidateFound = true;
 					break outerloop;
 				}
@@ -720,18 +718,13 @@ public class Worm extends MovableGameObject {
 	}
 	
 	private Position positionAfterMove(){
-		try{
-			Position newPosition1 = this.checkCirclePieceForOptimalMove(this.getWorld().getClass().getMethod("isAdjacentToImpassableFloor", new Class[]{Position.class, Double.class}));
-			Position newPosition2 = this.checkCirclePieceForOptimalMove(this.getWorld().getClass().getMethod("isPassable", new Class[]{Position.class, Double.class}));
-			if (newPosition1 != null)
-				return newPosition1;
-			else if (newPosition2 != null)
-				return newPosition2;
-			else return null;
-		}
-		catch (Exception exc){
-			return null;
-		}
+		Position newPosition1 = this.checkCirclePieceForOptimalMove(false);
+		Position newPosition2 = this.checkCirclePieceForOptimalMove(true);
+		if (newPosition1 != null)
+			return newPosition1;
+		else if (newPosition2 != null)
+			return newPosition2;
+		else return null;
 	}
 
 	/**
