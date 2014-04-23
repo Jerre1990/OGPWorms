@@ -125,7 +125,7 @@ public abstract class MovableGameObject extends GameObject{
 	 * 		|	! canJump()
 	 */	
 	public void jump(double timeStep){
-		if (this.canJump(timeStep))
+		if (! this.canJump(timeStep))
 			throw new UnsupportedOperationException("Cannot "+ this.getCustomText() +"!");
 		this.setPosition(this.jumpStepOnXAxis(this.jumpTime(timeStep)), this.jumpStepOnYAxis(this.jumpTime(timeStep)));
 	}

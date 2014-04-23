@@ -224,16 +224,26 @@ public class WorldTest {
 	
 	@Test
 	public void isFinished_LegalCaseTrue(){
-		Projectile projectile = new Projectile(new Position(94,2),2,1,3);
-		projectile.jump(1);
-		
+		worm1.kill();
 		assertTrue(world1.isFinished());
 	}
 	
 	@Test
-	public void isFinished_LegalCaseFalse(){
+	public void isFinished_LegalCaseFalse(){	
 		assertFalse(world1.isFinished());
 	}
+	
+	@Test
+	public void isFinished_Winner(){
+		worm1.kill();
+		assertEquals("Ash", world1.getWinner());
+	}
+	
+	@Test
+	public void isFinished_NoWinner(){
+		assertEquals("No winner!", world1.getWinner());
+	}
+
 	
 	
 }

@@ -359,7 +359,21 @@ public class World {
 		}	
 		return isPassable;
 	}*/
-	
+	/**
+	 * Check whether a game object with given center, given radius, given lowerbound and given upperbound is at a passable position.
+	 * @param 	center
+	 * 			The center of the game object to check.
+	 * @param 	radiusOfCircle
+	 * 			The radius of the game object to check.
+	 * @param 	lowerBound
+	 * 			The lowerbound of the direction to check.
+	 * @param 	upperBound
+	 * 			The upperbound of the direction to check.
+	 * @return	result == for each x coordinate in passableMap[][]=>(Math.cos(lowerBound) * radiusOfCircle) + center.getX() && center.getX()<(Math.cos(upperbound) * radiusOfCircle) + center.getX()
+	 * 						for each y coordinate in passableMap[][]=>(Math.sin(lowerBound) * radiusOfCircle) + center.getY() && center.getX()<(Math.sin(upperbound) * radiusOfCircle) + center.getY()
+	 * 						if (! isImpassablePosition(new Position(x, y))
+	 * @throws 	IllegalArgumentException
+	 */
 	private boolean isPassablePartOfPixeledRadiusOfCircle(Position center, double radiusOfCircle, double lowerBound, double upperBound) throws IllegalArgumentException{
 		boolean isPassable = true;
 		if (!this.isLocatedInWorld(center, radiusOfCircle))
@@ -391,6 +405,18 @@ public class World {
 		return isPassable;
 	}
 
+	/**
+	 * Check whether a game object with given center, given radius, given startAngle and given stopAngle is adjacent to impassable terrain.
+	 * @param 	center
+	 * 			The center of the game object to check.
+	 * @param 	radius
+	 * 			The radius of the game object to check.
+	 * @param 	startAngle
+	 * 			The starting angle of the direction of the game object to check.
+	 * @param 	stopAngle
+	 * 			The stopping angle of the direction of the game object to check.
+	 * @return	result == (isPassablePartOfPixeledRadiusOfCircle(center, radius, 0, 0) && ! this.isPassablePartOfPixeledRadiusOfCircle(center, (radius * 1.1), startAngle, stopAngle))
+	 */
 	private boolean isAdjacentToImpassableTerrain(Position center, double radius, double startAngle, double stopAngle){
 		boolean result;
 		try{
@@ -403,7 +429,18 @@ public class World {
 		}
 		return result;
 	}
-
+	
+	/**
+	 * 
+	 * @param 	original
+	 * 			The position of the game object to check.
+	 * @param 	stepSize
+	 * 			The size of the steps to check.
+	 * @return	Position == if (original.getX() > (this.getWidth() / 2) && (original.getY() > (this.getHeight() / 2))
+	 * 					return new Position((original.getX() - (this.getPixelWidth() * stepSize)),(original.getY() - (this.getPixelHeight() * stepSize)))  	
+	 * 						else
+	 * 					return  new Position((original.getX() + (this.getPixelWidth() * stepSize)), (original.getY() + (this.getPixelHeight() * stepSize))
+	 */
 	private Position getPositionCloserToCenter(Position original, double stepSize){
 		double newX;
 		double newY;
@@ -416,8 +453,18 @@ public class World {
 		return new Position(newX, newY);
 	}
 	
+	/**
+	 * Variable registering the passableMap of this world.
+	 */
 	private boolean[][] passableMap;
-
+	
+	/**
+	 * Returns the active worm of this world.
+	 * @return for each worm in this.getAllWorm()
+	 * 				if(worm.isActive())
+						return worm
+				else return null
+	 */
 	public Worm getActiveWorm(){
 		List<Worm> allWorms = this.getAllWorms();
 		for(Worm worm : allWorms){
@@ -426,7 +473,14 @@ public class World {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * Returns the active projectile in this world.
+	 * @return	for each game object in this.getObjects()
+	 * 				if (object.getClass().getName() == Projectile.class.getName())
+	 * 					return object
+	 * 			else return null
+	 */
 	public Projectile getActiveProjectile(){
 		for(GameObject object : this.getObjects()){
 			if(object.getClass().getName() == Projectile.class.getName())
@@ -434,7 +488,13 @@ public class World {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * Returns all living worms of this world.
+	 * @return	for each worm in this.getAllWorms()
+	 * 				if (worm.isAlive())
+	 * 					result.add(worm)
+	 */
 	public List<Worm> getAllLiveWorms(){
 		List<Worm> result = this.getAllWorms();
 		for(Worm worm : result){
@@ -444,6 +504,11 @@ public class World {
 		return result;
 	}
 
+	/**
+	 * Returns all food of this world.
+	 * @return	for each food in this.getAllObjectsFrom(Food.class.getName())
+	 * 				result.add(food)
+	 */
 	public List<Food> getAllFood(){
 		List<Food> resultFood = new ArrayList<Food>();
 			for (GameObject object: this.getAllObjectsFrom(Food.class.getName())){
@@ -458,6 +523,14 @@ public class World {
 			return resultFood;
 	}
 
+	/** Adds a random worm to this world.
+	 * @return	worm = new Worm(this.getRandomPositionAdjacentToImpassableFloor(radius),radius, 0, "Joske")
+	 * @post	this.hasAsGameObject(worm)
+	 * @post	if (this.getRandom().nextDouble() > 0.5 && this.getTeams().size())
+	 * 				this.getTeams().get(this.getRandom().nextInt(numberOfTeams)).hasAsWorm(worm)
+	 * @effect	worm.getTeam() = this.getTeams().get(this.getRandom().nextInt(numberOfTeams))	
+	 * 				
+	 */
 	public Worm addRandomWorm(){
 		double radius = 1;
 		Worm randomWorm = null;
@@ -473,7 +546,12 @@ public class World {
 		}
 		return randomWorm;
 	}
-
+	
+	/**
+	 * Adds a random piece of food to this world.
+	 * @post this.hasAsGameObject(new Food(this.getRandomPositionAdjacentToImpassableFloor(0.2)))
+	 * @effect	this.getObjects().indexOf(objects.size()-1).getWorld() = this
+	 */
 	public void addRandomFood(){
 		Position randomPosition = this.getRandomPositionAdjacentToImpassableFloor(0.2);
 		if(randomPosition != null){
@@ -761,8 +839,6 @@ public class World {
 	public String getWinner(){
 		List<Worm> winners = this.getWinners();
 		if(winners == null)
-			return null;
-		if(winners.size() == 0)
 			return "No winner!";
 		else if((winners.size() == 1) && (winners.get(0).getTeam() == null))
 			return winners.get(0).getName();
@@ -777,7 +853,7 @@ public class World {
 		this.started = flag;
 	}
 
-	private List<Worm> getWinners(){
+	public List<Worm> getWinners(){
 		List<Worm> allLiveWorms = this.getAllLiveWorms();
 		List<Team> liveTeams = new ArrayList<Team>();
 		for(Worm worm : allLiveWorms){
