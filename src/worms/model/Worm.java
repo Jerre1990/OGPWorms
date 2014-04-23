@@ -29,21 +29,20 @@ import be.kuleuven.cs.som.annotate.*;
 public class Worm extends MovableGameObject {
 
 	/**
-	 * Initialize this new worm with given x-coordinate, given y-coordinate, given radius, given lower bound of this radius, given direction and given name.
+	 * Initialize this new worm with given position, given radius, given direction and given name.
 	 * 
-	 * @param	x
-	 * 			The x-coordinate of the worm expressed in meters.
-	 * @param	y
-	 * 			The y-coordinate of the worm expressed in meters.
+	 * @param	position
+	 * 			The position of this worm, which consists of an x-coordinate and a y-coordinate
 	 * @param	radius
-	 * 			The radius of the spherical body of the worm expressed in metres.
+	 * 			The radius of the spherical body of the worm expressed in meters.
 	 * @param	direction
 	 * 			The direction towards which the worm faces expressed in radians.
+	 * @param	name
+	 * 			The name of this worm
 	 * @Pre		The given direction is a valid direction for any worm
 	 * 		|	this.isValidDirection(direction)
-	 * @post	The new worm is initialized as a new movable game object with given x-coordinate, given y-coordinate, given direction, given radius and 0.25 as lower bound of this radius.
-	 * 		|	new.getX() = x
-	 * 		|	new.getY() = y
+	 * @post	The new worm is initialized as a new movable game object with given position, given direction, given radius and 0.25 as lower bound of this radius.
+	 * 		|	new.getPosition = position
 	 * 		|	new.getRadius() = radius
 	 * 		|	new.getLowerBoundOfRadius() = 0.25
 	 * 		|	new.getDirection() = direction
@@ -53,42 +52,48 @@ public class Worm extends MovableGameObject {
 	 * 		|	new.getNumberOfActionPoints() = new.getMaxNumberOfActionPoints()
 	 * @post	The new current number of hit points of this worm is equal to the maximum number of hit points of this worm.
 	 * 		|	new.getNumberOfHitPoints() = new.getMaxNumberOfHitPoints()
+	 * @effect	This worm is alive
+	 * 		|	new.isAlive() = true
+	 * @effect	The weapons yielded by this worm are a Bazooka and a Rifle
+	 * 		|	for (Weapon weapon : new.getAllWeapons())
+	 * 		|		weapon.getName().equals("Bazooka") || weapon.getName().equals("Rifle")
+	 * 		|	new.getAllWeapons().size() = 2
 	 * @effect	The new name of this worm is a valid name for any worm.
-	 * 		|	this.isValidName(new.getName())
+	 * 		|	isValidName(new.getName())
 	 * @effect	This worm can have the new number of action points as its current number of action points.
 	 * 		|	0 <= new.getNumberOfActionPoints <= new.getMaxNumberOfActionPoints
 	 * @effect	This worm can have the new number of hit points as its current number of hit points.
 	 * 		|	0 <= new.getNumberOfActionPoints <= new.getMaxNumberOfActionPoints
-	 * @effect	The new position of this worm is an effective position.
-	 * 		|	new.getPosition() != null
+	 * @effect	The new position of this worm is a valid position for any worm
+	 * 		|	isValidPosition(new.getPosition())
 	 * @effect	This worm can have the new radius as its radius.
-	 * 		|	this.canHaveAsRadius(new.getRadius())
+	 * 		|	canHaveAsRadius(new.getRadius())
 	 * @effect	The new lower bound of the radius of this worm is a valid lower bound for any worm.
-	 * 		|	this.isValidLowerBoundOfRadius(new.getLowerBoundOfRadius())
+	 * 		|	isValidLowerBoundOfRadius(new.getLowerBoundOfRadius())
 	 * @effect	The new x-coordinate of this worm is a valid x-coordinate for any worm.
-	 * 		|	this.getPosition.isValidCoordinate(new.getX())
+	 * 		|	getPosition.isValidCoordinate(new.getX())
 	 * @effect	The new y-coordinate of this worm is a valid y-coordinate for any worm.
-	 * 		|	this.getPosition.isValidCoordinate(new.getY())
+	 * 		|	getPosition.isValidCoordinate(new.getY())
 	 * @effect	The new direction of this worm is a valid direction for any worm.
 	 * 		|	this.isValidDirection(new.getDirection())
-	 * @effect	The newly calculated mass of this worm is a valid mass for any worm.
-	 * 		|	this.isValidMass(new.getMass())
 	 * @throws 	IllegalArgumentException("Name is not valid!")
 	 * 			The given name is not a valid name for any worm.
-	 * 		|	! this.isValidName(name)
+	 * 		|	! isValidName(name)
 	 * @throws 	IllegalArgumentException("Invalid radius!")
 	 * 			This worm cannot have the given radius as its radius.
-	 * 		|	! this.canHaveAsRadius(radius)
+	 * 		|	! canHaveAsRadius(radius)
 	 * @throws	IllegalArgumentException("Invalid lower bound of radius!")
 	 * 			The given lower bound is not a valid lower bound for the radius of any worm.
-	 * 		|	! this.isValidLowerBoundOfRadius(lowerBound)
+	 * 		|	! isValidLowerBoundOfRadius(lowerBound)
 	 * @throws 	IllegalArgumentException("Invalid x-coordinate!")
 	 * 			The given x-coordinate is not a valid coordinate for any worm.
-	 * 		|	! this.getPosition().isvalidCoordinate(x)
+	 * 		|	! getPosition().isvalidCoordinate(x)
 	 * @throws 	IllegalArgumentException("Invalid y-coordinate!")
 	 * 			The given y-coordinate is not a valid coordinate for any worm.
-	 * 		|	! this.getPosition().isValidCoordinate(y)
-	 * 
+	 * 		|	! getPosition().isValidCoordinate(y)
+	 * @throws	IllegalArgumentException("Invalid position!")
+	 * 			The given position is not a valid position for any worm.
+	 * 		|	! isValidPosition(new.getPosition())
 	 */
 	
 	public Worm (Position position, double radius, double direction, String name) throws IllegalArgumentException {
