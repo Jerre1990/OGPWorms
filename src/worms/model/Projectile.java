@@ -26,7 +26,7 @@ public class Projectile extends MovableGameObject {
 		boolean otherWormIsHit = !worms.isEmpty();
 		return (adjacency || otherWormIsHit);
 	}
-	
+		
 	@Override
 	protected boolean canJump(double timeStep){
 		return true;

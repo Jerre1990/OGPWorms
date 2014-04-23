@@ -135,12 +135,10 @@ public abstract class MovableGameObject extends GameObject{
 	 * @return	result == jumpTime
 	 * 		|		in	jumpTime = 0;
 	 *		|			oldY = getY();
-	 *		|			newY = getY();
-	 *		|			goingUp = (jumpStepOnYAxis(timeStep) > getY());
-	 *		|			newPosition = getPosition();
-	 *		|			while (getWorld().isPassable(newPosition,getRadius())){
-	 *		|				if (stopConditionDuringJump(newPosition, goingUp))
-	 *		|					break;
+	 *		|			newY = jumpStepOnYAxis(timeStep);
+	 *		|			goingUp = (newY > getY());
+	 *		|			newPosition = new Position(jumpStepOnXAxis(timeStep), newY);
+	 *		|			while getWorld().isPassable(newPosition, getRadius()) && !stopConditionDuringJump(newPosition, goingUp)){
 	 *		|				jumpTime += timeStep;
 	 *		|				oldY = newY;
 	 *		|				newY = jumpStepOnYAxis(jumpTime);
@@ -180,9 +178,7 @@ public abstract class MovableGameObject extends GameObject{
 	
 	@Model
 	protected boolean stopConditionDuringJump(Position inFlightPosition, boolean goingUp){
-		if (goingUp)
-			return this.getWorld().isAdjacentToImpassableCeiling(inFlightPosition, this.getRadius());
-		else return this.getWorld().isAdjacentToImpassableFloor(inFlightPosition, this.getRadius());
+		return (this.getWorld().isAdjacentToImpassableTerrain(inFlightPosition, this.getRadius()));
 	}
 	
 	@Model

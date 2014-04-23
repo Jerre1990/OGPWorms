@@ -238,7 +238,7 @@ public class Weapon extends Identifiable{
 	 */
 	@Model
 	private boolean canShoot(){
-		return ((this.getAmmo() != 0) && (this.getWorm().getNumberOfActionPoints() >= 0) && (this.getWorm().getWorld().isPassable(this.getWorm().getPosition(), this.getWorm().getRadius())));
+		return ((this.getAmmo() != 0) && (this.getWorm().getNumberOfActionPoints() > 0) && (this.getWorm().getWorld().isPassable(this.getWorm().getPosition(), this.getWorm().getRadius())));
 	}
 
 	/**
