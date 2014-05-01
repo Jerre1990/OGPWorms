@@ -57,7 +57,7 @@ public class Projectile extends MovableGameObject {
 	 * 			The weapon to be checked.
 	 * @return	(weapon == null || weapon.canHaveAsProjectile(this))
 	 */
-	public boolean canHaveAsWeapon(Weapon weapon){
+	private boolean canHaveAsWeapon(Weapon weapon){
 		return true;
 	}
 	
@@ -65,14 +65,14 @@ public class Projectile extends MovableGameObject {
 	 * Check whether this projectile has a proper weapon as its weapon.
 	 * @return	(canHaveAsWeapon(getWeapon()) && getWeapon().hasAsProjectile(this))
 	 */
-	public boolean hasProperWeapon(){
+	protected boolean hasProperWeapon(){
 		return (canHaveAsWeapon(getWeapon()) && getWeapon().hasAsProjectile(this));
 	}
 	
 	/**
 	 * Return the weapon attached to this projectile.
 	 */
-	public Weapon getWeapon(){
+	private Weapon getWeapon(){
 		return this.weapon;
 	}
 	
@@ -84,7 +84,7 @@ public class Projectile extends MovableGameObject {
 	 * @throws	IllegalArgumentException
 	 * 			(! canHaveAsWeapon(weapon))
 	 */
-	public void setWeapon(Weapon weapon){
+	protected void setWeapon(Weapon weapon){
 		if(! canHaveAsWeapon(weapon)){
 			throw new IllegalArgumentException("Not a valid weapon");
 		}

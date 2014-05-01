@@ -189,7 +189,7 @@ public abstract class MovableGameObject extends GameObject{
 	/**
 	 * @return	result == (getInitialForce() / getMass()) * 0.5
 	 */
-	private double initialVelocity(){
+	public double initialVelocity(){
 		return ((this.getInitialForce() / this.getMass()) * 0.5);
 	}
 
@@ -198,7 +198,7 @@ public abstract class MovableGameObject extends GameObject{
 	 * @return	result == getX() + (initialVelocity() * Math.cos(getDirection()) * timePassed)
 	 */	
 	@Model
-	private double jumpStepOnXAxis(double timePassed){
+	public double jumpStepOnXAxis(double timePassed){
 		return (this.getX() + (this.initialVelocity() * Math.cos(this.getDirection()) * timePassed));
 	}
 
@@ -207,7 +207,7 @@ public abstract class MovableGameObject extends GameObject{
 	 * @return	result == getY() + ((initialVelocity() * Math.sin(getDirection()) * timePassed) - ((1/2) * EARTHS_STANDARD_ACCELERATION * timePassed^2))
 	 */		
 	@Model
-	private double jumpStepOnYAxis(double timePassed){
+	public double jumpStepOnYAxis(double timePassed){
 		return (this.getY() + ((this.initialVelocity() * Math.sin(this.getDirection()) * timePassed) - ((0.5) * EARTHS_STANDARD_ACCELERATION * Math.pow(timePassed, 2))));
 	}
 

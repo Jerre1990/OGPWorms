@@ -738,6 +738,8 @@ public class Worm extends MovableGameObject {
 		this.setNumberOfActionPoints(0);
 		this.eatAllFood();
 	}
+	
+	
 
 	/**
 	 * Checks whether this worm can jump with the given timeStep.
@@ -747,6 +749,9 @@ public class Worm extends MovableGameObject {
 	protected boolean canJump(double timeStep){
 		double jumpTime = this.jumpTime(timeStep);
 		double[] jumpStep = this.jumpStep(jumpTime);
+		boolean boolean1 = super.canJump(timeStep);
+		boolean boolean2 = (this.getNumberOfActionPoints() > 0);
+		boolean boolean3 = !(this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius());
 		return (super.canJump(timeStep) && (this.getNumberOfActionPoints() > 0) && !(this.getPosition().distanceFromPositionWithCoordinates(jumpStep[0], jumpStep[1]) < this.getRadius()));
 	}
 	

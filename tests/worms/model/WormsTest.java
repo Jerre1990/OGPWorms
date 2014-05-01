@@ -26,7 +26,7 @@ public class WormsTest {
 	
 	private static Random random;
 	
-	private static Worm worm1,worm2,worm3;
+	private static Worm worm1,worm2,worm3,worm4;
 		
 	private  static Food food1,food2; 
 	
@@ -51,7 +51,8 @@ public class WormsTest {
 		world1 = new World(1000, 1000, map, random);
 		food1 = new Food(new Position(790,45.001));
 		worm1 = new Worm(new Position(800,60.001), 1, (Math.PI / 2), "Ricky");
-		worm2 = new Worm(new Position(200,60.001), 1, (Math.PI / 2), "Rambo");
+		worm2 = new Worm(new Position(999,999), 1, (Math.PI / 2), "Rambo");
+		worm4 = new Worm(new Position(900,450), 1, (Math.PI / 4), "Rambo");
 		world1.addAsGameObject(food1);
 		world1.addAsGameObject(worm1);
 		world1.addAsGameObject(worm2);
@@ -195,6 +196,17 @@ public void getMass() {
 public void canMove_LegalCaseTrue() throws Exception {
 	assertTrue(worm1.canMove());	
 }
+
+@Test
+public void canJump_LegalCaseTrue() throws Exception {
+	assertTrue(worm1.canJump(0.02));	
+}
+
+@Test
+public void isPassablePosition_LegalCaseTrue() throws Exception {
+	assertTrue(world1.isPassable(worm4.getPosition(), worm4.getRadius()));	
+}
+
 /**
 @Test
 public void canMove_LegalCaseFalse() throws Exception {
