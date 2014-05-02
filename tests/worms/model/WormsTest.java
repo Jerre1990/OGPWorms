@@ -35,16 +35,21 @@ public class WormsTest {
 	@Before
 	public void setUpMutableFixture() throws Exception {
 		random = new Random();
-		map = new boolean[100][100];
+		int width = 1000;
+		int height = 1000;
+		map = new boolean[height][width];
+		int widthOfImpassableTerrain = 30;
+		int heightOfImpassableTerrain = 30;
+		int HalfOfwidthOfPassableHole = 50;
 		for (int i = 0; i<map.length;i++){
 			for (int u = 0; u<map[0].length;u++){
-				if (i <= 4)
+				if (i < heightOfImpassableTerrain)
 					map[i][u] = false;	
-				else if (i >= map.length - 5){
-					if ((u < 30) || (u > 69))
+				else if (i > map.length - 1 - heightOfImpassableTerrain){
+					if ((u < ((int)(width/2) - HalfOfwidthOfPassableHole)) || (u > ((int)(width/2) + HalfOfwidthOfPassableHole)))
 						map[i][u] = false;
 				}
-				else if ((u <= 4) || (u >= map[0].length - 5))
+				else if ((u < widthOfImpassableTerrain) || (u > map[0].length - 1 - widthOfImpassableTerrain))
 					map[i][u] = false;
 			}
 		}
@@ -61,16 +66,21 @@ public class WormsTest {
 	@BeforeClass
 	public static void setUpImmutableFixture() throws Exception {
 		random = new Random();
-		map = new boolean[100][100];
+		int width = 1000;
+		int height = 1000;
+		map = new boolean[height][width];
+		int widthOfImpassableTerrain = 30;
+		int heightOfImpassableTerrain = 30;
+		int HalfOfwidthOfPassableHole = 50;
 		for (int i = 0; i<map.length;i++){
 			for (int u = 0; u<map[0].length;u++){
-				if (i <= 4)
+				if (i < heightOfImpassableTerrain)
 					map[i][u] = false;	
-				else if (i >= map.length - 5){
-					if ((u < 30) || (u > 69))
+				else if (i > map.length - 1 - heightOfImpassableTerrain){
+					if ((u < ((int)(width/2) - HalfOfwidthOfPassableHole)) || (u > ((int)(width/2) + HalfOfwidthOfPassableHole)))
 						map[i][u] = false;
 				}
-				else if ((u <= 4) || (u >= map[0].length - 5))
+				else if ((u < widthOfImpassableTerrain) || (u > map[0].length - 1 - widthOfImpassableTerrain))
 					map[i][u] = false;
 			}
 		}
@@ -204,7 +214,13 @@ public void canJump_LegalCaseTrue() throws Exception {
 
 @Test
 public void isPassablePosition_LegalCaseTrue() throws Exception {
-	assertTrue(world1.isPassable(worm4.getPosition(), worm4.getRadius()));	
+	assertTrue(world1.isPassable(worm1.getPosition(), worm1.getRadius()));	
+}
+
+@Test
+public void addRandomWorm_LegalCase(){
+	Worm randomWorm = world1.addRandomWorm();
+	assertTrue(world1.isAdjacentToImpassableTerrain(randomWorm.getPosition(), randomWorm.getRadius()));
 }
 
 /**
