@@ -291,7 +291,7 @@ public class World {
 	 */
 	private boolean isImpassablePosition(Position position) {
 		int[] pixelCoordinates = this.getPixelCoordinates(position);
-		return !this.getPassableMap()[pixelCoordinates[1]][pixelCoordinates[0]];
+		return !this.getPassableMap()[(this.getHeightInPixels() - 1 - pixelCoordinates[1])][pixelCoordinates[0]];
 	}
 
 	/**

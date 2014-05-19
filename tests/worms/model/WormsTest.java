@@ -40,20 +40,21 @@ public class WormsTest {
 		map = new boolean[height][width];
 		int widthOfImpassableTerrain = 30;
 		int heightOfImpassableTerrain = 30;
-		int HalfOfwidthOfPassableHole = 50;
+		int halfOfwidthOfPassableHole = 50;
 		for (int i = 0; i<map.length;i++){
 			for (int u = 0; u<map[0].length;u++){
 				if (i < heightOfImpassableTerrain)
 					map[i][u] = false;	
 				else if (i > map.length - 1 - heightOfImpassableTerrain){
-					if ((u < ((int)(width/2) - HalfOfwidthOfPassableHole)) || (u > ((int)(width/2) + HalfOfwidthOfPassableHole)))
+					if ((u < ((int)(width/2) - halfOfwidthOfPassableHole)) || (u > ((int)(width/2) + halfOfwidthOfPassableHole)))
 						map[i][u] = false;
 				}
 				else if ((u < widthOfImpassableTerrain) || (u > map[0].length - 1 - widthOfImpassableTerrain))
 					map[i][u] = false;
+				else map[i][u] = true;
 			}
 		}
-		world1 = new World(1000, 1000, map, random);
+		world1 = new World(20, 20, map, random);
 		food1 = new Food(new Position(790,45.001));
 		worm1 = new Worm(new Position(800,60.001), 1, (Math.PI / 2), "Ricky");
 		worm2 = new Worm(new Position(999,999), 1, (Math.PI / 2), "Rambo");
