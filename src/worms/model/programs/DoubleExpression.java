@@ -8,7 +8,8 @@ public class DoubleExpression implements Expression {
 		this.doubleExpression = doubleExpression;
 	}
 
-	public Object evaluate() {
+	@Override
+	public Double evaluate() {
 		return doubleExpression;
 	}
 

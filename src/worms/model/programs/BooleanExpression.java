@@ -7,8 +7,13 @@ public class BooleanExpression implements Expression {
 	public BooleanExpression(boolean booleanExpression) {
 		this.booleanExpression = booleanExpression;
 	}
-
-	public Object evaluate() {
+	
+	public boolean getContrary () {
+		return ! this.booleanExpression;
+	}
+	
+	@Override
+	public Boolean evaluate() {
 		return booleanExpression;
 	}
 

@@ -937,7 +937,7 @@ public class Worm extends MovableGameObject {
 	/**
 	 * Return the team to which this worm belongs.
 	 */
-	protected Team getTeam(){
+	public Team getTeam(){
 		return this.team;
 	}
 	/**

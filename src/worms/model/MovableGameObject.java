@@ -210,6 +210,10 @@ public abstract class MovableGameObject extends GameObject{
 	public double jumpStepOnYAxis(double timePassed){
 		return (this.getY() + ((this.initialVelocity() * Math.sin(this.getDirection()) * timePassed) - ((0.5) * EARTHS_STANDARD_ACCELERATION * Math.pow(timePassed, 2))));
 	}
+	
+	public GameObject searchNearestObjectInGivenDirection(double theta){
+		return this;
+	}
 
 	public static double EARTHS_STANDARD_ACCELERATION = 9.80665;
 
