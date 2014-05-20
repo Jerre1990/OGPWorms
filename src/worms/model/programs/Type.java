@@ -1,5 +1,5 @@
 package worms.model.programs;
 
-public class Type {
+public interface Type {
 
 }
