@@ -34,31 +34,28 @@ public class WormsTest {
 	
 	@Before
 	public void setUpMutableFixture() throws Exception {
-		random = new Random();
+		Random random = new Random();
 		int width = 1000;
 		int height = 1000;
-		map = new boolean[height][width];
+		boolean[][] map = new boolean[height][width];
 		int widthOfImpassableTerrain = 30;
 		int heightOfImpassableTerrain = 30;
-		int halfOfwidthOfPassableHole = 50;
+		int widthOfPassableHole = 200;
 		for (int i = 0; i<map.length;i++){
 			for (int u = 0; u<map[0].length;u++){
-				if (i < heightOfImpassableTerrain)
-					map[i][u] = false;	
-				else if (i > map.length - 1 - heightOfImpassableTerrain){
-					if ((u < ((int)(width/2) - halfOfwidthOfPassableHole)) || (u > ((int)(width/2) + halfOfwidthOfPassableHole)))
-						map[i][u] = false;
+				if ((i >= heightOfImpassableTerrain) && (i <= map.length - 1 - heightOfImpassableTerrain) && (u >= widthOfImpassableTerrain) || (u <= map[0].length - 1 - widthOfImpassableTerrain))
+					map[i][u] = true;	
+				if (i > map.length - 1 - heightOfImpassableTerrain){
+					if (u < widthOfPassableHole)
+						map[i][u] = true;
 				}
-				else if ((u < widthOfImpassableTerrain) || (u > map[0].length - 1 - widthOfImpassableTerrain))
-					map[i][u] = false;
-				else map[i][u] = true;
 			}
 		}
-		world1 = new World(20, 20, map, random);
-		food1 = new Food(new Position(790,45.001));
-		worm1 = new Worm(new Position(800,60.001), 1, (Math.PI / 2), "Ricky");
-		worm2 = new Worm(new Position(999,999), 1, (Math.PI / 2), "Rambo");
-		worm4 = new Worm(new Position(900,450), 1, (Math.PI / 4), "Rambo");
+		World world1 = new World(20, 20, map, random);
+		food1 = new Food(new Position(6,0.992));
+		worm1 = new Worm(new Position(8,0.992), 1, (Math.PI / 2), "Ricky");
+		worm2 = new Worm(new Position(13,0.992), 1, (Math.PI / 2), "Rambo");
+		worm4 = new Worm(new Position(18,0.992), 1, (Math.PI / 4), "Rambo");
 		world1.addAsGameObject(food1);
 		world1.addAsGameObject(worm1);
 		world1.addAsGameObject(worm2);
@@ -224,35 +221,7 @@ public void addRandomWorm_LegalCase(){
 	assertTrue(world1.isAdjacentToImpassableTerrain(randomWorm.getPosition(), randomWorm.getRadius()));
 }
 
-/**
-@Test
-public void canMove_LegalCaseFalse() throws Exception {
-	assertFalse(worm3.canMove(2000));
-}
-
-@Test (expected = IllegalArgumentException.class)
-public void canMove_NegativeNumberOfSteps() throws Exception {
-	assertFalse(worm3.canMove(-1));
-}
-
-@Test
-public void activeMove_LegalCase() throws Exception {
-	worm1.activeMove(5);
-	assertEquals(-9.9533855557, worm1.getX(), Util.DEFAULT_EPSILON);
-	assertEquals(0.964425198, worm1.getY(), Util.DEFAULT_EPSILON);
-	assertEquals(35578, worm1.getNumberOfActionPoints(), Util.DEFAULT_EPSILON);
-}
-
-@Test (expected = IllegalArgumentException.class)
-public void activeMove_NegativeNumberOfSteps() throws Exception {
-	worm3.activeMove(-5);
-}
-
-@Test (expected = UnsupportedOperationException.class)
-public void activeMove_CannotMove() throws Exception {
-	worm3.activeMove(2000);
-}
-
+/*
 @Test
 public void canTurn_LegalCaseTrue() {
 	assertTrue(worm3.canTurn(2));	
@@ -260,13 +229,13 @@ public void canTurn_LegalCaseTrue() {
 
 @Test
 public void canTurn_LegalCaseFalse() {
-	worm1.jump();
+	worm1.jump(0.02);
 	assertFalse(worm1.canTurn(2));	
 }
 
 @Test
 public void activeTurn_LegalCase() {
-	worm1.activeTurn(1.5);
+	worm1.turn(1.5);
 	assertEquals(4.545, worm1.getDirection(), Util.DEFAULT_EPSILON);
 	assertEquals(35573, worm1.getNumberOfActionPoints());
 	assertTrue(worm1.getDirection() >= 0);
@@ -275,7 +244,7 @@ public void activeTurn_LegalCase() {
 
 @Test
 public void activeTurn_CannotTurn() {
-	worm1.jump();
+	worm1.jump(0.02);
 	assertEquals(3.045, worm1.getDirection(), Util.DEFAULT_EPSILON);
 	assertEquals(0, worm1.getNumberOfActionPoints());
 	assertTrue(worm1.getDirection() >= 0);
@@ -295,7 +264,7 @@ public void jumpStep(){
 
 @Test
 public void Jump_LegalCase() throws Exception {
-	worm1.jump();
+	worm1.jump(0.02);
 	assertEquals(-1.073007217, worm1.getX(), Util.DEFAULT_EPSILON);
 	assertEquals(0, worm1.getNumberOfActionPoints());
 	assertEquals(0, worm1.getY(), Util.DEFAULT_EPSILON);	
@@ -303,12 +272,12 @@ public void Jump_LegalCase() throws Exception {
 
 @Test (expected = UnsupportedOperationException.class)
 public void Jump_CannotJump_FacedUpwards() throws Exception {
-	worm4.jump();
+	worm4.jump(0.02);
 }
 
 @Test (expected = UnsupportedOperationException.class)
 public void Jump_CannotJump_FacedDownwards() throws Exception {
-	worm2.jump();
-}*/
-
+	worm2.jump(0.02);
+}
+*/
 }
