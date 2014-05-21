@@ -157,9 +157,7 @@ public class MyFactory {
 
 	public Expression createAdd(Expression e1, Expression e2) {
 		if(e1 instanceof DoubleExpression && e2 instanceof DoubleExpression){
-			Double double1 = (Double) e1.evaluate();
-			Double double2 = (Double) e2.evaluate();
-			return new DoubleExpression(double1 + double2);
+			return new AddExpression(e1, e2);
 		}
 		else throw new ExpressionException("Invalid Expression");
 	}
@@ -168,6 +166,10 @@ public class MyFactory {
 		if(e instanceof WormExpression)
 			return new BooleanExpression(true);
 		return new BooleanExpression(false);
+	}
+	
+	public Expression createMultiply(){
+		
 	}
 
 }
