@@ -10,6 +10,6 @@ public class AddExpression implements Expression{
     }
  
     public Type evaluate()  { 	
-        return ((DoubleType) leftOperand).add((DoubleType) rightOperand);
+        return ((DoubleType) leftOperand.evaluate()).add((DoubleType) rightOperand.evaluate());
     }
 }
