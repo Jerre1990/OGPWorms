@@ -16,6 +16,7 @@ public class Program {
 	}
 	
 	public void execute(Worm worm){
+		programTree.execute();
 		
 	}
 
