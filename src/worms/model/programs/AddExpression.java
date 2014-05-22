@@ -1,6 +1,5 @@
 package worms.model.programs;
 
-import java.util.Map;
 
 public class AddExpression implements Expression{
     Expression leftOperand;
@@ -10,8 +9,7 @@ public class AddExpression implements Expression{
         rightOperand = right;
     }
  
-    public Type evaluate()  {
-    	
-        return leftOperand.evaluate().add(rightOperand.evaluate());
+    public Type evaluate()  { 	
+        return ((DoubleType) leftOperand).add((DoubleType) rightOperand);
     }
 }

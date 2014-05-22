@@ -5,8 +5,8 @@ import worms.model.World;
 
 public class MyFactory {
 
-	public Expression createDoubleLiteral(double doubleExpression) {
-		return new DoubleExpression(doubleExpression);
+	public Expression createDoubleLiteral(double doubleType) {
+		return new DoubleExpression(doubleType);
 	}
 	
 	public Expression createBooleanLiteral(boolean booleanExpression){
@@ -15,9 +15,9 @@ public class MyFactory {
 	
 	public Expression createAnd( Expression e1, Expression e2) throws ExpressionException{
 		if (e1 instanceof BooleanExpression && e2 instanceof BooleanExpression){
-			Boolean boolean1 = (Boolean) e1.evaluate();
-			Boolean boolean2 = (Boolean) e2.evaluate();
-			if (boolean1 && boolean2){
+			BooleanType boolean1 = (BooleanType) e1.evaluate();
+			BooleanType boolean2 = (BooleanType) e2.evaluate();
+			if (boolean1.getValue() && boolean2.getValue()){
 				return new BooleanExpression(true);
 			}
 			else return new BooleanExpression(false);
@@ -25,18 +25,21 @@ public class MyFactory {
 		else throw new ExpressionException("Invalid Expression");
 	}
 	
+	
+	
 	public Expression createOr( Expression e1, Expression e2){
 		if (e1 instanceof BooleanExpression && e2 instanceof BooleanExpression){
-			Boolean boolean1 = (Boolean) e1.evaluate();
-			Boolean boolean2 = (Boolean) e2.evaluate();
-			if (boolean1 || boolean2){
+			BooleanType boolean1 = (BooleanType) e1.evaluate();
+			BooleanType boolean2 = (BooleanType) e2.evaluate();
+			if (boolean1.getValue() || boolean2.getValue()){
 				return new BooleanExpression(true);
 			}
 			else return new BooleanExpression(false);
 			}
 		else throw new ExpressionException("Invalid Expression");
 		}
-		
+	
+	
 	public Expression createNot(Expression e){
 		if (e instanceof BooleanExpression){
 			BooleanExpression boolean1 = (BooleanExpression) e.evaluate();
@@ -50,16 +53,15 @@ public class MyFactory {
 	}
 
 	public Expression createSelf(){
-		return new WormExpression(world.getActiveWorm());
+		return new SelfExpression();
 	}
 	
 	public Expression createGetX(int line, int column, Expression e){
-		if(! (e instanceof WormExpression)){
+		if(! (e instanceof Entity)){
 			throw new IllegalArgumentException();
 		
 		}
-		WormExpression wormExpression = (WormExpression) e;
-		return new DoubleExpression(wormExpression.getX());
+		return new DoubleExpression(Entity.getX());
 	}
 	
 	public Expression createGetY(int line, int column, Expression e){

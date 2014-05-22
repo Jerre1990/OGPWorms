@@ -2,15 +2,15 @@ package worms.model.programs;
 
 public class DoubleExpression implements Expression {
 
-	private double doubleExpression;
-
-	public DoubleExpression(double doubleExpression) {
-		this.doubleExpression = doubleExpression;
+	DoubleType doubleType;
+	
+	public DoubleExpression(double doubleType){
+		this.doubleType = new DoubleType(doubleType);
 	}
-
+	
 	@Override
-	public Double evaluate() {
-		return doubleExpression;
+	public Type evaluate() {
+		return doubleType;
 	}
 
 }

@@ -2,19 +2,19 @@ package worms.model.programs;
 
 public class BooleanExpression implements Expression {
 
-	private boolean booleanExpression;
+	private BooleanType booleanType;
 
-	public BooleanExpression(boolean booleanExpression) {
-		this.booleanExpression = booleanExpression;
+	public BooleanExpression(boolean booleanType) {
+		this.booleanType = new BooleanType(booleanType);
 	}
 	
 	public boolean getContrary () {
-		return ! this.booleanExpression;
+		return ! this.booleanType.getValue();
 	}
 	
 	@Override
-	public Boolean evaluate() {
-		return booleanExpression;
+	public BooleanType evaluate() {
+		return booleanType;
 	}
 
 }
