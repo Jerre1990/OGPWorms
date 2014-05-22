@@ -1,8 +1,11 @@
 package worms.model.programs;
 
 
+import java.util.List;
+
 import worms.gui.game.IActionHandler;
 import worms.model.World;
+import worms.model.programs.ProgramFactory.ForeachType;
 
 public class MyFactory implements ProgramFactory<Expression,Statement,Type>{
 	
@@ -230,6 +233,50 @@ public class MyFactory implements ProgramFactory<Expression,Statement,Type>{
 	
 	public EntityType createEntityType(){
 		return new EntityType();
+	}
+	
+	public Statement createTurn(int line, int column, Expression angle) { 
+		return new TurnStatement(handler, angle);		
+	}
+	
+	public Statement createMove(int line, int column){
+		return new MoveStatement(handler);
+	}
+	
+	public Statement createJump(int line, int column){
+		return new JumpStatement(handler);
+	}
+	
+	public Statement createToggleWeap(int line, int column){
+		return new ToggleWeaponStatement(handler);
+	}
+	
+	public Statement createFire(int line, int column, Expression yield){
+		return new FireStatement(handler, yield);
+	}
+	
+	public Statement createSkip(int line, int column){
+		return new SkipStatement(handler);
+	}
+	
+	public Statement createAssignment(int line, int column, String variableName, Expression rhs){
+		return new AssignmentStatement(variableName, rhs);
+	}
+	
+	public Statement createIf(int line, int column, Expression condition, Statement then, Statement otherwise){
+		return new IfStatement(condition, then, otherwise);	
+	}
+	
+	public Statement createWhile(int line, int column, Expression condition, Statement body){
+		return new WhileStatement(condition, body);
+	}
+	
+	public Statement createForeach(int line, int column, ForeachType type, String variableName, Statement body){
+		return new ForeachStatement(type, variableName, body);		
+	}
+	
+	public Statement createSequence(int line, int column, List<Statement> statements){
+		return new SequenceStatement(statements);
 	}
 
 }

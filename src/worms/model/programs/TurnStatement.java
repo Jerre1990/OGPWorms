@@ -1,20 +1,22 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 import worms.gui.game.IActionHandler;
 
-public class TurnStatement implements Statement{
+public class TurnStatement extends Statement{
 
-	private IActionHandler ah;
-	private Program p;
 	private Expression angle;
+	private IActionHandler ah;
 
-	public TurnStatement(Expression angle){
+	public TurnStatement(IActionHandler ah, Expression angle){
 		this.angle = angle;
+		this.ah = ah;
 	}
 	
 	@Override
-	public void execute() {
-		ah.turn(p.getWorm(), ((DoubleType) angle.evaluate()).getValue());
+	public void execute(Map<String, Type> context) {
+		ah.turn(((WormEntityType) context.get("self")).getValue(), ((DoubleType) angle.evaluate(context)).getValue());
 	}
 
 }

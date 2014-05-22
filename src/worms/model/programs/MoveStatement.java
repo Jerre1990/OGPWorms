@@ -1,18 +1,21 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 import worms.gui.game.IActionHandler;
 
-public class MoveStatement implements Statement{
+public class MoveStatement extends Statement{
 	
 	private IActionHandler ah;
-	private Program p;
 
-	public MoveStatement(){
+	public MoveStatement(IActionHandler ah){
+		this.ah = ah;
 	}
-	
+
 	@Override
-	public void execute() {
-		ah.move(p.getWorm());
+	public void execute(Map<String, Type> context) {
+		ah.move(((WormEntityType) context.get("self")).getValue());
+		
 	}
 	
 }

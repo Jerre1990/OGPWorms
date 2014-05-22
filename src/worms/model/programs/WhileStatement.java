@@ -12,9 +12,9 @@ public class WhileStatement extends Statement{
 		this.condition = condition;
 	}
  
-	public void execute(Map<String,Type> map){
-		while (((BooleanType) condition.evaluate(map)).getValue()) {
-			executeWithScope(body, map);
+	public void execute(Map<String,Type> context){
+		while (((BooleanType) condition.evaluate(context)).getValue()) {
+			executeWithScope(body, context);
 		}
 	}
 	

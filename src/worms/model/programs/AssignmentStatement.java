@@ -2,7 +2,7 @@ package worms.model.programs;
 
 import java.util.Map;
 
-public class AssignmentStatement {
+public class AssignmentStatement extends Statement {
 	
 		String name;
 		Expression rhs;
@@ -12,7 +12,7 @@ public class AssignmentStatement {
 		}
 	 
 		public void execute(Map<String, Type> context) {
-			context.put(name, rhs.evaluate());
+			context.put(name, rhs.evaluate(context));
 		}
 	 
 }

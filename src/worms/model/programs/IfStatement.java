@@ -1,6 +1,8 @@
 package worms.model.programs;
 
-public class IfStatement implements Statement{
+import java.util.Map;
+
+public class IfStatement extends Statement{
 	private Statement s1;	
 	private Statement s2;
 	private Expression c;
@@ -12,10 +14,10 @@ public class IfStatement implements Statement{
 	}
 	
 	@Override
-	public void execute(){
-		if (((BooleanType) c.evaluate()).getValue())
-			s1.execute();
+	public void execute(Map<String,Type> context){
+		if (((BooleanType) c.evaluate(context)).getValue())
+			executeWithScope(s1, context);
 		else
-			s2.execute();
+			executeWithScope(s2, context);
 	}
 }
