@@ -3,9 +3,9 @@ package worms.model.programs;
 import java.util.Map;
 
 public class GetDirExpression implements Expression{
-	EntityExpression e;
+	Expression e;
 	
-	public GetDirExpression(EntityExpression e){
+	public GetDirExpression(Expression e){
 		this.e = e;
 	}
 

@@ -2,7 +2,7 @@ package worms.model.programs;
 
 import java.util.Map;
 
-public class NotExpression {
+public class NotExpression implements Expression{
     Expression operand;
     public NotExpression(Expression e) { 
         operand = e;

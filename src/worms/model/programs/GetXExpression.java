@@ -4,9 +4,9 @@ import java.util.Map;
 
 public class GetXExpression implements Expression {
 	
-	EntityExpression e;
+	Expression e;
 	
-	public GetXExpression(EntityExpression e){
+	public GetXExpression(Expression e){
 		this.e = e;
 	}
 

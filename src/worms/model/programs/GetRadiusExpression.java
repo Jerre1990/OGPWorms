@@ -4,9 +4,9 @@ import java.util.Map;
 
 public class GetRadiusExpression implements Expression {
 	
-	EntityExpression e;
+	Expression e;
 	
-	public GetRadiusExpression(EntityExpression e){
+	public GetRadiusExpression(Expression e){
 
 	}
 

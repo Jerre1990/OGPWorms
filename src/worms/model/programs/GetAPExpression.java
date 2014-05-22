@@ -3,11 +3,11 @@ package worms.model.programs;
 import java.util.Map;
 
 public class GetAPExpression implements Expression{
-	EntityExpression e;
+	Expression e;
 	DoubleType ap;
 	
 	
-	public GetAPExpression(EntityExpression e){
+	public GetAPExpression(Expression e){
 		this.e = e;
 	}
 

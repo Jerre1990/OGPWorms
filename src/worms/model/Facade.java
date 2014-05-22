@@ -360,8 +360,8 @@ public class Facade implements IFacade {
 
 	@Override
 	public boolean hasProgram(Worm worm) {
-		// TODO Auto-generated method stub
-		return false;
+		worm.hasProgram()
+;		return false;
 	}
 
 	@Override

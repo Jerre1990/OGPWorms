@@ -12,7 +12,7 @@ public class GreaterThanOrEqualToExpression implements Expression {
 	}
 	
 	public Type evaluate(Map<String,Type> context){
-		return new BooleanType((((DoubleType) e1.evaluate(context)).getValue() > ((DoubleType) e2.evaluate(context)).getValue()) ||(((DoubleType) e1.evaluate()).getValue() == ((DoubleType) e2.evaluate()).getValue()) );
+		return new BooleanType((((DoubleType) e1.evaluate(context)).getValue() > ((DoubleType) e2.evaluate(context)).getValue()) ||(((DoubleType) e1.evaluate(context)).getValue() == ((DoubleType) e2.evaluate(context)).getValue()) );
 	}
 
 }

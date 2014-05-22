@@ -4,9 +4,9 @@ import java.util.Map;
 
 public class GetMaxHPExpression implements Expression{
 	
-	EntityExpression e;
+	Expression e;
 	
-	public GetMaxHPExpression(EntityExpression e){
+	public GetMaxHPExpression(Expression e){
 		this.e = e;
 	}
 

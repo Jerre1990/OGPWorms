@@ -3,9 +3,9 @@ package worms.model.programs;
 import java.util.Map;
 
 public class GetHPExpression implements Expression{
-	EntityExpression e;
+	Expression e;
 	
-	public GetHPExpression(EntityExpression e){
+	public GetHPExpression(Expression e){
 		this.e = e;
 	}
 

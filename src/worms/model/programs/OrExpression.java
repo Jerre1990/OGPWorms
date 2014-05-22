@@ -2,7 +2,7 @@ package worms.model.programs;
 
 import java.util.Map;
 
-public class OrExpression {
+public class OrExpression implements Expression {
     Expression leftOperand;
     Expression rightOperand;
     

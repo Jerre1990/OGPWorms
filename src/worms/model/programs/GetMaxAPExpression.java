@@ -3,10 +3,9 @@ package worms.model.programs;
 import java.util.Map;
 
 public class GetMaxAPExpression implements Expression{
-	EntityExpression e;
-	DoubleType maxap;
+	Expression e;
 	
-	public GetMaxAPExpression(EntityExpression e){
+	public GetMaxAPExpression(Expression e){
 		this.e = e;
 	}
 

@@ -985,5 +985,12 @@ public class Worm extends MovableGameObject {
 		return this.program;
 	}
 	
+	public boolean hasProgram(){
+		if (this.getProgram() == null){
+			return false;
+		}
+		else return true;
+	}
+	
 	Program program;
 }
