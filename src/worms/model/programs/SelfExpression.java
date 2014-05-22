@@ -2,9 +2,10 @@ package worms.model.programs;
 
 public class SelfExpression implements Expression {
 
-	Entity self;
+	WormEntity self;
 	
 	public SelfExpression(){
+		self = new WormEntity(program.getWorm());
 		
 	}
 	

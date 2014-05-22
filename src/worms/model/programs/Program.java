@@ -10,6 +10,12 @@ public class Program {
 		
 	}
 	
+	public void setWorm(Worm worm){
+		this.worm = worm;
+	}
 	
+	public Worm getWorm(){
+		return this.worm;
+	}
 
 }

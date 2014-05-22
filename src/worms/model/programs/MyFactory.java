@@ -134,10 +134,10 @@ public class MyFactory {
 	}
 	
 	public Expression createSameTeam(int line, int column, Expression e){
-		if (! (e instanceof WormExpression)){
+		if (! (e.evaluate() instanceof WormEntityType)){
 			throw new ExpressionException("Invalid Expression");
 		}
-		else return new BooleanExpression(((WormExpression) e).getTeam() == ((WormExpression) this.createSelf()).getTeam());
+		else return new BooleanExpression(((WormEntityType) e.evaluate()).getTeam() == ((WormExpression) this.createSelf()).getTeam());
 	}
 	
 	public Expression createSearchObj(int line, int column, Expression e){
