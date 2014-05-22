@@ -1,7 +1,7 @@
 package worms.model.programs;
 
 import worms.model.Food;
-import worms.model.Worm;
+
 
 public class FoodEntityType extends EntityType{
 	

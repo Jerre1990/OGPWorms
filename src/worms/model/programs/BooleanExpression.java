@@ -8,10 +8,6 @@ public class BooleanExpression implements Expression {
 		this.booleanType = new BooleanType(booleanType);
 	}
 	
-	public boolean getContrary () {
-		return ! this.booleanType.getValue();
-	}
-	
 	@Override
 	public BooleanType evaluate() {
 		return booleanType;

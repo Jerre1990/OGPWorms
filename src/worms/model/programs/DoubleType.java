@@ -19,17 +19,17 @@ public class DoubleType implements Type {
 		
 	}
 	
-	public DoubleType Subtract(DoubleType e2){
+	public DoubleType subtract(DoubleType e2){
 		return new DoubleType(e2.getValue() - this.value);
 		
 	}
 	
-	public DoubleType Mul(DoubleType e2){
+	public DoubleType mul(DoubleType e2){
 		return new DoubleType(e2.getValue() * this.value);
 		
 	}
 	
-	public DoubleType Division(DoubleType e2){
+	public DoubleType division(DoubleType e2){
 		return new DoubleType(e2.getValue() / this.value);
 		
 	}

@@ -9,6 +9,6 @@ public class DivisionExpression implements Expression {
     }
  
     public Type evaluate()  { 	
-        return ((DoubleType) leftOperand).Division((DoubleType) rightOperand);
+        return ((DoubleType) leftOperand).division((DoubleType) rightOperand);
     }
 }
