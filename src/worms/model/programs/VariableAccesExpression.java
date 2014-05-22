@@ -1,5 +1,7 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class VariableAccesExpression implements Expression {
 	
 	private String name;
@@ -9,8 +11,8 @@ public class VariableAccesExpression implements Expression {
 	}
 
 	@Override
-	public Type evaluate() {
-		return name;
+	public Type evaluate(Map<String,Type> context) {
+		return context.get(name);
 	}
 	
 	

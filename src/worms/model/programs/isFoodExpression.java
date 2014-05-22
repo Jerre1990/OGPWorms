@@ -1,20 +1,20 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class isFoodExpression implements Expression {
 	
-	BooleanType isFood;
+	Expression e;
 	
 	public isFoodExpression(Expression e){
-		if (e.evaluate() instanceof FoodEntityType){
-			isFood = new BooleanType(true);
-		}
-		else isFood = new BooleanType(false);
-		
+		this.e = e;
 	}
 
-	@Override
-	public Type evaluate() {
-		return isFood;
+	public Type evaluate(Map<String,Type> context) {
+		if (e.evaluate(context) instanceof FoodEntityType){
+			return new BooleanType(true);
+		}
+		else return new BooleanType(false);
 	}
 
 }

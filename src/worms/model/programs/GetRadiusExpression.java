@@ -1,15 +1,17 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class GetRadiusExpression implements Expression {
-	DoubleType radius;
+	
+	EntityExpression e;
 	
 	public GetRadiusExpression(EntityExpression e){
-		WormEntityType eType = (WormEntityType) e.evaluate();
-		this.radius = new DoubleType(eType.getValue().getRadius());
+
 	}
 
-	@Override
-	public Type evaluate() {
-		return radius;
+	public Type evaluate(Map<String,Type> context) {
+		WormEntityType eType = (WormEntityType) e.evaluate(context);
+		return new DoubleType(eType.getValue().getRadius());
 	}
 }

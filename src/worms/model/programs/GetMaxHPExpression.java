@@ -1,15 +1,17 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class GetMaxHPExpression implements Expression{
-	DoubleType maxhp;
+	
+	EntityExpression e;
 	
 	public GetMaxHPExpression(EntityExpression e){
-		WormEntityType eType = (WormEntityType) e.evaluate();
-		this.maxhp = new DoubleType((double) eType.getValue().getMaxNumberOfHitPoints());
+		this.e = e;
 	}
 
-	@Override
-	public Type evaluate() {
-		return maxhp;
+	public Type evaluate(Map<String,Type> context) {
+		WormEntityType eType = (WormEntityType) e.evaluate(context);
+		return new DoubleType((double) eType.getValue().getMaxNumberOfHitPoints());
 	}
 }

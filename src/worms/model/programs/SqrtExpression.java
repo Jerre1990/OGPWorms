@@ -1,5 +1,7 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class SqrtExpression implements Expression{
 	
     Expression toSqrt;
@@ -8,7 +10,7 @@ public class SqrtExpression implements Expression{
     	toSqrt = Sqrt;
     }
  
-    public Type evaluate()  { 	
+    public Type evaluate(Map<String,Type> context)  { 	
         return ((DoubleType) toSqrt).sqrt();
     }
 }

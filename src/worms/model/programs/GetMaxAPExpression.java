@@ -1,15 +1,17 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class GetMaxAPExpression implements Expression{
+	EntityExpression e;
 	DoubleType maxap;
 	
 	public GetMaxAPExpression(EntityExpression e){
-		WormEntityType eType = (WormEntityType) e.evaluate();
-		this.maxap = new DoubleType((double) eType.getValue().getMaxNumberOfActionPoints());
+		this.e = e;
 	}
 
-	@Override
-	public Type evaluate() {
-		return maxap;
+	public Type evaluate(Map<String,Type> context) {
+		WormEntityType eType = (WormEntityType) e.evaluate(context);
+		return new DoubleType((double) eType.getValue().getMaxNumberOfActionPoints());
 	}
 }

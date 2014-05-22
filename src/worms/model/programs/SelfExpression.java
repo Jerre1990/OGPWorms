@@ -1,19 +1,15 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class SelfExpression implements Expression {
 
-	WormEntityType self;
-	
-	Program program;
-	
 	public SelfExpression(){
-		self = new WormEntityType(program.getWorm());
-		
 	}
 	
 	@Override
-	public Type evaluate() {
-		return self;
+	public Type evaluate(Map<String,Type> context) {
+		return context.get("self");
 	}
 
 }
