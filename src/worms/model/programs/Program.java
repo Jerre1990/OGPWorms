@@ -16,8 +16,9 @@ public class Program {
 	}
 	
 	public void execute(Worm worm){
-		programTree.execute();
-		
+		Map<String, Type> context = new HashMap<String, Type>();
+		context.add(new WormEntityType(worm));
+		programTree.execute(context);
 	}
 
 }
