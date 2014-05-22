@@ -7,6 +7,8 @@ import java.util.Random;
 import worms.gui.game.IActionHandler;
 import worms.model.programs.ParseOutcome;
 import worms.model.programs.Program;
+import worms.model.programs.ProgramFactory;
+import worms.model.programs.ProgramParser;
 
 public class Facade implements IFacade {
 
@@ -343,8 +345,8 @@ public class Facade implements IFacade {
 	@Override
 	public ParseOutcome<?> parseProgram(String programText,
 			IActionHandler handler) {
-		// TODO Auto-generated method stub
-		return null;
+		ProgramParser programparser = new ProgramParser(new ProgramFactory ());
+		
 	}
 
 	@Override

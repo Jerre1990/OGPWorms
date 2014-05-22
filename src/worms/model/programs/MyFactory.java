@@ -61,7 +61,7 @@ public class MyFactory {
 			throw new ExpressionException("");
 		
 		}
-		return new GetXExpression(e);
+		return new GetXExpression((EntityExpression) e);
 	}
 	
 	public Expression createGetY(int line, int column, Expression e){
@@ -69,7 +69,7 @@ public class MyFactory {
 			throw new ExpressionException("");
 		
 		}
-		return new GetYExpression(e);
+		return new GetYExpression((EntityExpression) e);
 	}
 	
 	public Expression createGetDir(int line, int column, Expression e){
@@ -77,7 +77,7 @@ public class MyFactory {
 			throw new ExpressionException("");
 		
 		}
-		return new GetDirExpression(e);
+		return new GetDirExpression((EntityExpression) e);
 	}
 	
 	public Expression createGetRadius(int line, int column, Expression e){
@@ -85,7 +85,7 @@ public class MyFactory {
 			throw new ExpressionException("");
 		
 		}
-		return new GetRadiusExpression(e);
+		return new GetRadiusExpression((EntityExpression) e);
 	}
 	
 
@@ -96,7 +96,7 @@ public class MyFactory {
 			throw new ExpressionException("");
 		
 		}
-		return new GetAPExpression(e);
+		return new GetAPExpression((EntityExpression) e);
 	}
 
 	public Expression createGetMaxAP(int line, int column, Expression e) {
@@ -104,7 +104,7 @@ public class MyFactory {
 			throw new ExpressionException("");
 		
 		}
-		return new GetMaxAPExpression(e);
+		return new GetMaxAPExpression((EntityExpression) e);
 	}
 
 	public Expression createGetHP(int line, int column, Expression e){
@@ -112,7 +112,7 @@ public class MyFactory {
 			throw new ExpressionException("");
 		
 		}
-		return new GetHPExpression(e);
+		return new GetHPExpression((EntityExpression) e);
 	}
 	
 	public Expression createGetMaxHP(int line, int column, Expression e){
@@ -120,7 +120,7 @@ public class MyFactory {
 			throw new ExpressionException("");
 		
 		}
-		return new GetMaxHPExpression(e);
+		return new GetMaxHPExpression((EntityExpression) e);
 	}
 	
 	public Expression createGetMaxHP(int line, int column, Expression e){
@@ -137,14 +137,14 @@ public class MyFactory {
 		if (! (e.evaluate() instanceof WormEntityType)){
 			throw new ExpressionException("Invalid Expression");
 		}
-		else return new BooleanExpression(((WormEntityType) e.evaluate()).getTeam() == ((WormExpression) this.createSelf()).getTeam());
+		else return new BooleanExpression(((WormEntityType) e.evaluate()).getTeam() == ((WormEntityType) this.createSelf().evaluate()).getTeam());
 	}
 	
 	public Expression createSearchObj(int line, int column, Expression e){
 		if (! (e instanceof DoubleExpression)){
 			throw new ExpressionException("Invalid Expression");
 		}
-		else ((WormExpression) this.createSelf()).searchNearestObjectInGivenDirection(((Double) e.evaluate()));
+		else return new EntityExpression ( new EntityType(((WormEntityType) this.createSelf().evaluate()).searchNearestObjectInGivenDirection(((DoubleType) e.evaluate()))));
 	}
 
 	public Expression createAdd(Expression e1, Expression e2) {
@@ -155,13 +155,65 @@ public class MyFactory {
 	}
 
 	public Expression createIsWorm(Expression e) {
-		if(e instanceof WormExpression)
-			return new BooleanExpression(true);
-		return new BooleanExpression(false);
+			return new IsWormExpression(e);
 	}
 	
-	public Expression createMultiply(){
+	public Expression createIsFood(int line, int column, Expression e){
+		return new isFoodExpression(e);
+	}
+	
+	public Expression createLessThan(int line, int column, Expression e1, Expression e2){
+		return new LessThanExpression(e1, e2);
+	}
+	
+	public Expression createGreaterThan(int line, int column, Expression e1, Expression e2){
+		return new GreaterThanExpression(e1, e2);
+		}
+	
+	public Expression createLessThanOrEqualTo(int line, int column, Expression e1, Expression e2){
+		return new LessThanOrEqualToExpression(e1, e2);
+	}
+	
+	public Expression createGreaterThanOrEqualTo(int line, int column, Expression e1, Expression e2){
+		return new GreaterThanOrEqualToExpression(e1,e2);
+	}
+	
+	public Expression createEquality(int line, int column, Expression e1, Expression e2){
+		return new EqualityExpression(e1,e2);
+	}
+	
+	public Expression createInequality(int line, int column, Expression e1, Expression e2){
+		return new InequalityExpression(e1,e2);
 		
+	}
+	
+	public Expression createSubtraction(int line, int column, Expression e1, Expression e2){
+		return new SubtractionExpression(e1,e2);
+	}
+	
+	public Expression createMul(int line, int column, Expression e1, Expression e2){
+		return new MulExpression(e1,e2);
+	}
+	
+	public Expression createDivision(int line, int column, Expression e1, Expression e2){
+		return new DivisionExpression(e1,e2);
+	}
+	
+	public Expression createSqrt(int line, int column, Expression e){
+		return new SqrtExpression(e);
+		
+	}
+	
+	public Expression createSin(int line, int column, Expression e){
+		return new SinExpression(e);
+	}
+	
+	public Expression createCos(int line, int column, Expression e){
+	return new CosExpression(e);
+	}
+	
+	public Expression createVariableAccess(int line, int column, String name){
+		return new VariableAccesExpression(name);
 	}
 
 }

@@ -6,6 +6,8 @@ import java.util.Random;
 import worms.gui.game.IActionHandler;
 import worms.model.programs.ParseOutcome;
 import worms.model.programs.Program;
+import worms.model.programs.ProgramFactory;
+import worms.model.programs.ProgramParser;
 
 /**
  * Implement this interface to connect your code to the user interface.

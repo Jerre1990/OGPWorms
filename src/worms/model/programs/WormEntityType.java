@@ -1,6 +1,7 @@
 package worms.model.programs;
 
 import worms.model.GameObject;
+import worms.model.Team;
 import worms.model.Worm;
 
 public class WormEntityType extends EntityType{
@@ -12,5 +13,14 @@ public class WormEntityType extends EntityType{
 	public Worm getValue() {
 		return (Worm) o;
 	}
+	
+	public Team getTeam() {
+		return this.getValue().getTeam();
+	}
+	
+	public GameObject searchNearestObjectInGivenDirection(DoubleType theta){
+		return this.getValue().searchNearestObjectInGivenDirection(theta.getValue());
+	}
+
 	
 }
