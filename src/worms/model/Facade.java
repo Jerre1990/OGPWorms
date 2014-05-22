@@ -5,10 +5,14 @@ import java.util.Collection;
 import java.util.Random;
 
 import worms.gui.game.IActionHandler;
+import worms.model.programs.Expression;
+import worms.model.programs.MyFactory;
 import worms.model.programs.ParseOutcome;
 import worms.model.programs.Program;
 import worms.model.programs.ProgramFactory;
 import worms.model.programs.ProgramParser;
+import worms.model.programs.Statement;
+import worms.model.programs.Type;
 
 public class Facade implements IFacade {
 
@@ -343,9 +347,8 @@ public class Facade implements IFacade {
 	}
 
 	@Override
-	public ParseOutcome<?> parseProgram(String programText,
-			IActionHandler handler) {
-		ProgramParser programparser = new ProgramParser(new ProgramFactory ());
+	public ParseOutcome<?> parseProgram(String programText, IActionHandler handler) {
+		ProgramParser<Expression,Statement,Type> programparser = new ProgramParser<Expression,Statement,Type>(new MyFactory(programText,handler));
 		
 	}
 
