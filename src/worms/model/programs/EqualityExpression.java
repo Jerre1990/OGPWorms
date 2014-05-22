@@ -1,15 +1,19 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class EqualityExpression implements Expression {
 	
-	BooleanType result;
+	Expression e1;
+	Expression e2;
 	
 	public EqualityExpression(Expression e1, Expression e2){
-		result =  new BooleanType((e1.evaluate()) == (e2.evaluate())) ;
+		this.e1 = e1;
+		this.e2 = e2;
 	}
 	
-	public Type evaluate(){
-		return result;
+	public Type evaluate(Map<String,Type> context){
+		return new BooleanType((e1.evaluate(context)) == (e2.evaluate(context)));
 	}
 
 }

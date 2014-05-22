@@ -1,5 +1,7 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class BooleanExpression implements Expression {
 
 	private BooleanType booleanType;
@@ -9,7 +11,7 @@ public class BooleanExpression implements Expression {
 	}
 	
 	@Override
-	public BooleanType evaluate() {
+	public BooleanType evaluate(Map<String,Type> context) {
 		return booleanType;
 	}
 

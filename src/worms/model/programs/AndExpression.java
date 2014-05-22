@@ -1,6 +1,8 @@
 package worms.model.programs;
 
-public class AndExpression extends Expression{
+import java.util.Map;
+
+public class AndExpression implements Expression{
     Expression leftOperand;
     Expression rightOperand;
     public AndExpression(Expression left, Expression right) { 
@@ -8,7 +10,7 @@ public class AndExpression extends Expression{
         rightOperand = right;
     }
  
-    public Type evaluate()  { 	
-        return ((BooleanType) leftOperand.evaluate()).and((BooleanType) rightOperand.evaluate());
+    public Type evaluate(Map<String,Type> context)  { 	
+        return ((BooleanType) leftOperand.evaluate(context)).and((BooleanType) rightOperand.evaluate(context));
     }
 }

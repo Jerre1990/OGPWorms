@@ -1,5 +1,7 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class DoubleExpression implements Expression {
 
 	DoubleType doubleType;
@@ -9,7 +11,7 @@ public class DoubleExpression implements Expression {
 	}
 	
 	@Override
-	public Type evaluate() {
+	public Type evaluate(Map<String,Type> context) {
 		return doubleType;
 	}
 
