@@ -4,7 +4,7 @@ package worms.model.programs;
 import worms.gui.game.IActionHandler;
 import worms.model.World;
 
-public class MyFactory implements ProgramFactory{
+public class MyFactory implements ProgramFactory<Expression,Statement,Type>{
 	
 	private String programText;
 	private IActionHandler handler;
