@@ -1,5 +1,8 @@
 package worms.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import worms.util.Util;
 import be.kuleuven.cs.som.annotate.*;
 
@@ -71,6 +74,16 @@ public abstract class GameObject {
 	 */
 	protected boolean partialOverlapWith(Position otherPosition, double otherRadius){
 		return (this.getPosition().distanceFromPosition(otherPosition) < (this.getRadius() + otherRadius));
+	}
+	
+	protected List<GameObject> IntermediateOverlapWith(Position positionToCheck){
+		List<GameObject> result = new ArrayList<GameObject>();
+			for (GameObject object: this.getWorld().getObjects()){
+				if ((positionToCheck.distanceFromPosition(object.getPosition())) < (this.getRadius() + object.getRadius())){
+					result.add(object);
+				}
+			}
+			return result;
 	}
 
 	/**

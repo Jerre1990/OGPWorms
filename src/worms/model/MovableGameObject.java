@@ -1,5 +1,7 @@
 package worms.model;
 
+import java.util.List;
+
 import be.kuleuven.cs.som.annotate.*;
 
 /**
@@ -212,7 +214,20 @@ public abstract class MovableGameObject extends GameObject{
 	}
 	
 	public GameObject searchNearestObjectInGivenDirection(double theta){
-		return this;
+		double stepSize = Math.min(this.getWorld().getPixelHeight(), this.getWorld().getPixelWidth());
+		return searchNearestObjectInGivenDirection(theta, stepSize, this.getPosition());
+	}
+	
+	private GameObject searchNearestObjectInGivenDirection(double theta, double stepSize, Position previousPosition){
+		Position newPosition = new Position(previousPosition.getX() + Math.cos(theta)*stepSize, previousPosition.getY() + Math.sin(theta)*stepSize);
+		if(this.getWorld().isLocatedInWorld(newPosition, this.getRadius())){
+			List<GameObject> overlap = this.IntermediateOverlapWith(newPosition);
+			if(overlap.get(0) == null){
+				return searchNearestObjectInGivenDirection(theta, stepSize, newPosition);
+			}
+			else return overlap.get(0);
+		}
+		else return null;
 	}
 
 	public static double EARTHS_STANDARD_ACCELERATION = 9.80665;
