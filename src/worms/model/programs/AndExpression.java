@@ -1,6 +1,6 @@
 package worms.model.programs;
 
-public class AndExpression implements Expression{
+public class AndExpression extends Expression{
     Expression leftOperand;
     Expression rightOperand;
     public AndExpression(Expression left, Expression right) { 

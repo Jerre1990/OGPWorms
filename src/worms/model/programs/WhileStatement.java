@@ -1,19 +1,20 @@
 package worms.model.programs;
 
-public class WhileStatement implements Statement{
+import java.util.Map;
+
+public class WhileStatement extends Statement{
 	
 	private Statement body;
 	private Expression condition;
-	
+ 
 	public WhileStatement(Expression condition, Statement body){
 		this.body = body;
 		this.condition = condition;
 	}
-	
-	@Override
-	public void execute(){
-		while (((BooleanType) condition.evaluate()).getValue()){
-			body.execute();
+ 
+	public void execute(Map<String,Type> map){
+		while (((BooleanType) condition.evaluate(map)).getValue()) {
+			executeWithScope(body, map);
 		}
 	}
 	
