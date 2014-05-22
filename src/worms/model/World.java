@@ -883,6 +883,9 @@ public class World {
 		if(nextIndex == allWorms.size())
 			nextIndex = 0;
 		allWorms.get(nextIndex).activate();
+		if(allWorms.get(nextIndex).getProgram()!= null){
+			allWorms.get(nextIndex).getProgram().execute(allWorms.get(nextIndex));
+		}
 	}
 	
 	public boolean isFinished(){

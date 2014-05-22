@@ -981,5 +981,9 @@ public class Worm extends MovableGameObject {
 		this.program = program;
 	}
 	
+	public Program getProgram(){
+		return this.program;
+	}
+	
 	Program program;
 }
