@@ -4,6 +4,10 @@ import java.awt.IllegalComponentStateException;
 import java.util.Collection;
 import java.util.Random;
 
+import worms.gui.game.IActionHandler;
+import worms.model.programs.ParseOutcome;
+import worms.model.programs.Program;
+
 public class Facade implements IFacade {
 
 	@Override
@@ -22,8 +26,8 @@ public class Facade implements IFacade {
 	}
 
 	@Override
-	public void addNewWorm(World world) {
-		world.addRandomWorm();
+	public void addNewWorm(World world, Program program) {
+		world.addRandomWorm(program);
 	}
 
 	@Override
@@ -56,10 +60,10 @@ public class Facade implements IFacade {
 
 	@Override
 	public Worm createWorm(World world, double x, double y, double direction,
-			double radius, String name) throws ModelException{
+			double radius, String name, Program program) throws ModelException{
 		Worm newWorm;
 		try{
-		newWorm = new Worm(new Position(x,y), radius, direction, name);
+		newWorm = new Worm(new Position(x,y), radius, direction, name, program);
 		world.addAsGameObject(newWorm);
 		}
 		catch(IllegalArgumentException exc){
@@ -334,6 +338,25 @@ public class Facade implements IFacade {
 	@Override
 	public void turn(Worm worm, double angle) {
 		worm.turn(angle);
+	}
+
+	@Override
+	public ParseOutcome<?> parseProgram(String programText,
+			IActionHandler handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasProgram(Worm worm) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isWellFormed(Program program) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

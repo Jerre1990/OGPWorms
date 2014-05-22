@@ -57,81 +57,71 @@ public class MyFactory {
 	}
 	
 	public Expression createGetX(int line, int column, Expression e){
-		if(! (e instanceof Entity)){
-			throw new IllegalArgumentException();
+		if(! (e instanceof EntityExpression)){
+			throw new ExpressionException("");
 		
 		}
-		return new DoubleExpression(Entity.getX());
+		return new GetXExpression(e);
 	}
 	
 	public Expression createGetY(int line, int column, Expression e){
-		if(! (e instanceof WormExpression)){
-			throw new IllegalArgumentException();
+		if(! (e instanceof EntityExpression)){
+			throw new ExpressionException("");
 		
 		}
-		WormExpression wormExpression = (WormExpression) e;
-		return new DoubleExpression(wormExpression.getY());
-	
-	}
-	
-	public Expression createGetRadius(int line, int column, Expression e){
-		if(! (e instanceof WormExpression)){
-			throw new IllegalArgumentException();
-		
-		}
-		WormExpression wormExpression = (WormExpression) e;
-		return new DoubleExpression(wormExpression.getRadius());
-	
-	
+		return new GetYExpression(e);
 	}
 	
 	public Expression createGetDir(int line, int column, Expression e){
-		if(! (e instanceof WormExpression)){
-			throw new IllegalArgumentException();
+		if(! (e instanceof EntityExpression)){
+			throw new ExpressionException("");
 		
 		}
-		WormExpression wormExpression = (WormExpression) e;
-		return new DoubleExpression(wormExpression.getDirection());
-	
-	
+		return new GetDirExpression(e);
 	}
+	
+	public Expression createGetRadius(int line, int column, Expression e){
+		if(! (e instanceof EntityExpression)){
+			throw new ExpressionException("");
+		
+		}
+		return new GetRadiusExpression(e);
+	}
+	
 
 	
 	
 	public Expression createGetAP(int line, int column, Expression e) {
-		if(! (e instanceof WormExpression)){
-			throw new IllegalArgumentException();
+		if(! (e instanceof EntityExpression)){
+			throw new ExpressionException("");
 		
 		}
-		WormExpression wormExpression = (WormExpression) e;
-		return new DoubleExpression(wormExpression.getAP());
-		
-		
+		return new GetAPExpression(e);
 	}
 
-	public Expression createGetMaxAP(int line, int column, Expression e){
-		if(! (e instanceof WormExpression)){
-			throw new IllegalArgumentException();
+	public Expression createGetMaxAP(int line, int column, Expression e) {
+		if(! (e instanceof EntityExpression)){
+			throw new ExpressionException("");
 		
 		}
-		WormExpression wormExpression = (WormExpression) e;
-		return new DoubleExpression(wormExpression.getMaxAP());
-	
-	
+		return new GetMaxAPExpression(e);
 	}
 
-	
 	public Expression createGetHP(int line, int column, Expression e){
-		if(! (e instanceof WormExpression)){
-			throw new IllegalArgumentException();
+		if(! (e instanceof EntityExpression)){
+			throw new ExpressionException("");
 		
 		}
-		WormExpression wormExpression = (WormExpression) e;
-		return new DoubleExpression(wormExpression.getHP());
-	
-	
+		return new GetHPExpression(e);
 	}
-
+	
+	public Expression createGetMaxHP(int line, int column, Expression e){
+		if(! (e instanceof EntityExpression)){
+			throw new ExpressionException("");
+		
+		}
+		return new GetMaxHPExpression(e);
+	}
 	
 	public Expression createGetMaxHP(int line, int column, Expression e){
 		if(! (e instanceof WormExpression)){

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import worms.model.programs.Program;
 import worms.util.Util;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
@@ -531,12 +532,12 @@ public class World {
 	 * @effect	worm.getTeam() = this.getTeams().get(this.getRandom().nextInt(numberOfTeams))	
 	 * 				
 	 */
-	public Worm addRandomWorm(){
+	public Worm addRandomWorm(Program program){
 		double radius = 1;
 		Worm randomWorm = null;
 		Position randomPosition = this.getRandomPositionAdjacentToImpassableFloor(radius);
 		if(randomPosition != null){
-			randomWorm = new Worm(randomPosition,radius, 0, "Joske");
+			randomWorm = new Worm(randomPosition,radius, 0, "Joske", program);
 			this.addAsGameObject(randomWorm);
 			int numberOfTeams = this.getTeams().size();
 			boolean assignToTeam = (this.getRandom().nextDouble() > 0.5);

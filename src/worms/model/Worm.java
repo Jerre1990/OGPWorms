@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import worms.model.programs.Program;
 import be.kuleuven.cs.som.annotate.*;
 
 /**
@@ -96,7 +97,7 @@ public class Worm extends MovableGameObject {
 	 * 		|	! isValidPosition(new.getPosition())
 	 */
 	
-	public Worm (Position position, double radius, double direction, String name) throws IllegalArgumentException {
+	public Worm (Position position, double radius, double direction, String name, Program program) throws IllegalArgumentException {
 		super(position ,radius ,0.25, direction);
 		this.setRadius(radius);
 		this.setName(name);
@@ -104,6 +105,7 @@ public class Worm extends MovableGameObject {
 		this.setNumberOfHitPoints(this.getMaxNumberOfHitPoints());
 		this.setAlive(true);
 		this.distributeWeapons();
+		this.setProgram(program);
 	}
 	/**
 	 * Return the selected weapon of this worm.
@@ -974,4 +976,10 @@ public class Worm extends MovableGameObject {
 	 * Variable registering  the team of this worm.
 	 */
 	Team team;
+
+	public void setProgram(Program program){
+		this.program = program;
+	}
+	
+	Program program;
 }
