@@ -349,7 +349,13 @@ public class Facade implements IFacade {
 	@Override
 	public ParseOutcome<?> parseProgram(String programText, IActionHandler handler) {
 		ProgramParser<Expression,Statement,Type> programparser = new ProgramParser<Expression,Statement,Type>(new MyFactory(programText,handler));
-		
+		programparser.parse(programText);
+			Program program = new Program(programparser.getStatement(), programparser.getGlobals());
+			
+			if (programparser.getErrors() == null){
+				return ParseOutcome.success(program);
+			}
+			else return ParseOutcome.failure(programparser.getErrors());
 	}
 
 	@Override

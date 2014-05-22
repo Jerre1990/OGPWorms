@@ -1,11 +1,17 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 import worms.model.Worm;
 
 public class Program {
 	
+	Statement programTree;
+	Map<String, Type> globals;
 	
-	public Program(){
+	public Program(Statement programTree, Map<String, Type> globals){
+		this.programTree = programTree;
+		this.globals=globals;
 		
 	}
 	
