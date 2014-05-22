@@ -1,9 +1,20 @@
 package worms.model.programs;
 
 
+import worms.gui.game.IActionHandler;
 import worms.model.World;
 
-public class MyFactory {
+public class MyFactory implements ProgramFactory{
+	
+	private String programText;
+	private IActionHandler handler;
+	private ProgramParser parser;
+	
+	public MyFactory(String programText, IActionHandler handler){
+		this.programText = programText;
+		this.handler = handler;
+		this.parser = new ProgramParser(this);
+	}
 
 	public Expression createDoubleLiteral(double doubleType) {
 		return new DoubleExpression(doubleType);
