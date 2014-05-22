@@ -1,19 +1,20 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class IsWormExpression implements Expression{
 	
-	BooleanType isWorm;
+	Expression e;
 	
 	public IsWormExpression(Expression e){
-		if (e.evaluate() instanceof WormEntityType)
-		isWorm = new BooleanType(true);
-		else isWorm = new BooleanType(false);
+		this.e = e;
 	}
 	
 
-	@Override
-	public Type evaluate() {
-		return isWorm;
+	public Type evaluate(Map<String,Type> context) {
+		if (e.evaluate(context) instanceof WormEntityType)
+		return new BooleanType(true);
+		else return new BooleanType(false);
 	}
 
 }

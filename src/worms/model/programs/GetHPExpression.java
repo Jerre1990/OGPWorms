@@ -1,15 +1,17 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class GetHPExpression implements Expression{
-	DoubleType hp;
+	EntityExpression e;
 	
 	public GetHPExpression(EntityExpression e){
-		WormEntityType eType = (WormEntityType) e.evaluate();
-		this.hp = new DoubleType((double) eType.getValue().getNumberOfHitPoints());
+		this.e = e;
 	}
 
 	@Override
-	public Type evaluate() {
-		return hp;
+	public Type evaluate(Map<String, Type> context) {
+		WormEntityType eType = (WormEntityType) e.evaluate(context);
+		return new DoubleType((double) eType.getValue().getNumberOfHitPoints());
 	}
 }

@@ -1,5 +1,7 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class LessThanExpression implements Expression {
 	
 	Expression e1,e2;
@@ -7,11 +9,10 @@ public class LessThanExpression implements Expression {
 	public LessThanExpression(Expression e1, Expression e2){
 		this.e1 = e1;
 		this.e2 = e2;
-	
 	}
 	
-	public Type evaluate(){
-		return new BooleanType(((DoubleType) e1.evaluate()).getValue() < ((DoubleType) e2.evaluate()).getValue());
+	public Type evaluate(Map<String,Type> context){
+		return new BooleanType(((DoubleType) e1.evaluate(context)).getValue() < ((DoubleType) e2.evaluate(context)).getValue());
 	}
 
 }

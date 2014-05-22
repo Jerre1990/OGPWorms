@@ -1,17 +1,18 @@
 package worms.model.programs;
 
+import java.util.Map;
+
 public class GetXExpression implements Expression {
 	
-	DoubleType xCoordinate;
+	EntityExpression e;
 	
 	public GetXExpression(EntityExpression e){
-		EntityType eType = (EntityType) e.evaluate();
-		this.xCoordinate = new DoubleType(eType.getValue().getX());
+		this.e = e;
 	}
 
-	@Override
-	public Type evaluate() {
-		return xCoordinate;
+	public Type evaluate(Map<String,Type> context) {
+		EntityType eType = (EntityType) e.evaluate(context);
+		return new DoubleType(eType.getValue().getX());
 	}
 
 }
