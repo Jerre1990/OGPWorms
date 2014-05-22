@@ -123,15 +123,7 @@ public class MyFactory {
 		return new GetMaxHPExpression((EntityExpression) e);
 	}
 	
-	public Expression createGetMaxHP(int line, int column, Expression e){
-		if(! (e instanceof WormExpression)){
-			throw new IllegalArgumentException();
-		
-		}
-		WormExpression wormExpression = (WormExpression) e;
-		return new DoubleExpression(wormExpression.getMaxHP());
 	
-	}
 	
 	public Expression createSameTeam(int line, int column, Expression e){
 		if (! (e.evaluate() instanceof WormEntityType)){
@@ -214,6 +206,19 @@ public class MyFactory {
 	
 	public Expression createVariableAccess(int line, int column, String name){
 		return new VariableAccesExpression(name);
+	}
+	
+	public DoubleType createDoubleType(){
+		return new DoubleType();
+		
+	}
+	
+	public BooleanType createBooleanType(){
+		return new BooleanType();
+	}
+	
+	public EntityType createEntityType(){
+		return new EntityType();
 	}
 
 }

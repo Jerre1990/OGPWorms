@@ -339,7 +339,7 @@ public interface ProgramFactory<E, S, T> {
 	 * declared type 'double'.
 	 */
 	public T createDoubleType();
-
+	
 	/**
 	 * Returns an object that represents the type of a global variable with
 	 * declared type 'boolean'.

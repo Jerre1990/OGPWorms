@@ -8,6 +8,9 @@ private boolean value;
 		this.value = value;
 	}
 	
+	public BooleanType(){
+	}
+	
 	public boolean getValue() {
 		return value;
 	}

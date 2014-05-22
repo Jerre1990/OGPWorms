@@ -11,6 +11,9 @@ public class DoubleType implements Type {
 		this.value = value;
 	}
 	
+	public DoubleType(){
+	}
+	
 	public DoubleType add(DoubleType e2){
 		return new DoubleType(e2.getValue() + this.value);
 		
@@ -43,8 +46,8 @@ public class DoubleType implements Type {
 		return new DoubleType(Math.sin(this.value));
 	}
 	
-public DoubleType toCos(){
-	return new DoubleType(Math.cos(this.value));
+	public DoubleType toCos(){
+		return new DoubleType(Math.cos(this.value));
 	}
 
 }

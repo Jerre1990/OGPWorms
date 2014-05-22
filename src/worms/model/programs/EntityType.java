@@ -10,6 +10,9 @@ protected GameObject o;
 		this.o = o;
 	}
 	
+	public EntityType(){
+	}
+	
 	
 	public GameObject getValue() {
 		return o;
